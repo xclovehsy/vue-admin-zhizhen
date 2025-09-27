@@ -1,0 +1,1271 @@
+{\rtf1\ansi\ansicpg936\cocoartf2761
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww28300\viewh14600\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <html lang="zh-CN">\
+  <head>\
+    <meta charset="utf-8" />\
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />\
+    <title>\uc0\u33268 \u30495 \u20449 \u24687 \u22823 \u33041  - \u25511 \u21046 \u21488 </title>\
+    <script src="https://res.gemcoder.com/js/reload.js"></script>\
+    <script src="https://cdn.tailwindcss.com"></script>\
+    <link\
+      href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css"\
+      rel="stylesheet"\
+    />\
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>\
+    <script>\
+      tailwind.config = \{\
+        theme: \{\
+          extend: \{\
+            colors: \{\
+              primary: '#2563eb',\
+              secondary: '#1f2937',\
+              success: '#10b981',\
+              warning: '#f59e0b',\
+              danger: '#ef4444',\
+              info: '#3b82f6',\
+              light: '#f3f4f6',\
+              dark: '#111827',\
+              muted: '#6b7280',\
+              'primary-light': '#eff6ff',\
+              'secondary-light': '#f9fafb',\
+              'card-shadow': '0 4px 20px rgba(0, 0, 0, 0.05)'\
+            \},\
+            fontFamily: \{\
+              inter: ['Inter', 'system-ui', 'sans-serif']\
+            \},\
+            boxShadow: \{\
+              'neu': '5px 5px 10px #d1d9e6, -5px -5px 10px #ffffff',\
+              'neu-inset': 'inset 2px 2px 5px #d1d9e6, inset -3px -3px 7px #ffffff',\
+              'card': '0 4px 20px rgba(0, 0, 0, 0.05)'\
+            \}\
+          \}\
+        \}\
+      \};\
+    </script>\
+    <style type="text/tailwindcss">\
+      @layer utilities \{\
+          .content-auto \{\
+              content-visibility: auto;\
+          \}\
+          .text-shadow \{\
+              text-shadow: 0 2px 4px rgba(0,0,0,0.1);\
+          \}\
+          .bg-gradient-blue \{\
+              background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);\
+          \}\
+          .scrollbar-hide::-webkit-scrollbar \{\
+              display: none;\
+          \}\
+          .scrollbar-hide \{\
+              -ms-overflow-style: none;\
+              scrollbar-width: none;\
+          \}\
+          .neu-button \{\
+              @apply bg-white shadow-neu hover:shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 active:shadow-neu-inset;\
+          \}\
+          .card-hover \{\
+              @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;\
+          \}\
+      \}\
+    </style>\
+  </head>\
+  <body class="bg-gray-50 font-inter text-secondary min-h-screen flex flex-col">\
+    <!-- [MODULE] a1b_\uc0\u39030 \u37096 \u20840 \u23616 \u23548 \u33322 \u26639  -->\
+    <header class="bg-white shadow-sm sticky top-0 z-50">\
+      <div class="container mx-auto px-4">\
+        <div class="flex items-center justify-between h-16">\
+          <!-- Logo\uc0\u21644 \u20135 \u21697 \u21517 \u31216  -->\
+          <div class="flex items-center space-x-2">\
+            <div\
+              class="w-10 h-10 rounded-lg bg-gradient-blue flex items-center justify-center"\
+            >\
+              <i class="fas fa-brain text-white text-xl"> </i>\
+            </div>\
+            <div>\
+              <h1 class="text-xl font-bold text-secondary">\uc0\u33268 \u30495 \u20449 \u24687 \u22823 \u33041 </h1>\
+              <p class="text-xs text-muted">\uc0\u20840 \u22495 \u24863 \u30693 \u65292 \u26234 \u33021 \u20915 \u31574 </p>\
+            </div>\
+          </div>\
+          <!-- \uc0\u21491 \u20391 \u21151 \u33021 \u21306  -->\
+          <div class="flex items-center space-x-4">\
+            <div class="relative hidden md:block">\
+              <i\
+                class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted"\
+              >\
+              </i>\
+            </div>\
+            <div class="relative group">\
+              <button class="flex items-center space-x-2 focus:outline-none">\
+                <img\
+                  alt="\uc0\u29992 \u25143 \u22836 \u20687 "\
+                  class="w-8 h-8 rounded-full object-cover border-2 border-primary-light"\
+                  src="https://design.gemcoder.com/staticResource/echoAiSystemImages/f8668c5b2a8151642c067e2549d38bfd.png"\
+                />\
+                <span class="hidden md:inline-block font-medium"> \uc0\u24352 \u32463 \u29702  </span>\
+                <i class="fas fa-chevron-down text-xs text-muted"> </i>\
+              </button>\
+              <div\
+                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 hidden group-hover:block card-hover"\
+              >\
+                <a\
+                  class="block px-4 py-2 text-sm text-muted hover:bg-primary-light hover:text-primary"\
+                  href="javascript:void(0);"\
+                >\
+                  <i class="fas fa-user mr-2"> </i>\
+                  \uc0\u20010 \u20154 \u36164 \u26009 \
+                </a>\
+                <a\
+                  class="block px-4 py-2 text-sm text-muted hover:bg-primary-light hover:text-primary"\
+                  href="javascript:void(0);"\
+                >\
+                  <i class="fas fa-cog mr-2"> </i>\
+                  \uc0\u36134 \u25143 \u35774 \u32622 \
+                </a>\
+                <div class="border-t border-gray-100 my-1"></div>\
+                <a\
+                  class="block px-4 py-2 text-sm text-danger hover:bg-gray-50"\
+                  href="javascript:void(0);"\
+                >\
+                  <i class="fas fa-sign-out-alt mr-2"> </i>\
+                  \uc0\u36864 \u20986 \u30331 \u24405 \
+                </a>\
+              </div>\
+            </div>\
+            <button class="md:hidden p-2 rounded-lg hover:bg-gray-100">\
+              <i class="fas fa-bars text-muted"> </i>\
+            </button>\
+          </div>\
+        </div>\
+      </div>\
+    </header>\
+    <!-- [/MODULE] a1b_\uc0\u39030 \u37096 \u20840 \u23616 \u23548 \u33322 \u26639  -- \u21253 \u21547 \u20135 \u21697 Logo\u12289 \u20027 \u23548 \u33322 \u33756 \u21333 \u12289 \u25628 \u32034 \u26694 \u12289 \u36890 \u30693 \u21644 \u29992 \u25143 \u20449 \u24687  -->\
+    <!-- [MODULE] c3d_\uc0\u20027 \u20869 \u23481 \u21306 \u22495  -->\
+    <main class="flex-grow container mx-auto px-4 py-6">\
+      <!-- [MODULE] e5f_\uc0\u20202 \u34920 \u30424 \u39029 \u38754  -->\
+      <!-- \uc0\u39029 \u38754 \u26631 \u39064  -->\
+      <div\
+        class="flex flex-col md:flex-row md:items-center md:justify-between mb-6"\
+      >\
+        <div></div>\
+        <div class="mt-4 md:mt-0 flex space-x-3">\
+          <button\
+            class="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-muted hover:bg-gray-50 transition-colors shadow-sm"\
+          >\
+            <i class="fas fa-calendar-alt"> </i>\
+            <span> \uc0\u20170 \u26085  </span>\
+            <i class="fas fa-chevron-down text-xs"> </i>\
+          </button>\
+        </div>\
+      </div>\
+      <!-- [MODULE] l2m_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u27599 \u26085 AI\u31616 \u25253  -->\
+      <div\
+        class="bg-white rounded-xl shadow-card border border-gray-50 mb-6 overflow-hidden"\
+      >\
+        <div class="p-5 border-b border-gray-50">\
+          <div\
+            class="flex justify-between items-center"\
+            data-ytextravalue="extra-3d929zi07"\
+          >\
+            <h3\
+              class="text-lg font-bold text-secondary"\
+              data-ytparentvalue="extra-3d929zi07"\
+              data-ytoriginindex="0"\
+              data-ytindex="0"\
+            >\
+              \uc0\u24744 \u30340 \u27599 \u26085 \u19987 \u23646 \u31616 \u25253  - 2025\u24180 9\u26376 15\u26085 \
+            </h3>\
+            <div\
+              class="flex items-center space-x-3"\
+              data-ytoriginindex="1"\
+              data-ytindex="1"\
+            >\
+              <div class="relative" data-ytextravalue="extra-86ry7w3ta">\
+                <select\
+                  class="appearance-none bg-gray-50 border border-gray-200 text-muted text-sm rounded-lg py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"\
+                  data-ytindex="0"\
+                  data-ytoriginindex="0"\
+                  data-ytparentvalue="extra-86ry7w3ta"\
+                >\
+                  <option>\uc0\u31649 \u29702 \u23618 \u35270 \u35282 </option>\
+                  <option>\uc0\u24066 \u22330 \u37096 \u35270 \u35282 </option>\
+                  <option>\uc0\u38144 \u21806 \u37096 \u35270 \u35282 </option>\
+                  <option>\uc0\u20135 \u21697 \u37096 \u35270 \u35282 </option>\
+                </select>\
+                <div\
+                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted"\
+                  data-ytindex="1"\
+                  data-ytoriginindex="1"\
+                >\
+                  <i class="fas fa-chevron-down text-xs"> </i>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+        <div class="p-5">\
+          <div\
+            class="bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl p-6 mb-6"\
+          >\
+            <div class="flex items-start mb-4">\
+              <div class="bg-primary text-white p-3 rounded-lg mr-4">\
+                <i class="fas fa-newspaper text-xl"> </i>\
+              </div>\
+              <div>\
+                <h4 class="text-lg font-bold text-secondary mb-1">\
+                  \uc0\u20170 \u26085 \u37325 \u28857 \u20851 \u27880 \
+                </h4>\
+                <p class="text-muted text-sm">\uc0\u20197 \u19979 \u26159 AI\u20026 \u24744 \u31934 \u36873 \u30340 3\u26465 \u20851 \u38190 \u20449 \u24687 </p>\
+              </div>\
+            </div>\
+            <div class="space-y-4">\
+              <div class="flex">\
+                <div class="flex-shrink-0 mt-1">\
+                  <div class="w-2 h-2 bg-primary rounded-full mt-2"></div>\
+                  <div class="w-0.5 h-full bg-gray-200 ml-[5px]"></div>\
+                </div>\
+                <div class="ml-4">\
+                  <p class="text-secondary leading-relaxed">\
+                    <span class="font-medium"> \uc0\u25919 \u31574 \u21160 \u21521 \u65306  </span>\
+                    \uc0\u22269 \u23478 \u21457 \u24067 \u26032 \u19968 \u20195 \u20154 \u24037 \u26234 \u33021 \u21019 \u26032 \u21457 \u23637 \u25351 \u23548 \u24847 \u35265 \u65292 \u26126 \u30830 \u25903 \u25345 \u20225 \u19994 \u24314 \u35774 \u34892 \u19994 \u22823 \u27169 \u22411 \u12290 \u24314 \u35758 \u31435 \u21363 \u32452 \u32455 \u36328 \u37096 \u38376 \u20250 \u35758 \u35780 \u20272 \u24433 \u21709 \u65292 \u21046 \u23450 \u21709 \u24212 \u31574 \u30053 \u12290 \
+                  </p>\
+                  <div class="mt-2 flex items-center text-sm">\
+                    <span class="text-muted"> \uc0\u20248 \u20808 \u32423 \u65306 \u39640  </span>\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="flex">\
+                <div class="flex-shrink-0 mt-1">\
+                  <div class="w-2 h-2 bg-warning rounded-full mt-2"></div>\
+                  <div class="w-0.5 h-full bg-gray-200 ml-[5px]"></div>\
+                </div>\
+                <div class="ml-4">\
+                  <p class="text-secondary leading-relaxed">\
+                    <span class="font-medium"> \uc0\u31454 \u21697 \u21160 \u24577 \u65306  </span>\
+                    \uc0\u31454 \u21697 A\u20844 \u21496 \u23459 \u24067 \u23436 \u25104 \u26032 \u19968 \u36718 \u34701 \u36164 \u65292 \u35745 \u21010 \u21152 \u22823 AI\u30740 \u21457 \u25237 \u20837 \u65292 \u37325 \u28857 \u24067 \u23616 \u26234 \u33021 \u20915 \u31574 \u25903 \u25345 \u31995 \u32479 \u12290 \u24314 \u35758 \u23494 \u20999 \u20851 \u27880 \u20854 \u20135 \u21697 \u36845 \u20195 \u35745 \u21010 \u65292 \u35843 \u25972 \u25105 \u20204 \u30340 \u31454 \u20105 \u31574 \u30053 \u12290 \
+                  </p>\
+                  <div class="mt-2 flex items-center text-sm">\
+                    <span class="text-muted"> \uc0\u20248 \u20808 \u32423 \u65306 \u20013  </span>\
+                  </div>\
+                </div>\
+              </div>\
+              <div class="flex">\
+                <div class="flex-shrink-0 mt-1">\
+                  <div class="w-2 h-2 bg-success rounded-full mt-2"></div>\
+                </div>\
+                <div class="ml-4">\
+                  <p class="text-secondary leading-relaxed">\
+                    <span class="font-medium"> \uc0\u38144 \u21806 \u26426 \u20250 \u65306  </span>\
+                    \uc0\u26576 \u30465 \u20132 \u36890 \u21381 \u21457 \u24067 \u26234 \u33021 \u20132 \u36890 \u31995 \u32479 \u21319 \u32423 \u39033 \u30446 \u25307 \u26631 \u20844 \u21578 \u65292 \u39044 \u31639 \u32422 1200\u19975 \u20803 \u65292 \u38656 \u27714 \u19982 \u25105 \u21496 \u20135 \u21697 \u39640 \u24230 \u21305 \u37197 \u12290 \u24314 \u35758 \u31435 \u21363 \u32452 \u24314 \u19987 \u39033 \u25237 \u26631 \u23567 \u32452 \u65292 \u20934 \u22791 \u30456 \u20851 \u26448 \u26009 \u12290 \
+                  </p>\
+                  <div class="mt-2 flex items-center text-sm">\
+                    <span class="text-muted"> \uc0\u20248 \u20808 \u32423 \u65306 \u39640  </span>\
+                  </div>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+      <!-- [/MODULE] l2m_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u27599 \u26085 AI\u31616 \u25253  -- \u20026 \u19981 \u21516 \u35282 \u33394 \u29983 \u25104 \u23450 \u21046 \u21270 \u30340 \u27599 \u26085 \u25688 \u35201 \u21644 \u24453 \u21150 \u20107 \u39033 \u65292 \u21253 \u21547 \u20170 \u26085 \u37325 \u28857 \u20851 \u27880 \u21644 \u20170 \u26085 \u24453 \u21150 \u20107 \u39033  -->\
+      <!-- \uc0\u26680 \u24515 \u25968 \u25454 \u25351 \u26631 \u21345  -->\
+      <!-- [MODULE] f7g_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u26680 \u24515 \u25968 \u25454 \u25351 \u26631 \u21345  -->\
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">\
+        <!-- \uc0\u20170 \u26085 \u20449 \u24687 \u22686 \u37327  -->\
+        <div\
+          class="bg-white rounded-xl p-5 shadow-card card-hover border border-gray-50"\
+        >\
+          <div class="flex justify-between items-start">\
+            <div>\
+              <p class="text-muted text-sm">\uc0\u20170 \u26085 \u20449 \u24687 \u22686 \u37327 </p>\
+              <h3 class="text-2xl font-bold mt-1">+128 \uc0\u26465 </h3>\
+              <p class="text-success text-sm flex items-center mt-2">\
+                <i class="fas fa-arrow-up mr-1"> </i>\
+                <span> \uc0\u36739 \u26152 \u26085  \u8593 15% </span>\
+              </p>\
+            </div>\
+            <div\
+              class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-primary"\
+            >\
+              <i class="fas fa-file-alt text-xl"> </i>\
+            </div>\
+          </div>\
+          <div class="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">\
+            <div\
+              class="h-full bg-primary rounded-full"\
+              style="width: 75%"\
+            ></div>\
+          </div>\
+        </div>\
+        <!-- \uc0\u39640 \u20215 \u20540 \u32447 \u32034  -->\
+        <div\
+          class="bg-white rounded-xl p-5 shadow-card card-hover border border-gray-50"\
+        >\
+          <div class="flex justify-between items-start">\
+            <div>\
+              <p class="text-muted text-sm">\uc0\u23458 \u25143 \u32447 \u32034 </p>\
+              <h3 class="text-2xl font-bold mt-1">24 \uc0\u26465 </h3>\
+              <p class="text-muted text-sm mt-2">\uc0\u24453 \u36319 \u36827 </p>\
+            </div>\
+            <div\
+              class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center text-success"\
+            >\
+              <i class="fas fa-user-plus text-xl"> </i>\
+            </div>\
+          </div>\
+          <div class="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">\
+            <div\
+              class="h-full bg-success rounded-full"\
+              style="width: 60%"\
+            ></div>\
+          </div>\
+        </div>\
+        <!-- \uc0\u28508 \u22312 \u21830 \u26426 \u37329 \u39069  -->\
+        <div\
+          class="bg-white rounded-xl p-5 shadow-card card-hover border border-gray-50"\
+        >\
+          <div class="flex justify-between items-start">\
+            <div>\
+              <p class="text-muted text-sm">\uc0\u26368 \u26032 \u35770 \u25991 </p>\
+              <h3 class="text-2xl font-bold mt-1">12\uc0\u31687 </h3>\
+              <p class="text-warning text-sm flex items-center mt-2">\
+                <i class="fas fa-arrow-up mr-1"> </i>\
+                <span> \uc0\u36739 \u19978 \u26376  \u8593 8.5% </span>\
+              </p>\
+            </div>\
+            <div\
+              class="w-12 h-12 rounded-lg bg-amber-50 flex items-center justify-center text-warning"\
+            >\
+              <i class="fas fa-line-chart text-xl"> </i>\
+            </div>\
+          </div>\
+          <div class="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">\
+            <div\
+              class="h-full bg-warning rounded-full"\
+              style="width: 45%"\
+            ></div>\
+          </div>\
+        </div>\
+        <!-- \uc0\u39044 \u35686 \u30417 \u25511 \u25968  -->\
+        <div\
+          class="bg-white rounded-xl p-5 shadow-card card-hover border border-gray-50"\
+        >\
+          <div class="flex justify-between items-start">\
+            <div>\
+              <p class="text-muted text-sm">\uc0\u39044 \u35686 \u30417 \u25511 \u25968 </p>\
+              <h3 class="text-2xl font-bold mt-1">5 \uc0\u20010 </h3>\
+              <p class="text-danger text-sm flex items-center mt-2">\
+                <i class="fas fa-exclamation-circle mr-1"> </i>\
+                <span> \uc0\u31454 \u21697 \u37325 \u22823 \u21160 \u24577  </span>\
+              </p>\
+            </div>\
+            <div\
+              class="w-12 h-12 rounded-lg bg-red-50 flex items-center justify-center text-danger"\
+            >\
+              <i class="fas fa-bell text-xl"> </i>\
+            </div>\
+          </div>\
+          <div class="mt-4 h-1 w-full bg-gray-100 rounded-full overflow-hidden">\
+            <div class="h-full bg-danger rounded-full" style="width: 30%"></div>\
+          </div>\
+        </div>\
+      </div>\
+      <!-- [/MODULE] f7g_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u26680 \u24515 \u25968 \u25454 \u25351 \u26631 \u21345  -- \u23637 \u31034 \u20170 \u26085 \u20449 \u24687 \u22686 \u37327 \u12289 \u39640 \u20215 \u20540 \u32447 \u32034 \u12289 \u28508 \u22312 \u21830 \u26426 \u37329 \u39069 \u21644 \u39044 \u35686 \u30417 \u25511 \u25968 \u22235 \u20010 \u20851 \u38190 \u25351 \u26631  -->\
+      <!-- \uc0\u26680 \u24515 \u21151 \u33021 \u27169 \u22359 \u19968 \u65306 \u20170 \u26085 \u20840 \u22495 \u35201 \u38395  -->\
+      <!-- [MODULE] h9i_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u20170 \u26085 \u20840 \u22495 \u35201 \u38395  -->\
+      <div\
+        class="bg-white rounded-xl shadow-card border border-gray-50 mb-6 overflow-hidden"\
+      >\
+        <div class="p-5 border-b border-gray-50">\
+          <div class="flex justify-between items-center">\
+            <h3 class="text-lg font-bold text-secondary">\uc0\u20170 \u26085 \u20840 \u22495 \u35201 \u38395 </h3>\
+            <div class="flex space-x-2">\
+              <button\
+                class="text-sm text-muted hover:text-primary transition-colors px-3 py-1 rounded-lg hover:bg-gray-50"\
+              >\
+                <i class="fas fa-check-all mr-1"> </i>\
+                \uc0\u20840 \u37096 \u24050 \u35835 \
+              </button>\
+              <button\
+                class="text-sm text-muted hover:text-primary transition-colors px-3 py-1 rounded-lg hover:bg-gray-50"\
+              >\
+                <i class="fas fa-filter mr-1"> </i>\
+                \uc0\u31579 \u36873 \
+              </button>\
+            </div>\
+          </div>\
+        </div>\
+        <div class="flex flex-col lg:flex-row">\
+          <!-- \uc0\u24038 \u20391 \u20449 \u24687 \u27969 \u21015 \u34920  -->\
+          <div\
+            class="lg:w-1/3 border-r border-gray-50 max-h-[500px] overflow-y-auto scrollbar-hide"\
+          >\
+            <div class="p-4">\
+              <div class="relative mb-3">\
+                <input\
+                  class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm"\
+                  placeholder="\uc0\u25628 \u32034 \u35201 \u38395 ..."\
+                  type="text"\
+                />\
+                <i\
+                  class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted"\
+                >\
+                </i>\
+              </div>\
+              <div\
+                class="flex space-x-2 mb-3 overflow-x-auto scrollbar-hide pb-2"\
+              >\
+                <button\
+                  class="px-3 py-1 bg-primary text-white text-sm rounded-full whitespace-nowrap"\
+                >\
+                  \uc0\u20840 \u37096 \
+                </button>\
+                <button\
+                  class="px-3 py-1 bg-gray-100 text-muted text-sm rounded-full hover:bg-gray-200 transition-colors whitespace-nowrap"\
+                >\
+                  \uc0\u25919 \u31574 \u26032 \u38395 \
+                </button>\
+                <button\
+                  class="px-3 py-1 bg-gray-100 text-muted text-sm rounded-full hover:bg-gray-200 transition-colors whitespace-nowrap"\
+                >\
+                  \uc0\u34892 \u19994 \u21160 \u24577 \
+                </button>\
+                <button\
+                  class="px-3 py-1 bg-gray-100 text-muted text-sm rounded-full hover:bg-gray-200 transition-colors whitespace-nowrap"\
+                >\
+                  \uc0\u31454 \u21697 \u28040 \u24687 \
+                </button>\
+                <button\
+                  class="px-3 py-1 bg-gray-100 text-muted text-sm rounded-full hover:bg-gray-200 transition-colors whitespace-nowrap"\
+                >\
+                  \uc0\u25216 \u26415 \u21069 \u27839 \
+                </button>\
+              </div>\
+            </div>\
+            <!-- \uc0\u20449 \u24687 \u21015 \u34920  -->\
+            <div class="divide-y divide-gray-50">\
+              <!-- \uc0\u36873 \u20013 \u30340 \u20449 \u24687 \u39033  -->\
+              <div\
+                class="p-4 bg-primary-light cursor-pointer hover:bg-primary-light/80 transition-colors"\
+              >\
+                <div class="flex justify-between items-start">\
+                  <span\
+                    class="inline-block px-2 py-0.5 bg-success/10 text-success text-xs rounded-full mb-2"\
+                  >\
+                    \uc0\u26426 \u20250 \
+                  </span>\
+                  <span class="text-xs text-muted"> 09:32 </span>\
+                </div>\
+                <h4 class="font-medium text-secondary mb-1 line-clamp-2">\
+                  \uc0\u22269 \u23478 \u21457 \u24067 \u26032 \u19968 \u20195 \u20154 \u24037 \u26234 \u33021 \u21019 \u26032 \u21457 \u23637 \u25351 \u23548 \u24847 \u35265 \u65292 \u26126 \u30830 \u25903 \u25345 \u20225 \u19994 \u24314 \u35774 \u34892 \u19994 \u22823 \u27169 \u22411 \
+                </h4>\
+                <div class="flex justify-between items-center">\
+                  <span class="text-xs text-muted"> \uc0\u25919 \u31574 \u26032 \u38395  </span>\
+                  <i class="fas fa-angle-right text-muted"> </i>\
+                </div>\
+              </div>\
+              <div\
+                class="p-4 cursor-pointer hover:bg-gray-50 transition-colors"\
+              >\
+                <div class="flex justify-between items-start">\
+                  <span\
+                    class="inline-block px-2 py-0.5 bg-warning/10 text-warning text-xs rounded-full mb-2"\
+                  >\
+                    \uc0\u39044 \u35686 \
+                  </span>\
+                  <span class="text-xs text-muted"> 08:45 </span>\
+                </div>\
+                <h4 class="font-medium text-secondary mb-1 line-clamp-2">\
+                  \uc0\u31454 \u21697 A\u20844 \u21496 \u23459 \u24067 \u23436 \u25104 \u26032 \u19968 \u36718 \u34701 \u36164 \u65292 \u35745 \u21010 \u21152 \u22823 AI\u30740 \u21457 \u25237 \u20837 \
+                </h4>\
+                <div class="flex justify-between items-center">\
+                  <span class="text-xs text-muted"> \uc0\u31454 \u21697 \u28040 \u24687  </span>\
+                  <i class="fas fa-angle-right text-muted"> </i>\
+                </div>\
+              </div>\
+              <div\
+                class="p-4 cursor-pointer hover:bg-gray-50 transition-colors"\
+              >\
+                <div class="flex justify-between items-start">\
+                  <span\
+                    class="inline-block px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full mb-2"\
+                  >\
+                    \uc0\u36164 \u35759 \
+                  </span>\
+                  <span class="text-xs text-muted"> 07:30 </span>\
+                </div>\
+                <h4 class="font-medium text-secondary mb-1 line-clamp-2">\
+                  2023\uc0\u24180 \u20013 \u22269 \u20225 \u19994 \u25968 \u23383 \u21270 \u36716 \u22411 \u35843 \u30740 \u25253 \u21578 \u21457 \u24067 \u65292 AI\u24212 \u29992 \u28183 \u36879 \u29575 \u25552 \u21319 \u33267 65%\
+                </h4>\
+                <div class="flex justify-between items-center">\
+                  <span class="text-xs text-muted"> \uc0\u34892 \u19994 \u21160 \u24577  </span>\
+                  <i class="fas fa-angle-right text-muted"> </i>\
+                </div>\
+              </div>\
+              <div\
+                class="p-4 cursor-pointer hover:bg-gray-50 transition-colors"\
+              >\
+                <div class="flex justify-between items-start">\
+                  <span\
+                    class="inline-block px-2 py-0.5 bg-success/10 text-success text-xs rounded-full mb-2"\
+                  >\
+                    \uc0\u26426 \u20250 \
+                  </span>\
+                  <span class="text-xs text-muted"> \uc0\u26152 \u22825  </span>\
+                </div>\
+                <h4 class="font-medium text-secondary mb-1 line-clamp-2">\
+                  \uc0\u26576 \u30465 \u21457 \u24067 2023\u24180 \u20154 \u24037 \u26234 \u33021 \u20135 \u19994 \u25206 \u25345 \u25919 \u31574 \u65292 \u26368 \u39640 \u34917 \u36148 500\u19975 \u20803 \
+                </h4>\
+                <div class="flex justify-between items-center">\
+                  <span class="text-xs text-muted"> \uc0\u25919 \u31574 \u26032 \u38395  </span>\
+                  <i class="fas fa-angle-right text-muted"> </i>\
+                </div>\
+              </div>\
+              <div\
+                class="p-4 cursor-pointer hover:bg-gray-50 transition-colors"\
+              >\
+                <div class="flex justify-between items-start">\
+                  <span\
+                    class="inline-block px-2 py-0.5 bg-danger/10 text-danger text-xs rounded-full mb-2"\
+                  >\
+                    \uc0\u39118 \u38505 \
+                  </span>\
+                  <span class="text-xs text-muted"> \uc0\u26152 \u22825  </span>\
+                </div>\
+                <h4 class="font-medium text-secondary mb-1 line-clamp-2">\
+                  \uc0\u27431 \u30431 AI\u27861 \u26696 \u27491 \u24335 \u29983 \u25928 \u65292 \u20005 \u26684 \u38480 \u21046 \u29983 \u25104 \u24335 AI\u24212 \u29992 \u22330 \u26223 \
+                </h4>\
+                <div class="flex justify-between items-center">\
+                  <span class="text-xs text-muted"> \uc0\u25919 \u31574 \u26032 \u38395  </span>\
+                  <i class="fas fa-angle-right text-muted"> </i>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+          <!-- \uc0\u21491 \u20391 \u20449 \u24687 \u35814 \u24773  -->\
+          <div class="lg:w-2/3 p-5">\
+            <div class="mb-4">\
+              <span\
+                class="inline-block px-3 py-1 bg-success/10 text-success text-xs rounded-full mb-3"\
+              >\
+                \uc0\u26426 \u20250 \
+              </span>\
+              <h3 class="text-xl font-bold text-secondary mb-2">\
+                \uc0\u22269 \u23478 \u21457 \u24067 \u26032 \u19968 \u20195 \u20154 \u24037 \u26234 \u33021 \u21019 \u26032 \u21457 \u23637 \u25351 \u23548 \u24847 \u35265 \u65292 \u26126 \u30830 \u25903 \u25345 \u20225 \u19994 \u24314 \u35774 \u34892 \u19994 \u22823 \u27169 \u22411 \
+              </h3>\
+              <div class="flex items-center text-sm text-muted mb-4">\
+                <span> \uc0\u26469 \u28304 \u65306 \u20013 \u22269 \u25919 \u24220 \u32593  </span>\
+                <span class="mx-2"> \'95 </span>\
+                <span> \uc0\u21457 \u24067 \u26102 \u38388 \u65306 2023-11-15 </span>\
+                <span class="mx-2"> \'95 </span>\
+                <span> \uc0\u38405 \u35835 \u26102 \u38388 \u65306 5\u20998 \u38047  </span>\
+              </div>\
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">\
+                <div class="flex items-start mb-2">\
+                  <div class="bg-primary text-white p-1 rounded mr-3 mt-0.5">\
+                    <i class="fas fa-link"> </i>\
+                  </div>\
+                  <p class="text-sm text-muted">\
+                    \uc0\u21407 \u25991 \u38142 \u25509 \u65306 \
+                    <a\
+                      class="text-primary hover:underline"\
+                      href="javascript:void(0);"\
+                    >\
+                      http://www.gov.cn/zhengce/content/2023-11/15/content_5823121.htm\
+                    </a>\
+                  </p>\
+                </div>\
+              </div>\
+            </div>\
+            <!-- AI\uc0\u26234 \u33021 \u25688 \u35201  -->\
+            <div class="mb-6">\
+              <h4\
+                class="text-lg font-bold text-secondary mb-3 flex items-center"\
+              >\
+                <i class="fas fa-lightbulb text-warning mr-2"> </i>\
+                \uc0\u26234 \u33021 \u25688 \u35201 \
+              </h4>\
+              <div class="bg-primary-light rounded-lg p-4">\
+                <p class="text-secondary leading-relaxed">\
+                  \uc0\u22269 \u23478 \u21457 \u25913 \u22996 \u19982 \u31185 \u25216 \u37096 \u32852 \u21512 \u21457 \u24067 \u12298 \u26032 \u19968 \u20195 \u20154 \u24037 \u26234 \u33021 \u21019 \u26032 \u21457 \u23637 \u25351 \u23548 \u24847 \u35265 \u12299 \u65292 \u26126 \u30830 \u25552 \u20986 \u25903 \u25345 \u20855 \u22791 \u26465 \u20214 \u30340 \u20225 \u19994 \u24314 \u35774 \u34892 \u19994 \u22823 \u27169 \u22411 \u65292 \u25512 \u21160 AI\u25216 \u26415 \u19982 \u23454 \u20307 \u32463 \u27982 \u28145 \u24230 \u34701 \u21512 \u12290 \u25991 \u20214 \u29305 \u21035 \u24378 \u35843 \u20102 \u22312 \u21046 \u36896 \u12289 \u37329 \u34701 \u12289 \u21307 \u30103 \u12289 \u25945 \u32946 \u31561 \u37325 \u28857 \u34892 \u19994 \u30340 AI\u24212 \u29992 \u65292 \u24182 \u25552 \u20986 \u23558 \u35774 \u31435 \u19987 \u39033 \u22522 \u37329 \u25903 \u25345 \u30456 \u20851 \u25216 \u26415 \u30740 \u21457 \u19982 \u20135 \u19994 \u21270 \u12290 \u24847 \u35265 \u36824 \u25552 \u21040 \u23558 \u24314 \u31435 AI\u20262 \u29702 \u23457 \u26597 \u21644 \u23433 \u20840 \u35780 \u20272 \u26426 \u21046 \u65292 \u35268 \u33539 \u25216 \u26415 \u24212 \u29992 \u12290 \u35813 \u25919 \u31574 \u23558 \u20026 \u25105 \u22269 AI\u20135 \u19994 \u21457 \u23637 \u25552 \u20379 \u24378 \u26377 \u21147 \u30340 \u25919 \u31574 \u25903 \u25345 \u65292 \u39044 \u35745 \u23558 \u21152 \u36895 \u34892 \u19994 \u22823 \u27169 \u22411 \u30340 \u33853 \u22320 \u24212 \u29992 \u12290 \
+                </p>\
+              </div>\
+            </div>\
+            <!-- AI\uc0\u34892 \u21160 \u24314 \u35758  -->\
+            <div class="mb-6">\
+              <h4\
+                class="text-lg font-bold text-secondary mb-3 flex items-center"\
+              >\
+                <i class="fas fa-robot text-primary mr-2"> </i>\
+                AI\uc0\u34892 \u21160 \u24314 \u35758 \
+              </h4>\
+              <div\
+                class="border-2 border-primary rounded-xl p-5 bg-white shadow-sm"\
+              >\
+                <p class="text-secondary leading-relaxed mb-4">\
+                  <i class="fas fa-exclamation-circle text-primary mr-2"> </i>\
+                  \uc0\u24314 \u35758 \u65306 \u31435 \u21363 \u32452 \u32455 \u25112 \u30053 \u37096 \u12289 \u20135 \u21697 \u37096 \u21644 \u25216 \u26415 \u37096 \u21484 \u24320 \u19987 \u39064 \u20250 \u35758 \u65292 \u35780 \u20272 \u35813 \u25919 \u31574 \u23545 \u20844 \u21496 \u19994 \u21153 \u30340 \u24433 \u21709 \u65292 \u21046 \u23450 \u34892 \u19994 \u22823 \u27169 \u22411 \u24314 \u35774 \u26041 \u26696 \u65292 \u20105 \u21462 \u25104 \u20026 \u39318 \u25209 \u33719 \u24471 \u25919 \u31574 \u25903 \u25345 \u30340 \u20225 \u19994 \u12290 \u21516 \u26102 \u65292 \u23494 \u20999 \u20851 \u27880 \u21518 \u32493 \u37197 \u22871 \u32454 \u21017 \u21644 \u30003 \u25253 \u27969 \u31243 \u65292 \u25552 \u21069 \u20934 \u22791 \u30456 \u20851 \u26448 \u26009 \u12290 \
+                </p>\
+                <div class="flex space-x-3"></div>\
+              </div>\
+            </div>\
+            <!-- \uc0\u30456 \u20851 \u25512 \u33616  -->\
+            <div>\
+              <h4 class="text-lg font-bold text-secondary mb-3">\uc0\u30456 \u20851 \u25512 \u33616 </h4>\
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">\
+                <a\
+                  class="p-3 border border-gray-100 rounded-lg hover:border-primary hover:bg-primary-light/50 transition-colors"\
+                  href="javascript:void(0);"\
+                >\
+                  <h5 class="font-medium text-secondary text-sm line-clamp-2">\
+                    \uc0\u22269 \u21153 \u38498 \u20851 \u20110 \u21152 \u24555 \u25968 \u23383 \u32463 \u27982 \u21457 \u23637 \u30340 \u33509 \u24178 \u24847 \u35265 \u35299 \u35835 \
+                  </h5>\
+                  <p class="text-xs text-muted mt-1">\uc0\u25919 \u31574 \u35299 \u35835  \'95 3\u22825 \u21069 </p>\
+                </a>\
+                <a\
+                  class="p-3 border border-gray-100 rounded-lg hover:border-primary hover:bg-primary-light/50 transition-colors"\
+                  href="javascript:void(0);"\
+                >\
+                  <h5 class="font-medium text-secondary text-sm line-clamp-2">\
+                    2023\uc0\u20013 \u22269 AI\u20135 \u19994 \u21457 \u23637 \u30333 \u30382 \u20070 \u21457 \u24067 \u65292 \u24066 \u22330 \u35268 \u27169 \u39044 \u35745 \u31361 \u30772 5000\u20159 \
+                  </h5>\
+                  <p class="text-xs text-muted mt-1">\uc0\u34892 \u19994 \u25253 \u21578  \'95 1\u21608 \u21069 </p>\
+                </a>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+      <!-- [/MODULE] h9i_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u20170 \u26085 \u20840 \u22495 \u35201 \u38395  -- \u23637 \u31034 \u30001 AI\u20174 \u22810 \u20010 \u26469 \u28304 \u32858 \u21512 \u24182 \u22788 \u29702 \u21518 \u30340 \u20449 \u24687 \u27969 \u65292 \u21253 \u21547 \u24038 \u20391 \u21487 \u31579 \u36873 \u30340 \u20449 \u24687 \u27969 \u21015 \u34920 \u21644 \u21491 \u20391 \u20449 \u24687 \u35814 \u24773 \u12289 \u26234 \u33021 \u25688 \u35201 \u21450 AI\u34892 \u21160 \u24314 \u35758  -->\
+      <!-- \uc0\u26680 \u24515 \u21151 \u33021 \u27169 \u22359 \u20108 \u65306 \u23458 \u25143 \u19982 \u32447 \u32034 \u36861 \u36394  -->\
+      <!-- [MODULE] j0k_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u23458 \u25143 \u19982 \u32447 \u32034 \u36861 \u36394  -->\
+      <div\
+        class="bg-white rounded-xl shadow-card border border-gray-50 mb-6 overflow-hidden"\
+      >\
+        <div class="p-5 border-b border-gray-50">\
+          <div class="flex justify-between items-center">\
+            <h3 class="text-lg font-bold text-secondary">\uc0\u23458 \u25143 \u19982 \u32447 \u32034 \u36861 \u36394 </h3>\
+            <div class="flex items-center space-x-3">\
+              <div class="relative">\
+                <div\
+                  class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted"\
+                >\
+                  <i class="fas fa-chevron-down text-xs"> </i>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+        <div class="p-5">\
+          <!-- \uc0\u32447 \u32034 \u31649 \u36947 \u30475 \u26495  -->\
+          <div class="flex overflow-x-auto scrollbar-hide pb-4 space-x-6">\
+            <!-- \uc0\u26032 \u33719 \u21462  -->\
+            <div class="min-w-[280px]">\
+              <div class="flex items-center justify-between mb-4"></div>\
+              <div class="space-y-3">\
+                <div\
+                  class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                >\
+                  <div class="flex justify-between items-start mb-2">\
+                    <span\
+                      class="text-xs bg-blue-100 text-primary px-2 py-0.5 rounded-full"\
+                    >\
+                      \uc0\u25307 \u26631 \u32593 \
+                    </span>\
+                    <button class="text-muted hover:text-primary">\
+                      <i class="fas fa-ellipsis-v"> </i>\
+                    </button>\
+                  </div>\
+                  <h5 class="font-medium text-secondary mb-1 line-clamp-1">\
+                    \uc0\u26576 \u30465 \u20132 \u36890 \u21381 \u26234 \u33021 \u20132 \u36890 \u31995 \u32479 \u21319 \u32423 \u39033 \u30446 \
+                  </h5>\
+                  <p class="text-sm text-muted line-clamp-2 mb-3">\
+                    \uc0\u38656 \u27714 \u65306 \u26234 \u33021 \u20132 \u36890 \u31649 \u29702 \u24179 \u21488 \u21319 \u32423 \u65292 \u38656 \u35201 AI\u25968 \u25454 \u20998 \u26512 \u21644 \u20915 \u31574 \u25903 \u25345 \u21151 \u33021 \
+                  </p>\
+                  <div class="flex justify-between items-center">\
+                    <div class="flex items-center"></div>\
+                    <button class="text-xs text-primary hover:text-primary/80">\
+                      <i class="fas fa-lightbulb mr-1"> </i>\
+                      AI\uc0\u27934 \u23519 \
+                    </button>\
+                  </div>\
+                </div>\
+                <div\
+                  class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                >\
+                  <div class="flex justify-between items-start mb-2">\
+                    <span\
+                      class="text-xs bg-green-100 text-success px-2 py-0.5 rounded-full"\
+                    >\
+                      \uc0\u23448 \u32593 \
+                    </span>\
+                    <button class="text-muted hover:text-primary">\
+                      <i class="fas fa-ellipsis-v"> </i>\
+                    </button>\
+                  </div>\
+                  <h5 class="font-medium text-secondary mb-1 line-clamp-1">\
+                    \uc0\u26576 \u22823 \u22411 \u21046 \u36896 \u20225 \u19994 \u25968 \u23383 \u21270 \u36716 \u22411 \u21672 \u35810 \
+                  </h5>\
+                  <p class="text-sm text-muted line-clamp-2 mb-3">\
+                    \uc0\u38656 \u27714 \u65306 \u23547 \u27714 \u21046 \u36896 \u19994 \u25968 \u23383 \u21270 \u36716 \u22411 \u25972 \u20307 \u35299 \u20915 \u26041 \u26696 \u65292 \u37325 \u28857 \u20851 \u27880 \u29983 \u20135 \u27969 \u31243 \u20248 \u21270 \
+                  </p>\
+                  <div class="flex justify-between items-center">\
+                    <div class="flex items-center"></div>\
+                    <button class="text-xs text-primary hover:text-primary/80">\
+                      <i class="fas fa-lightbulb mr-1"> </i>\
+                      AI\uc0\u27934 \u23519 \
+                    </button>\
+                  </div>\
+                </div>\
+              </div>\
+            </div>\
+            <!-- \uc0\u24050 \u20998 \u37197  -->\
+            <div class="min-w-[280px]">\
+              <div class="flex items-center justify-between mb-4"></div>\
+              <div class="space-y-3">\
+                <div\
+                  class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                >\
+                  <div class="flex justify-between items-start mb-2">\
+                    <span\
+                      class="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full"\
+                    >\
+                      \uc0\u35770 \u25991 \u24211 \
+                    </span>\
+                    <button class="text-muted hover:text-primary">\
+                      <i class="fas fa-ellipsis-v"> </i>\
+                    </button>\
+                  </div>\
+                  <h5 class="font-medium text-secondary mb-1 line-clamp-1">\
+                    \uc0\u26576 \u39640 \u26657 \u26234 \u24935 \u26657 \u22253 \u24314 \u35774 \u39033 \u30446 \
+                  </h5>\
+                  <p class="text-sm text-muted line-clamp-2 mb-3">\
+                    \uc0\u38656 \u27714 \u65306 \u26500 \u24314 \u26657 \u22253 \u22823 \u25968 \u25454 \u20998 \u26512 \u24179 \u21488 \u65292 \u23454 \u29616 \u23398 \u29983 \u34892 \u20026 \u20998 \u26512 \u21644 \u25945 \u23398 \u36136 \u37327 \u35780 \u20272 \
+                  </p>\
+                  <div class="flex justify-between items-center">\
+                    <div class="flex items-center"></div>\
+                    <button class="text-xs text-primary hover:text-primary/80">\
+                      <i class="fas fa-lightbulb mr-1"> </i>\
+                      AI\uc0\u27934 \u23519 \
+                    </button>\
+                  </div>\
+                </div>\
+              </div>\
+              <div\
+                class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                style="opacity: 1;top:15px;position:relative"\
+                data-ytparentvalue="extra-pzoqnxqsx"\
+                data-ytoriginindex="0"\
+                data-ytindex="0"\
+              >\
+                <div class="flex justify-between items-start mb-2" style>\
+                  <span\
+                    class="text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full"\
+                  >\
+                    \uc0\u23637 \u20250 \
+                  </span>\
+                  <button class="text-muted hover:text-primary">\
+                    <i class="fas fa-ellipsis-v"> </i>\
+                  </button>\
+                </div>\
+                <h5 class="font-medium text-secondary mb-1 line-clamp-1">\
+                  \uc0\u26576 \u37329 \u34701 \u26426 \u26500 \u26234 \u33021 \u39118 \u25511 \u31995 \u32479 \u39033 \u30446 \
+                </h5>\
+                <p class="text-sm text-muted line-clamp-2 mb-3" style>\
+                  \uc0\u38656 \u27714 \u65306 \u21319 \u32423 \u29616 \u26377 \u39118 \u25511 \u31995 \u32479 \u65292 \u24341 \u20837 AI\u31639 \u27861 \u25552 \u21319 \u39118 \u38505 \u35782 \u21035 \u20934 \u30830 \u29575 \u21644 \u25928 \u29575 \
+                </p>\
+                <div class="flex justify-between items-center" style>\
+                  <div class="flex items-center">\
+                    <img\
+                      alt="\uc0\u36127 \u36131 \u20154 "\
+                      class="w-6 h-6 rounded-full object-cover"\
+                      src="https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png"\
+                    />\
+                    <span class="text-xs text-muted ml-2"> \uc0\u29579 \u32463 \u29702  </span>\
+                  </div>\
+                  <button\
+                    class="text-xs text-primary hover:text-primary/80 custom-edit-text-content"\
+                    style="outline: currentcolor;"\
+                    contenteditable="false"\
+                  >\
+                    <b style> \uc0\u21407 \u22320 \u22336  </b>\
+                  </button>\
+                </div>\
+              </div>\
+            </div>\
+            <!-- \uc0\u36319 \u36827 \u20013  -->\
+            <div class="min-w-[280px]">\
+              <div class="flex items-center justify-between mb-4"></div>\
+              <div class="space-y-3" data-ytextravalue="extra-pzoqnxqsx">\
+                <div\
+                  class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                  data-ytoriginindex="1"\
+                  data-ytindex="1"\
+                >\
+                  <div class="flex justify-between items-start mb-2">\
+                    <span\
+                      class="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full"\
+                    >\
+                      \uc0\u21512 \u20316 \u20249 \u20276 \
+                    </span>\
+                    <button class="text-muted hover:text-primary">\
+                      <i class="fas fa-ellipsis-v"> </i>\
+                    </button>\
+                  </div>\
+                  <h5 class="font-medium text-secondary mb-1 line-clamp-1">\
+                    \uc0\u26576 \u33021 \u28304 \u38598 \u22242 \u26234 \u33021 \u35843 \u24230 \u24179 \u21488 \u39033 \u30446 \
+                  </h5>\
+                  <p class="text-sm text-muted line-clamp-2 mb-3">\
+                    \uc0\u38656 \u27714 \u65306 \u26500 \u24314 \u33021 \u28304 \u29983 \u20135 \u35843 \u24230 AI\u20915 \u31574 \u31995 \u32479 \u65292 \u20248 \u21270 \u36164 \u28304 \u37197 \u32622 \u21644 \u29983 \u20135 \u25928 \u29575 \
+                  </p>\
+                  <div class="flex justify-between items-center">\
+                    <div class="flex items-center"></div>\
+                    <button class="text-xs text-primary hover:text-primary/80">\
+                      <i class="fas fa-lightbulb mr-1"> </i>\
+                      AI\uc0\u27934 \u23519 \
+                    </button>\
+                  </div>\
+                </div>\
+              </div>\
+              <div\
+                class="bg-gray-50 rounded-lg p-3 border border-gray-100 card-hover"\
+                style="opacity: 1;top:18px;position:relative"\
+                data-ytparentvalue="extra-1cr8uxtlh"\
+                data-ytoriginindex="0"\
+                data-ytindex="0"\
+              >\
+                <div class="flex justify-between items-start mb-2" style>\
+                  <span\
+                    class="text-xs bg-blue-100 text-primary px-2 py-0.5 rounded-full"\
+                  >\
+                    \uc0\u23448 \u32593 \
+                  </span>\
+                  <button class="text-muted hover:text-primary">\
+                    <i class="fas fa-ellipsis-v"> </i>\
+                  </button>\
+                </div>\
+                <h5 class="font-medium text-secondary mb-1 line-clamp-1" style>\
+                  \uc0\u26576 \u24066 \u25919 \u24220 \u26234 \u24935 \u22478 \u24066 \u22823 \u33041 \u39033 \u30446 \
+                </h5>\
+                <p class="text-sm text-muted line-clamp-2 mb-3" style>\
+                  \uc0\u38656 \u27714 \u65306 \u26500 \u24314 \u22478 \u24066 \u32423 \u32508 \u21512 \u31649 \u29702 \u24179 \u21488 \u65292 \u25972 \u21512 \u22810 \u37096 \u38376 \u25968 \u25454 \u23454 \u29616 \u26234 \u33021 \u20915 \u31574 \
+                </p>\
+                <div class="flex justify-between items-center" style>\
+                  <div class="flex items-center"></div>\
+                  <button\
+                    class="text-xs text-primary hover:text-primary/80 custom-edit-text-content"\
+                    style="outline: currentcolor;"\
+                    contenteditable="false"\
+                  >\
+                    <b style> \uc0\u21407 \u22320 \u22336  </b>\
+                  </button>\
+                </div>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+      <!-- [/MODULE] j0k_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u23458 \u25143 \u19982 \u32447 \u32034 \u36861 \u36394  -- \u21487 \u35270 \u21270 \u23637 \u31034 \u23458 \u25143 \u29983 \u21629 \u21608 \u26399 \u21644 \u26368 \u26032 \u32447 \u32034 \u65292 \u21253 \u21547 Leads\u32447 \u32034 \u31649 \u36947 \u30475 \u26495 \u35270 \u22270 \u21644 \u36817 \u26399 \u32447 \u32034 \u25968 \u37327 \u21464 \u21270 \u36235 \u21183 \u22270 \u34920  -->\
+      <!-- \uc0\u26680 \u24515 \u21151 \u33021 \u27169 \u22359 \u19977 \u65306 \u27599 \u26085 AI\u31616 \u25253  -->\
+      <!-- [MODULE] l2m_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u27599 \u26085 AI\u31616 \u25253  -->\
+      <div\
+        class="bg-white rounded-xl shadow-card border border-gray-50 mb-6 overflow-hidden"\
+      ></div>\
+      <!-- [/MODULE] l2m_\uc0\u20202 \u34920 \u30424 \u39029 \u38754 :\u27599 \u26085 AI\u31616 \u25253  -- \u20026 \u19981 \u21516 \u35282 \u33394 \u29983 \u25104 \u23450 \u21046 \u21270 \u30340 \u27599 \u26085 \u25688 \u35201 \u21644 \u24453 \u21150 \u20107 \u39033 \u65292 \u21253 \u21547 \u20170 \u26085 \u37325 \u28857 \u20851 \u27880 \u21644 \u20170 \u26085 \u24453 \u21150 \u20107 \u39033  -->\
+      <!-- [/MODULE] e5f_\uc0\u20202 \u34920 \u30424 \u39029 \u38754  -- \u23637 \u31034 \u33268 \u30495 \u20449 \u24687 \u22823 \u33041 \u20135 \u21697 \u30340 \u25511 \u21046 \u21488 \u20027 \u39029 \u65292 \u21253 \u21547 \u26680 \u24515 \u25968 \u25454 \u25351 \u26631 \u21345 \u12289 \u20170 \u26085 \u20840 \u22495 \u35201 \u38395 \u12289 \u23458 \u25143 \u19982 \u32447 \u32034 \u36861 \u36394 \u21644 \u27599 \u26085 AI\u31616 \u25253 \u22235 \u20010 \u26680 \u24515 \u21151 \u33021 \u27169 \u22359  -->\
+    </main>\
+    <!-- [/MODULE] c3d_\uc0\u20027 \u20869 \u23481 \u21306 \u22495  -- \u21253 \u21547 \u20202 \u34920 \u30424 \u39029 \u38754 \u30340 \u25152 \u26377 \u20869 \u23481  -->\
+    <!-- AI\uc0\u21161 \u25163 \u28014 \u21160 \u25353 \u38062  -->\
+    <!-- [MODULE] n4o_AI\uc0\u21161 \u25163 \u28014 \u21160 \u25353 \u38062  -->\
+    <div class="fixed bottom-6 right-6 z-40">\
+      <button\
+        class="w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:bg-primary/90 transition-all transform hover:scale-105 focus:outline-none"\
+        id="aiAssistantBtn"\
+      >\
+        <i class="fas fa-robot text-2xl"> </i>\
+      </button>\
+      <!-- AI\uc0\u21161 \u25163 \u38754 \u26495  -->\
+      <div\
+        class="hidden absolute bottom-full right-0 mb-4 w-80 bg-white rounded-xl shadow-lg border border-gray-50 overflow-hidden"\
+        id="aiAssistantPanel"\
+      >\
+        <div class="p-4 bg-primary text-white">\
+          <div class="flex justify-between items-center">\
+            <h4 class="font-medium">AI\uc0\u26234 \u33021 \u21161 \u25163 </h4>\
+            <button\
+              class="text-white hover:text-gray-200"\
+              id="closeAssistantBtn"\
+            >\
+              <i class="fas fa-times"> </i>\
+            </button>\
+          </div>\
+          <p class="text-xs text-white/80 mt-1">\uc0\u26377 \u20160 \u20040 \u21487 \u20197 \u24110 \u24744 \u30340 \u21527 \u65311 </p>\
+        </div>\
+        <div class="p-4 max-h-60 overflow-y-auto scrollbar-hide">\
+          <div class="space-y-4">\
+            <div class="flex">\
+              <div\
+                class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white"\
+              >\
+                <i class="fas fa-robot"> </i>\
+              </div>\
+              <div\
+                class="ml-3 bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]"\
+              >\
+                <p class="text-sm text-secondary">\
+                  \uc0\u24744 \u22909 \u65281 \u25105 \u26159 \u24744 \u30340 AI\u26234 \u33021 \u21161 \u25163 \u65292 \u26377 \u20160 \u20040 \u21487 \u20197 \u24110 \u24744 \u30340 \u21527 \u65311 \
+                </p>\
+              </div>\
+            </div>\
+          </div>\
+        </div>\
+        <div class="p-4 border-t border-gray-50">\
+          <div class="flex">\
+            <input\
+              class="flex-grow px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm"\
+              id="aiAssistantInput"\
+              placeholder="\uc0\u35831 \u36755 \u20837 \u24744 \u30340 \u38382 \u39064 ..."\
+              type="text"\
+            />\
+            <button\
+              class="ml-2 w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-colors"\
+              id="sendAssistantMsg"\
+            >\
+              <i class="fas fa-paper-plane"> </i>\
+            </button>\
+          </div>\
+          <div class="flex justify-between mt-3">\
+            <button class="text-xs text-primary hover:text-primary/80">\
+              <i class="fas fa-history mr-1"> </i>\
+              \uc0\u21382 \u21490 \u35760 \u24405 \
+            </button>\
+            <div class="flex space-x-2">\
+              <button\
+                class="text-xs text-muted hover:text-primary px-2 py-1 bg-gray-50 rounded"\
+              >\
+                \uc0\u25214 \u25307 \u26631 \
+              </button>\
+              <button\
+                class="text-xs text-muted hover:text-primary px-2 py-1 bg-gray-50 rounded"\
+              >\
+                \uc0\u26597 \u25919 \u31574 \
+              </button>\
+            </div>\
+          </div>\
+        </div>\
+      </div>\
+    </div>\
+    <!-- [/MODULE] n4o_AI\uc0\u21161 \u25163 \u28014 \u21160 \u25353 \u38062  -- \u22266 \u23450 \u22312 \u39029 \u38754 \u21491 \u19979 \u35282 \u65292 \u28857 \u20987 \u21487 \u25171 \u24320 AI\u21161 \u25163 \u38754 \u26495 \u36827 \u34892 \u26234 \u33021 \u38382 \u31572  -->\
+    <!-- \uc0\u39029 \u33050  -->\
+    <!-- [MODULE] p5q_\uc0\u39029 \u33050  -->\
+    <footer class="bg-white border-t border-gray-100 py-6">\
+      <div class="container mx-auto px-4">\
+        <div\
+          class="flex flex-col md:flex-row justify-between items-center"\
+          data-ytextravalue="extra-vbim0exz6"\
+        >\
+          <div\
+            class="flex items-center space-x-2 mb-4 md:mb-0"\
+            data-ytoriginindex="0"\
+            data-ytindex="0"\
+          >\
+            <div\
+              class="w-8 h-8 rounded-lg bg-gradient-blue flex items-center justify-center"\
+            >\
+              <i class="fas fa-brain text-white text-sm"> </i>\
+            </div>\
+            <div>\
+              <h2 class="text-sm font-bold text-secondary">\uc0\u33268 \u30495 \u20449 \u24687 \u22823 \u33041 </h2>\
+              <p class="text-xs text-muted">\uc0\u20840 \u22495 \u24863 \u30693 \u65292 \u26234 \u33021 \u20915 \u31574 </p>\
+            </div>\
+          </div>\
+          <div\
+            class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted"\
+            data-ytoriginindex="1"\
+            data-ytindex="1"\
+          >\
+            <a\
+              class="hover:text-primary transition-colors"\
+              href="javascript:void(0);"\
+            >\
+              \uc0\u20851 \u20110 \u25105 \u20204 \
+            </a>\
+            <a\
+              class="hover:text-primary transition-colors"\
+              href="javascript:void(0);"\
+            >\
+              \uc0\u20135 \u21697 \u25991 \u26723 \
+            </a>\
+            <a\
+              class="hover:text-primary transition-colors"\
+              href="javascript:void(0);"\
+            >\
+              \uc0\u24110 \u21161 \u20013 \u24515 \
+            </a>\
+            <a\
+              class="hover:text-primary transition-colors"\
+              href="javascript:void(0);"\
+            >\
+              \uc0\u32852 \u31995 \u25105 \u20204 \
+            </a>\
+            <a\
+              class="hover:text-primary transition-colors"\
+              href="javascript:void(0);"\
+            >\
+              \uc0\u38544 \u31169 \u25919 \u31574 \
+            </a>\
+          </div>\
+          <div\
+            class="mt-4 md:mt-0 text-xs text-muted"\
+            data-ytparentvalue="extra-vbim0exz6"\
+            data-ytoriginindex="2"\
+            data-ytindex="2"\
+          >\
+            \'a9 2025 \uc0\u33268 \u30495 \u20449 \u24687 \u31185 \u25216 \u26377 \u38480 \u20844 \u21496  \u29256 \u26435 \u25152 \u26377 \
+          </div>\
+        </div>\
+      </div>\
+    </footer>\
+    <!-- [/MODULE] p5q_\uc0\u39029 \u33050  -- \u21253 \u21547 \u20844 \u21496 \u20449 \u24687 \u12289 \u23548 \u33322 \u38142 \u25509 \u21644 \u29256 \u26435 \u22768 \u26126  -->\
+    <!-- [JSMOD] r6s_\uc0\u39029 \u38754 \u21021 \u22987 \u21270 \u19982 \u22270 \u34920 \u28210 \u26579  -->\
+    <script id="initScript">\
+      // \uc0\u39029 \u38754 \u21152 \u36733 \u26102 \u21021 \u22987 \u21270 \u28210 \u26579 \
+              document.addEventListener('DOMContentLoaded', () => \{\
+                  // \uc0\u28210 \u26579 \u32447 \u32034 \u36235 \u21183 \u22270 \u34920 \
+                  renderLeadsTrendChart();\
+\
+                  // \uc0\u21021 \u22987 \u21270 AI\u21161 \u25163 \u20132 \u20114 \
+                  initAiAssistant();\
+              \});\
+\
+              // \uc0\u28210 \u26579 \u32447 \u32034 \u36235 \u21183 \u22270 \u34920 \
+              function renderLeadsTrendChart() \{\
+                  const chartDom = document.createElement('div');\
+                  chartDom.style.width = '100%';\
+                  chartDom.style.height = '100%';\
+\
+                  // \uc0\u25214 \u21040 \u22270 \u34920 \u23481 \u22120 \u24182 \u26367 \u25442 \u20026 \u26032 \u21019 \u24314 \u30340 div\
+                  const container = document.querySelector('#leadsTrendChart').parentNode;\
+                  container.replaceChild(chartDom, document.querySelector('#leadsTrendChart'));\
+\
+                  const myChart = echarts.init(chartDom);\
+\
+                  const option = \{\
+                      grid: \{\
+                          left: '3%',\
+                          right: '4%',\
+                          bottom: '3%',\
+                          containLabel: true\
+                      \},\
+                      tooltip: \{\
+                          trigger: 'axis',\
+                          axisPointer: \{\
+                              type: 'shadow'\
+                          \}\
+                      \},\
+                      xAxis: \{\
+                          type: 'category',\
+                          data: ['\uc0\u21608 \u19968 ', '\u21608 \u20108 ', '\u21608 \u19977 ', '\u21608 \u22235 ', '\u21608 \u20116 ', '\u21608 \u20845 ', '\u21608 \u26085 '],\
+                          axisLine: \{\
+                              show: false\
+                          \},\
+                          axisTick: \{\
+                              show: false\
+                          \},\
+                          axisLabel: \{\
+                              color: '#6b7280'\
+                          \}\
+                      \},\
+                      yAxis: \{\
+                          type: 'value',\
+                          axisLine: \{\
+                              show: false\
+                          \},\
+                          axisTick: \{\
+                              show: false\
+                          \},\
+                          axisLabel: \{\
+                              color: '#6b7280'\
+                          \},\
+                          splitLine: \{\
+                              lineStyle: \{\
+                                  color: '#f3f4f6'\
+                              \}\
+                          \}\
+                      \},\
+                      series: [\
+                          \{\
+                              name: '\uc0\u26032 \u32447 \u32034 ',\
+                              type: 'line',\
+                              data: [12, 19, 15, 28, 22, 18, 25],\
+                              smooth: true,\
+                              lineStyle: \{\
+                                  color: '#2563eb',\
+                                  width: 2\
+                              \},\
+                              symbol: 'circle',\
+                              symbolSize: 6,\
+                              itemStyle: \{\
+                                  color: '#2563eb',\
+                                  borderColor: '#fff',\
+                                  borderWidth: 2\
+                              \},\
+                              areaStyle: \{\
+                                  color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [\
+                                      \{ offset: 0, color: 'rgba(37, 99, 235, 0.3)' \},\
+                                      \{ offset: 1, color: 'rgba(37, 99, 235, 0)' \}\
+                                  ])\
+                              \}\
+                          \},\
+                          \{\
+                              name: '\uc0\u36716 \u21270 \u32447 \u32034 ',\
+                              type: 'line',\
+                              data: [5, 8, 6, 12, 9, 7, 10],\
+                              smooth: true,\
+                              lineStyle: \{\
+                                  color: '#10b981',\
+                                  width: 2\
+                              \},\
+                              symbol: 'circle',\
+                              symbolSize: 6,\
+                              itemStyle: \{\
+                                  color: '#10b981',\
+                                  borderColor: '#fff',\
+                                  borderWidth: 2\
+                              \},\
+                              areaStyle: \{\
+                                  color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [\
+                                      \{ offset: 0, color: 'rgba(16, 185, 129, 0.3)' \},\
+                                      \{ offset: 1, color: 'rgba(16, 185, 129, 0)' \}\
+                                  ])\
+                              \}\
+                          \}\
+                      ],\
+                      legend: \{\
+                          data: ['\uc0\u26032 \u32447 \u32034 ', '\u36716 \u21270 \u32447 \u32034 '],\
+                          top: 0,\
+                          right: 0,\
+                          textStyle: \{\
+                              color: '#6b7280',\
+                              fontSize: 12\
+                          \},\
+                          itemWidth: 8,\
+                          itemHeight: 8\
+                      \}\
+                  \};\
+\
+                  myChart.setOption(option);\
+\
+                  // \uc0\u30417 \u21548 \u31383 \u21475 \u22823 \u23567 \u21464 \u21270 \u65292 \u35843 \u25972 \u22270 \u34920 \u22823 \u23567 \
+                  window.addEventListener('resize', () => \{\
+                      myChart.resize();\
+                  \});\
+              \}\
+\
+              // \uc0\u21021 \u22987 \u21270 AI\u21161 \u25163 \u20132 \u20114 \
+              function initAiAssistant() \{\
+                  const aiAssistantBtn = document.getElementById('aiAssistantBtn');\
+                  const aiAssistantPanel = document.getElementById('aiAssistantPanel');\
+                  const closeAssistantBtn = document.getElementById('closeAssistantBtn');\
+                  const sendAssistantMsg = document.getElementById('sendAssistantMsg');\
+                  const aiAssistantInput = document.getElementById('aiAssistantInput');\
+\
+                  // \uc0\u20999 \u25442 AI\u21161 \u25163 \u38754 \u26495 \u26174 \u31034 /\u38544 \u34255 \
+                  aiAssistantBtn.addEventListener('click', () => \{\
+                      aiAssistantPanel.classList.toggle('hidden');\
+                  \});\
+\
+                  // \uc0\u20851 \u38381 AI\u21161 \u25163 \u38754 \u26495 \
+                  closeAssistantBtn.addEventListener('click', () => \{\
+                      aiAssistantPanel.classList.add('hidden');\
+                  \});\
+\
+                  // \uc0\u28857 \u20987 \u39029 \u38754 \u20854 \u20182 \u22320 \u26041 \u20851 \u38381 AI\u21161 \u25163 \u38754 \u26495 \
+                  document.addEventListener('click', (e) => \{\
+                      if (!aiAssistantPanel.contains(e.target) && e.target !== aiAssistantBtn) \{\
+                          aiAssistantPanel.classList.add('hidden');\
+                      \}\
+                  \});\
+\
+                  // \uc0\u21457 \u36865 \u28040 \u24687 \
+                  sendAssistantMsg.addEventListener('click', sendMessage);\
+\
+                  // \uc0\u22238 \u36710 \u21457 \u36865 \u28040 \u24687 \
+                  aiAssistantInput.addEventListener('keypress', (e) => \{\
+                      if (e.key === 'Enter') \{\
+                          sendMessage();\
+                      \}\
+                  \});\
+\
+                  // \uc0\u21457 \u36865 \u28040 \u24687 \u20989 \u25968 \
+                  function sendMessage() \{\
+                      const message = aiAssistantInput.value.trim();\
+                      if (!message) return;\
+\
+                      // \uc0\u28165 \u31354 \u36755 \u20837 \u26694 \
+                      aiAssistantInput.value = '';\
+\
+                      // \uc0\u22312 \u23454 \u38469 \u24212 \u29992 \u20013 \u65292 \u36825 \u37324 \u24212 \u35813 \u21457 \u36865 \u28040 \u24687 \u21040 \u21518 \u31471 API\u33719 \u21462 AI\u22238 \u22797 \
+                      // \uc0\u36825 \u37324 \u20351 \u29992 \u27169 \u25311 \u22238 \u22797 \
+                      const messagesContainer = aiAssistantPanel.querySelector('.max-h-60');\
+                      const messageList = messagesContainer.querySelector('.space-y-4');\
+\
+                      // \uc0\u28155 \u21152 \u29992 \u25143 \u28040 \u24687 \
+                      const userMessageDiv = document.createElement('div');\
+                      userMessageDiv.className = 'flex justify-end';\
+                      userMessageDiv.innerHTML = `\
+                          <div class="mr-3 bg-primary/10 rounded-lg rounded-tr-none p-3 max-w-[80%]">\
+                              <p class="text-sm text-secondary">$\{message\}</p>\
+                          </div>\
+                          <div class="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-muted">\
+                              <i class="fas fa-user"></i>\
+                          </div>\
+                      `;\
+                      messageList.appendChild(userMessageDiv);\
+\
+                      // \uc0\u28155 \u21152 AI\u22238 \u22797 \u65288 \u27169 \u25311 \u21152 \u36733 \u29366 \u24577 \u65289 \
+                      const aiMessageDiv = document.createElement('div');\
+                      aiMessageDiv.className = 'flex';\
+                      aiMessageDiv.innerHTML = `\
+                          <div class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white">\
+                              <i class="fas fa-robot"></i>\
+                          </div>\
+                          <div class="ml-3 bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]">\
+                              <div class="flex space-x-1">\
+                                  <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>\
+                                  <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>\
+                                  <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>\
+                              </div>\
+                          </div>\
+                      `;\
+                      messageList.appendChild(aiMessageDiv);\
+\
+                      // \uc0\u28378 \u21160 \u21040 \u24213 \u37096 \
+                      messagesContainer.scrollTop = messagesContainer.scrollHeight;\
+\
+                      // \uc0\u27169 \u25311 AI\u22238 \u22797 \u24310 \u36831 \
+                      setTimeout(() => \{\
+                          // \uc0\u26367 \u25442 \u21152 \u36733 \u29366 \u24577 \u20026 \u23454 \u38469 \u22238 \u22797 \
+                          aiMessageDiv.innerHTML = `\
+                              <div class="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white">\
+                                  <i class="fas fa-robot"></i>\
+                              </div>\
+                              <div class="ml-3 bg-gray-100 rounded-lg rounded-tl-none p-3 max-w-[80%]">\
+                                  <p class="text-sm text-secondary">\uc0\u24863 \u35874 \u24744 \u30340 \u25552 \u38382 \u12290 \u25105 \u24050 \u35760 \u24405 \u24744 \u30340 \u38656 \u27714 \u65292 \u27491 \u22312 \u20026 \u24744 \u20998 \u26512 \u30456 \u20851 \u20449 \u24687 \u12290 \u35831 \u31245 \u20505 \u65292 \u25105 \u23558 \u24456 \u24555 \u20026 \u24744 \u25552 \u20379 \u35814 \u32454 \u30340 AI\u20998 \u26512 \u32467 \u26524 \u21644 \u24314 \u35758 \u12290 </p>\
+                              </div>\
+                          `;\
+                          // \uc0\u28378 \u21160 \u21040 \u24213 \u37096 \
+                          messagesContainer.scrollTop = messagesContainer.scrollHeight;\
+                      \}, 1500);\
+                  \}\
+              \}\
+          \}\
+    </script>\
+    <!-- [/JSMOD] r6s_\uc0\u39029 \u38754 \u21021 \u22987 \u21270 \u19982 \u22270 \u34920 \u28210 \u26579  -- \u39029 \u38754 \u21152 \u36733 \u26102 \u21021 \u22987 \u21270 \u28210 \u26579 \u65292 \u21253 \u21547 \u32447 \u32034 \u36235 \u21183 \u22270 \u34920 \u28210 \u26579 \u21644 AI\u21161 \u25163 \u20132 \u20114 \u21151 \u33021  -->\
+  </body>\
+</html>\
+}
