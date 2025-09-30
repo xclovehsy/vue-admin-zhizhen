@@ -1,6 +1,6 @@
 <template>
   <div class="leads-tracking">
-    <el-card class="leads-card" shadow="hover">
+    <el-card class="leads-card" shadow="hover" v-loading="loading">
       <div slot="header" class="card-header">
         <div class="header-content">
           <h3 class="card-title">客户与线索跟踪</h3>
@@ -10,6 +10,7 @@
               placeholder="选择时间周期"
               size="small"
               class="period-selector"
+              @change="handlePeriodChange"
             >
               <el-option label="本周" value="week" />
               <el-option label="本月" value="month" />
@@ -64,7 +65,7 @@
                     />
                     <span v-if="lead.owner" class="owner-name">{{ lead.owner.name }}</span>
                   </div>
-                  <el-button type="text" size="mini" icon="el-icon-lightbulb">AI洞察</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-lightbulb" @click="handleGetInsights(lead.id)">AI洞察</el-button>
                 </div>
               </el-card>
             </div>
@@ -112,7 +113,7 @@
                     />
                     <span v-if="lead.owner" class="owner-name">{{ lead.owner.name }}</span>
                   </div>
-                  <el-button type="text" size="mini" icon="el-icon-lightbulb">AI洞察</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-lightbulb" @click="handleGetInsights(lead.id)">AI洞察</el-button>
                 </div>
               </el-card>
             </div>
@@ -160,7 +161,7 @@
                     />
                     <span v-if="lead.owner" class="owner-name">{{ lead.owner.name }}</span>
                   </div>
-                  <el-button type="text" size="mini" icon="el-icon-lightbulb">AI洞察</el-button>
+                  <el-button type="text" size="mini" icon="el-icon-lightbulb" @click="handleGetInsights(lead.id)">AI洞察</el-button>
                 </div>
               </el-card>
             </div>
@@ -172,7 +173,7 @@
           <div class="chart-header">
             <h4 class="chart-title">线索数量变化趋势</h4>
             <div class="chart-controls">
-              <el-radio-group v-model="selectedChartType" size="mini">
+              <el-radio-group v-model="selectedChartType" size="mini" @change="handleChartTypeChange">
                 <el-radio-button
                   v-for="type in chartTypes"
                   :key="type.value"
@@ -229,88 +230,191 @@
 </template>
 
 <script>
+import { getLeadsBoard, getLeadsTrend, updateLeadStatus, getLeadInsights } from '@/api/dashboard'
+
 export default {
   name: 'LeadsTracking',
   data() {
     return {
       selectedPeriod: 'week',
       selectedChartType: 'new',
+      loading: false,
       chartTypes: [
         { label: '新线索', value: 'new' },
         { label: '转化线索', value: 'converted' }
       ],
-      newLeadsData: [12, 19, 15, 28, 22, 18, 25],
-      convertedLeadsData: [5, 8, 6, 12, 9, 7, 10],
-      chartLabels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-      newLeads: [
-        {
-          id: 1,
-          channel: '招标网',
-          title: '某省交通厅智能交通系统升级项目',
-          description: '需求：智能交通管理平台升级，需要AI数据分析和决策支持功能',
-          owner: {
-            name: '王经理',
-            avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
-          }
-        },
-        {
-          id: 2,
-          channel: '官网',
-          title: '某大型制造企业数字化转型咨询',
-          description: '需求：寻求制造业数字化转型整体解决方案，重点关注生产流程优化',
-          owner: null
-        }
-      ],
-      assignedLeads: [
-        {
-          id: 3,
-          channel: '论文库',
-          title: '某高校智慧校园建设项目',
-          description: '需求：构建校园大数据分析平台，实现学生行为分析和教学质量评估',
-          owner: {
-            name: '李经理',
-            avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
-          }
-        },
-        {
-          id: 4,
-          channel: '展会',
-          title: '某金融机构智能风控系统项目',
-          description: '需求：升级现有风控系统，引入AI算法提升风险识别准确率和效率',
-          owner: {
-            name: '张经理',
-            avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
-          }
-        }
-      ],
-      followingLeads: [
-        {
-          id: 5,
-          channel: '合作伙伴',
-          title: '某能源集团智能调度平台项目',
-          description: '需求：构建能源生产调度AI决策系统，优化资源配置和生产效率',
-          owner: {
-            name: '陈经理',
-            avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
-          }
-        },
-        {
-          id: 6,
-          channel: '官网',
-          title: '某市政府智慧城市大脑项目',
-          description: '需求：构建城市综合管理平台，整合多部门数据实现智能决策',
-          owner: {
-            name: '刘经理',
-            avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
-          }
-        }
-      ]
+      newLeadsData: [],
+      convertedLeadsData: [],
+      chartLabels: [],
+      boardData: {
+        columns: []
+      },
+      newLeads: [],
+      assignedLeads: [],
+      followingLeads: []
     }
   },
   mounted() {
-    this.renderChart()
+    this.fetchLeadsData()
   },
   methods: {
+    async fetchLeadsData() {
+      this.loading = true
+      try {
+        // 获取看板数据
+        const boardResponse = await getLeadsBoard({ period: this.selectedPeriod })
+        console.log('看板数据响应:', boardResponse)
+        
+        if (boardResponse && boardResponse.data) {
+          this.boardData = boardResponse.data
+          console.log('设置后的boardData:', this.boardData)
+          // 立即处理看板数据
+          this.processBoardData()
+        } else {
+          console.error('看板数据响应格式错误:', boardResponse)
+          throw new Error('看板数据响应格式错误')
+        }
+        
+        // 获取趋势数据
+        const trendResponse = await getLeadsTrend({ 
+          period: this.selectedPeriod, 
+          type: this.selectedChartType 
+        })
+        
+        if (trendResponse && trendResponse.data && trendResponse.data.trendData) {
+          const trendData = trendResponse.data.trendData
+          this.chartLabels = trendData?.labels || []
+          this.newLeadsData = trendData?.newLeads || []
+          this.convertedLeadsData = trendData?.convertedLeads || []
+        } else {
+          console.warn('趋势数据响应格式错误，使用默认数据')
+          this.chartLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          this.newLeadsData = [12, 19, 15, 28, 22, 18, 25]
+          this.convertedLeadsData = [5, 8, 6, 12, 9, 7, 10]
+        }
+      } catch (error) {
+        console.error('获取线索数据失败:', error)
+        this.$message.error('获取线索数据失败')
+        // 使用默认数据作为降级方案
+        this.setDefaultData()
+      } finally {
+        this.loading = false
+      }
+    },
+    processBoardData() {
+      this.newLeads = []
+      this.assignedLeads = []
+      this.followingLeads = []
+      
+      // 安全检查，确保 boardData.columns 存在且为数组
+      if (this.boardData && this.boardData.columns && Array.isArray(this.boardData.columns)) {
+        this.boardData.columns.forEach(column => {
+          switch (column.status) {
+            case 'new':
+              this.newLeads = column.leads || []
+              break
+            case 'assigned':
+              this.assignedLeads = column.leads || []
+              break
+            case 'following':
+              this.followingLeads = column.leads || []
+              break
+          }
+        })
+      } else {
+        console.warn('boardData.columns 不存在或不是数组:', this.boardData)
+      }
+    },
+    setDefaultData() {
+      this.chartLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+      this.newLeadsData = [0, 0, 0, 0, 0, 0, 0]
+      this.convertedLeadsData = [0, 0, 0, 0, 0, 0, 0]
+      
+      // 设置默认看板数据
+      this.boardData = {
+        columns: [
+          {
+            status: 'new',
+            title: '新获取',
+            count: 1,
+            leads: [
+              {
+                id: 1,
+                channel: '--',
+                title: '--',
+                description: '--',
+                owner: {
+                  name: '--',
+                  avatar: 'https://design.gemcoder.com/staticResource/echoAiSystemImages/b6b4d71d6ca09f6d61f1d94e76a03b48.png'
+                }
+              }
+            ]
+          },
+          {
+            status: 'assigned',
+            title: '已分配',
+            count: 0,
+            leads: []
+          },
+          {
+            status: 'following',
+            title: '跟进中',
+            count: 0,
+            leads: []
+          }
+        ]
+      }
+      
+      // 处理看板数据
+      this.processBoardData()
+    },
+    async handlePeriodChange() {
+      await this.fetchLeadsData()
+    },
+    async handleChartTypeChange() {
+      try {
+        const response = await getLeadsTrend({ 
+          period: this.selectedPeriod, 
+          type: this.selectedChartType 
+        })
+        const trendData = response.data.trendData
+        this.chartLabels = trendData?.labels || []
+        this.newLeadsData = trendData?.newLeads || []
+        this.convertedLeadsData = trendData?.convertedLeads || []
+      } catch (error) {
+        console.error('获取趋势数据失败:', error)
+        this.$message.error('获取趋势数据失败')
+      }
+    },
+    async handleLeadStatusChange(leadId, newStatus) {
+      try {
+        await updateLeadStatus(leadId, { status: newStatus })
+        this.$message.success('线索状态更新成功')
+        await this.fetchLeadsData()
+      } catch (error) {
+        console.error('更新线索状态失败:', error)
+        this.$message.error('更新线索状态失败')
+      }
+    },
+    async handleGetInsights(leadId) {
+      try {
+        const response = await getLeadInsights(leadId)
+        const insights = response.data.insights
+        
+        // 显示AI洞察弹窗
+        this.$alert(
+          `机会评分：${insights.opportunityScore}/100\n\n风险因素：${insights.riskFactors.join('、')}\n\nAI建议：${insights.suggestions.join('、')}\n\n下一步行动：${insights.nextSteps.join('、')}`,
+          'AI洞察分析',
+          {
+            confirmButtonText: '确定',
+            type: 'info'
+          }
+        )
+      } catch (error) {
+        console.error('获取AI洞察失败:', error)
+        this.$message.error('获取AI洞察失败')
+      }
+    },
     getChannelType(channel) {
       const types = {
         '招标网': 'primary',
@@ -324,11 +428,15 @@ export default {
     getBarHeight(value) {
       // 计算柱状图高度，以最大值为100%
       const maxValue = Math.max(...this.newLeadsData, ...this.convertedLeadsData)
-      return (value / maxValue) * 100
+      return maxValue > 0 ? (value / maxValue) * 100 : 0
+    }
+  },
+  watch: {
+    selectedPeriod() {
+      this.handlePeriodChange()
     },
-    renderChart() {
-      // 图表内容已经在模板中通过自定义组件显示
-      console.log('图表渲染完成')
+    selectedChartType() {
+      this.handleChartTypeChange()
     }
   }
 }

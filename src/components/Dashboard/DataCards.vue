@@ -1,111 +1,37 @@
 <template>
-  <div class="data-cards">
+  <div class="data-cards" v-loading="loading">
     <el-row :gutter="20" class="cards-row">
-      <!-- 今日信息增量 -->
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+      <el-col 
+        v-for="card in dataCards" 
+        :key="card.id"
+        :xs="24" 
+        :sm="12" 
+        :md="6" 
+        :lg="6" 
+        :xl="6"
+      >
         <el-card class="data-card" shadow="hover">
           <div class="card-content">
             <div class="card-info">
-              <p class="card-label">今日信息增量</p>
-              <h3 class="card-value">+128 条</h3>
+              <p class="card-label">{{ card.label }}</p>
+              <h3 class="card-value">{{ card.value }}</h3>
               <div class="card-trend">
-                <el-tag type="success" size="mini">
-                  <i class="el-icon-top" />
-                  较昨日 ↑ 15%
+                <el-tag :type="card.trend.type" size="mini">
+                  <i v-if="card.trend.icon" :class="card.trend.icon" />
+                  {{ card.trend.text }}
                 </el-tag>
               </div>
             </div>
-            <div class="card-icon blue">
-              <svg-icon icon-class="form" />
+            <div class="card-icon" :class="card.icon.color">
+              <svg-icon :icon-class="card.icon.class" />
             </div>
           </div>
           <div class="progress-section">
             <el-progress
-              :percentage="75"
+              :percentage="card.progress"
               :show-text="false"
-              stroke-width="4"
-              color="#409EFF"
-            />
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- 客户线索 -->
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-        <el-card class="data-card" shadow="hover">
-          <div class="card-content">
-            <div class="card-info">
-              <p class="card-label">客户线索</p>
-              <h3 class="card-value">24 条</h3>
-              <div class="card-trend">
-                <el-tag type="info" size="mini">待跟进</el-tag>
-              </div>
-            </div>
-            <div class="card-icon green">
-              <svg-icon icon-class="user" />
-            </div>
-          </div>
-          <div class="progress-section">
-            <el-progress
-              :percentage="60"
-              :show-text="false"
-              stroke-width="4"
-              color="#67C23A"
-            />
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- 最新论文 -->
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-        <el-card class="data-card" shadow="hover">
-          <div class="card-content">
-            <div class="card-info">
-              <p class="card-label">最新论文</p>
-              <h3 class="card-value">12篇</h3>
-              <div class="card-trend">
-                <el-tag type="warning" size="mini">
-                  <i class="el-icon-top" />
-                  较上月 ↑ 8.5%
-                </el-tag>
-              </div>
-            </div>
-            <div class="card-icon amber">
-              <svg-icon icon-class="table" />
-            </div>
-          </div>
-          <div class="progress-section">
-            <el-progress
-              :percentage="45"
-              :show-text="false"
-              stroke-width="4"
-              color="#E6A23C"
-            />
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- 预警监控数 -->
-      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-        <el-card class="data-card" shadow="hover">
-          <div class="card-content">
-            <div class="card-info">
-              <p class="card-label">预警监控数</p>
-              <h3 class="card-value">5 个</h3>
-              <div class="card-trend">
-                <el-tag type="danger" size="mini">竞品重大动态</el-tag>
-              </div>
-            </div>
-            <div class="card-icon red">
-              <svg-icon icon-class="eye" />
-            </div>
-          </div>
-          <div class="progress-section">
-            <el-progress
-              :percentage="30"
-              :show-text="false"
-              stroke-width="4"
-              color="#F56C6C"
+              :stroke-width="4"
+              :color="getProgressColor(card.icon.color)"
             />
           </div>
         </el-card>
@@ -115,41 +41,77 @@
 </template>
 
 <script>
+import { getDataCards } from '@/api/dashboard'
+
 export default {
   name: 'DataCards',
   data() {
     return {
-      // 静态数据，后续可以改为从API获取
-      dataCards: [
-        {
-          label: '今日信息增量',
-          value: '+128 条',
-          trend: { type: 'success', text: '较昨日 ↑ 15%', icon: 'fas fa-arrow-up' },
-          progress: 75,
-          icon: { class: 'fas fa-file-alt', color: 'blue' }
-        },
-        {
-          label: '客户线索',
-          value: '24 条',
-          trend: { type: 'muted', text: '待跟进' },
-          progress: 60,
-          icon: { class: 'fas fa-user-plus', color: 'green' }
-        },
-        {
-          label: '最新论文',
-          value: '12篇',
-          trend: { type: 'warning', text: '较上月 ↑ 8.5%', icon: 'fas fa-arrow-up' },
-          progress: 45,
-          icon: { class: 'fas fa-line-chart', color: 'amber' }
-        },
-        {
-          label: '预警监控数',
-          value: '5 个',
-          trend: { type: 'danger', text: '竞品重大动态', icon: 'fas fa-exclamation-circle' },
-          progress: 30,
-          icon: { class: 'fas fa-bell', color: 'red' }
-        }
-      ]
+      dataCards: [],
+      loading: false
+    }
+  },
+  mounted() {
+    this.fetchDataCards()
+  },
+  methods: {
+    async fetchDataCards() {
+      this.loading = true
+      try {
+        const response = await getDataCards({
+          period: 'day'
+        })
+        this.dataCards = response.data.cards || []
+      } catch (error) {
+        console.error('获取数据指标失败:', error)
+        this.$message.error('获取数据指标失败')
+        // 使用默认数据作为降级方案
+        this.dataCards = [
+          {
+            id: 1,
+            label: '今日信息增量',
+            value: '-- 条',
+            trend: { type: 'success', text: '较昨日 ↑ --%', icon: 'el-icon-top' },
+            progress: 75,
+            icon: { class: 'form', color: 'blue' }
+          },
+          {
+            id: 2,
+            label: '客户线索',
+            value: '-- 条',
+            trend: { type: 'info', text: '待跟进' },
+            progress: 60,
+            icon: { class: 'user', color: 'green' }
+          },
+          {
+            id: 3,
+            label: '最新论文',
+            value: '-- 篇',
+            trend: { type: 'warning', text: '较上月 ↑ --%', icon: 'el-icon-top' },
+            progress: 45,
+            icon: { class: 'table', color: 'amber' }
+          },
+          {
+            id: 4,
+            label: '预警监控数',
+            value: '-- 个',
+            trend: { type: 'danger', text: '竞品重大动态' },
+            progress: 30,
+            icon: { class: 'eye', color: 'red' }
+          }
+        ]
+      } finally {
+        this.loading = false
+      }
+    },
+    getProgressColor(color) {
+      const colors = {
+        blue: '#409EFF',
+        green: '#67C23A',
+        amber: '#E6A23C',
+        red: '#F56C6C'
+      }
+      return colors[color] || '#409EFF'
     }
   }
 }

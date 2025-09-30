@@ -12,6 +12,7 @@
               placeholder="选择视角"
               size="small"
               class="view-selector"
+              :loading="loading"
             >
               <el-option label="管理层视角" value="management" />
               <el-option label="市场部视角" value="market" />
@@ -34,7 +35,7 @@
             </div>
           </div>
 
-          <div class="highlights-list">
+          <div class="highlights-list" v-loading="loading">
             <div
               v-for="(item, index) in dailyHighlights"
               :key="index"
@@ -70,41 +71,50 @@
 </template>
 
 <script>
+import { getDailyReport, updateDailyReportView } from '@/api/dashboard'
+
 export default {
   name: 'DailyReport',
   data() {
     return {
       selectedView: 'management',
       currentDate: '',
-      dailyHighlights: [
-        {
-          category: '政策动向',
-          content: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型。建议立即组织跨部门会议评估该政策对公司业务的影响，制定响应策略。',
-          priority: 'high',
-          priorityText: '高'
-        },
-        {
-          category: '竞品动态',
-          content: '竞品A公司宣布完成新一轮融资，计划加大AI研发投入，重点布局智能决策支持系统。建议密切关注其产品迭代计划，调整我们的竞品策略。',
-          priority: 'medium',
-          priorityText: '中'
-        },
-        {
-          category: '销售机会',
-          content: '某省交通厅发布智能交通系统升级项目招标公告，预算约1200万元，需求与我司产品高度匹配。建议立即组建专项投标小组，准备相关材料。',
-          priority: 'high',
-          priorityText: '高'
-        }
-      ]
+      dailyHighlights: [],
+      loading: false
     }
   },
   mounted() {
     this.updateCurrentDate()
+    this.fetchDailyReport()
   },
   methods: {
     updateCurrentDate() {
       const now = new Date()
       this.currentDate = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`
+    },
+    async fetchDailyReport() {
+      this.loading = true
+      try {
+        const response = await getDailyReport({
+          view: this.selectedView
+        })
+        this.dailyHighlights = response.data.highlights || []
+      } catch (error) {
+        console.error('获取每日简报失败:', error)
+        this.$message.error('获取每日简报失败')
+      } finally {
+        this.loading = false
+      }
+    },
+    async handleViewChange() {
+      try {
+        await updateDailyReportView({ view: this.selectedView })
+        await this.fetchDailyReport()
+        this.$message.success('视角切换成功')
+      } catch (error) {
+        console.error('更新视角失败:', error)
+        this.$message.error('更新视角失败')
+      }
     },
     getHighlightColor(priority) {
       const colors = {
@@ -121,6 +131,11 @@ export default {
         low: 'success'
       }
       return types[priority] || 'info'
+    }
+  },
+  watch: {
+    selectedView() {
+      this.handleViewChange()
     }
   }
 }

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>线索数据调试</title>
+</head>
+<body>
+    <h1>线索数据调试页面</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        // 测试线索看板API
+        async function testLeadsBoard() {
+            try {
+                const response = await fetch('/api/dashboard/leads/board?period=week')
+                const data = await response.json()
+                
+                console.log('线索看板API响应:', data)
+                
+                const debugDiv = document.getElementById('debug-info')
+                debugDiv.innerHTML = `
+                    <h2>API响应结果:</h2>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                    
+                    <h2>数据结构检查:</h2>
+                    <p>code: ${data.code}</p>
+                    <p>message: ${data.message}</p>
+                    <p>data存在: ${!!data.data}</p>
+                    <p>columns存在: ${!!(data.data && data.data.columns)}</p>
+                    <p>columns是数组: ${!!(data.data && data.data.columns && Array.isArray(data.data.columns))}</p>
+                    <p>columns长度: ${data.data && data.data.columns ? data.data.columns.length : 'N/A'}</p>
+                `
+                
+                if (data.data && data.data.columns && Array.isArray(data.data.columns)) {
+                    console.log('✅ 数据结构正确')
+                    data.data.columns.forEach((column, index) => {
+                        console.log(`列 ${index + 1}:`, column)
+                    })
+                } else {
+                    console.error('❌ 数据结构错误')
+                }
+                
+            } catch (error) {
+                console.error('API调用失败:', error)
+                document.getElementById('debug-info').innerHTML = `
+                    <h2>错误信息:</h2>
+                    <p style="color: red;">${error.message}</p>
+                `
+            }
+        }
+        
+        // 页面加载时自动测试
+        window.onload = testLeadsBoard
+    </script>
+</body>
+</html>

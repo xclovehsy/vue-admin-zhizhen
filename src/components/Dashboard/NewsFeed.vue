@@ -4,14 +4,14 @@
       <div slot="header" class="card-header">
         <div class="header-content">
           <h3 class="card-title">今日全球要闻</h3>
-          <div class="header-actions">
-            <el-button size="mini" type="text" icon="el-icon-check">全部已读</el-button>
-            <el-button size="mini" type="text" icon="el-icon-filter">筛选</el-button>
-          </div>
+        <div class="header-actions">
+          <el-button size="mini" type="text" icon="el-icon-check" @click="handleMarkAsRead">全部已读</el-button>
+          <el-button size="mini" type="text" icon="el-icon-filter">筛选</el-button>
+        </div>
         </div>
       </div>
 
-      <div class="news-content">
+      <div class="news-content" v-loading="loading">
         <!-- 左侧信息流列表 -->
         <div class="news-sidebar">
           <div class="sidebar-header">
@@ -141,7 +141,7 @@
                 </template>
               </el-alert>
               <div class="action-buttons">
-                <el-button type="primary" size="small" icon="el-icon-check">采纳建议</el-button>
+                <el-button type="primary" size="small" icon="el-icon-check" @click="handleAdoptSuggestion">采纳建议</el-button>
                 <el-button size="small" icon="el-icon-edit">编辑建议</el-button>
               </div>
             </div>
@@ -169,9 +169,10 @@
           </div>
 
           <div v-else class="empty-state">
-            <el-empty description="请选择一条新闻查看详情">
-              <i class="el-icon-document" style="font-size: 48px; color: #C0C4CC;" />
-            </el-empty>
+            <div class="empty-content">
+              <i class="el-icon-document" style="font-size: 48px; color: #C0C4CC; margin-bottom: 16px;" />
+              <p style="color: #909399; font-size: 14px;">请选择一条新闻查看详情</p>
+            </div>
           </div>
         </div>
       </div>
@@ -180,6 +181,8 @@
 </template>
 
 <script>
+import { getNewsList, getNewsDetail, markNewsAsRead, adoptNewsSuggestion } from '@/api/dashboard'
+
 export default {
   name: 'NewsFeed',
   data() {
@@ -187,6 +190,7 @@ export default {
       searchQuery: '',
       selectedCategory: 'all',
       selectedNews: null,
+      loading: false,
       categories: [
         { label: '全部', value: 'all' },
         { label: '政策新闻', value: 'policy' },
@@ -194,60 +198,12 @@ export default {
         { label: '竞品消息', value: 'competitor' },
         { label: '技术前沿', value: 'tech' }
       ],
-      newsList: [
-        {
-          id: 1,
-          category: '机会',
-          title: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型',
-          source: '政策新闻',
-          time: '09:32',
-          publishTime: '2023-11-15',
-          readTime: '5分钟',
-          link: 'http://www.gov.cn/zhengce/content/2023-11/15/content_5823121.htm',
-          summary: '国家发改委与科技部联合发布《新一代人工智能创新发展指导意见》，明确提出支持具备条件的企业建设行业大模型，推动AI技术与实体经济深度融合。文件特别强调了在制造、金融、医疗、教育等重点行业的AI应用，并提出将设立专项基金支持相关技术研发与产业化。意见还提到将建立AI伦理审查和安全评估机制，规范技术应用。该政策将为我国AI产业发展提供强有力的政策支持，预计将加速行业大模型的落地应用。',
-          actionSuggestion: '建议：立即组织战略部、产品部和技术部召开专题会议，评估该政策对公司业务的影响，制定行业大模型建设方案。同时，密切关注后续配套细则和专项基金申请流程，争取成为首批获得政策支持的企业。',
-          relatedNews: [
-            {
-              id: 1,
-              title: '国务院关于加快数字经济发展的若干意见解读',
-              source: '政策解读',
-              time: '3天前'
-            },
-            {
-              id: 2,
-              title: '2023中国AI产业发展白皮书发布，市场规模预计突破5000亿',
-              source: '行业报告',
-              time: '1周前'
-            }
-          ]
-        },
-        {
-          id: 2,
-          category: '预警',
-          title: '竞品A公司宣布完成新一轮融资，计划加大AI研发投入',
-          source: '竞品消息',
-          time: '08:45',
-          publishTime: '2023-11-15',
-          readTime: '3分钟',
-          link: '#',
-          summary: '竞品A公司宣布完成新一轮融资，计划加大AI研发投入，重点布局智能决策支持系统。',
-          actionSuggestion: '建议密切关注其产品迭代计划，调整我们的竞品策略。',
-          relatedNews: []
-        },
-        {
-          id: 3,
-          category: '机会',
-          title: '2023年中国企业数字化转型调研报告发布，AI应用渗透率提升至65%',
-          source: '行业动态',
-          time: '07:30',
-          publishTime: '2023-11-15',
-          readTime: '4分钟',
-          link: '#',
-          summary: '2023年中国企业数字化转型调研报告发布，AI应用渗透率提升至65%',
-          actionSuggestion: '建议关注行业数字化转型趋势，优化我们的产品定位。',
-          relatedNews: []
-        }
-      ]
+      newsList: [],
+      pagination: {
+        page: 1,
+        pageSize: 20,
+        total: 0
+      }
     }
   },
   computed: {
@@ -268,14 +224,115 @@ export default {
     }
   },
   mounted() {
-    // 默认选择第一条新闻
-    if (this.newsList.length > 0) {
-      this.selectedNews = this.newsList[0]
-    }
+    this.fetchNewsList()
   },
   methods: {
-    selectNews(news) {
-      this.selectedNews = news
+    async fetchNewsList() {
+      this.loading = true
+      try {
+        console.log('要闻列表请求:', {
+          page: this.pagination.page,
+          pageSize: this.pagination.pageSize,
+          category: this.selectedCategory,
+          keyword: this.searchQuery
+        })
+        const response = await getNewsList({
+          page: this.pagination.page,
+          pageSize: this.pagination.pageSize,
+          category: this.selectedCategory,
+          keyword: this.searchQuery
+        })
+        console.log('要闻列表响应:', response.data)
+        this.newsList = response.data.news || []
+        this.pagination.total = response.data.total || 0
+        
+        // 默认选择第一条新闻
+        if (this.newsList.length > 0) {
+          await this.selectNews(this.newsList[0])
+        }
+      } catch (error) {
+        console.error('获取要闻列表失败:', error)
+        this.$message.error('获取要闻列表失败')
+        // 使用默认数据作为降级方案
+        this.newsList = [
+          {
+            id: 1,
+            category: '机会',
+            title: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型',
+            source: '政策新闻',
+            time: '09:32',
+            publishTime: '2023-11-15',
+            readTime: '5分钟',
+            link: 'http://www.gov.cn/zhengce/content/2023-11/15/content_5823121.htm',
+            summary: '国家发改委与科技部联合发布《新一代人工智能创新发展指导意见》，明确提出支持具备条件的企业建设行业大模型，推动AI技术与实体经济深度融合。',
+            actionSuggestion: '建议：立即组织战略部、产品部和技术部召开专题会议，评估该政策对公司业务的影响，制定行业大模型建设方案。',
+            relatedNews: []
+          }
+        ]
+        if (this.newsList.length > 0) {
+          await this.selectNews(this.newsList[0])
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+    async selectNews(news) {
+      console.log('选择新闻:', news)
+      // 先设置基本信息，确保有数据显示
+      this.selectedNews = {
+        ...news,
+        content: news.summary || '暂无详细内容',
+        tags: news.tags || []
+      }
+      
+      try {
+        // 获取详细内容
+        const response = await getNewsDetail(news.id)
+        console.log('要闻详情响应:', response)
+        if (response && response.data) {
+          this.selectedNews = response.data
+          console.log('设置详情后的selectedNews:', this.selectedNews)
+        } else {
+          console.warn('要闻详情响应格式错误，使用列表数据')
+        }
+      } catch (error) {
+        console.error('获取要闻详情失败:', error)
+        // 保持使用列表数据
+        console.log('使用列表数据作为详情:', this.selectedNews)
+      }
+    },
+    async handleMarkAsRead() {
+      if (!this.selectedNews) return
+      
+      try {
+        await markNewsAsRead(this.selectedNews.id)
+        this.$message.success('已标记为已读')
+      } catch (error) {
+        console.error('标记已读失败:', error)
+        this.$message.error('标记已读失败')
+      }
+    },
+    async handleAdoptSuggestion() {
+      if (!this.selectedNews) return
+      
+      try {
+        await adoptNewsSuggestion(this.selectedNews.id, {
+          action: 'adopt',
+          note: '已采纳AI建议'
+        })
+        this.$message.success('已采纳AI建议')
+      } catch (error) {
+        console.error('采纳建议失败:', error)
+        this.$message.error('采纳建议失败')
+      }
+    },
+    async handleSearch() {
+      this.pagination.page = 1
+      await this.fetchNewsList()
+    },
+    async handleCategoryChange() {
+      this.pagination.page = 1
+      await this.fetchNewsList()
     },
     getCategoryType(category) {
       const types = {
@@ -288,6 +345,14 @@ export default {
     handleRelatedClick(related) {
       // 处理相关新闻点击事件
       console.log('点击相关新闻:', related)
+    }
+  },
+  watch: {
+    searchQuery() {
+      this.handleSearch()
+    },
+    selectedCategory() {
+      this.handleCategoryChange()
     }
   }
 }
@@ -526,6 +591,10 @@ export default {
           align-items: center;
           justify-content: center;
           height: 300px;
+          
+          .empty-content {
+            text-align: center;
+          }
         }
       }
     }
