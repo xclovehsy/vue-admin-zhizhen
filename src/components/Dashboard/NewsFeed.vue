@@ -140,14 +140,14 @@
                   </div>
                 </template>
               </el-alert>
-              <div class="action-buttons">
+              <!-- <div class="action-buttons">
                 <el-button type="primary" size="small" icon="el-icon-check" @click="handleAdoptSuggestion">采纳建议</el-button>
                 <el-button size="small" icon="el-icon-edit">编辑建议</el-button>
-              </div>
+              </div> -->
             </div>
 
             <!-- 相关推荐 -->
-            <div class="related-section">
+            <!-- <div class="related-section">
               <h4 class="section-title">相关推荐</h4>
               <el-row :gutter="12">
                 <el-col
@@ -165,7 +165,7 @@
                   </el-card>
                 </el-col>
               </el-row>
-            </div>
+            </div> -->
           </div>
 
           <div v-else class="empty-state">
