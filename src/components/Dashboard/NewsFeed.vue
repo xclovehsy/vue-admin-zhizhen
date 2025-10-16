@@ -67,6 +67,18 @@
                 <i class="el-icon-arrow-right" />
               </div>
             </div>
+            <div class="list-pagination">
+              <el-pagination
+                background
+                layout="prev, pager, next, sizes, total"
+                :total="pagination.total"
+                :current-page.sync="pagination.page"
+                :page-size.sync="pagination.pageSize"
+                :page-sizes="[10, 20, 30, 50]"
+                @current-change="handlePageChange"
+                @size-change="handlePageSizeChange"
+              />
+            </div>
           </div>
         </div>
 
@@ -193,10 +205,10 @@ export default {
       loading: false,
       categories: [
         { label: '全部', value: 'all' },
-        { label: '政策新闻', value: 'policy' },
-        { label: '行业动态', value: 'industry' },
-        { label: '竞品消息', value: 'competitor' },
-        { label: '技术前沿', value: 'tech' }
+        { label: '政策新闻', value: '政策新闻' },
+        { label: '行业动态', value: '行业动态' },
+        { label: '竞品消息', value: '竞品消息' },
+        { label: '技术前沿', value: '技术前沿' }
       ],
       newsList: [],
       pagination: {
@@ -210,9 +222,7 @@ export default {
     filteredNews() {
       let filtered = this.newsList
 
-      if (this.selectedCategory !== 'all') {
-        filtered = filtered.filter(news => news.source === this.selectedCategory)
-      }
+      // 后端已根据 category 返回筛选后的列表，这里不再按类别二次过滤，避免字段不一致导致结果为空
 
       if (this.searchQuery) {
         filtered = filtered.filter(news =>
@@ -245,7 +255,7 @@ export default {
         console.log('要闻列表响应:', response.data)
         this.newsList = response.data.news || []
         this.pagination.total = response.data.total || 0
-        
+
         // 默认选择第一条新闻
         if (this.newsList.length > 0) {
           await this.selectNews(this.newsList[0])
@@ -284,7 +294,7 @@ export default {
         content: news.summary || '暂无详细内容',
         tags: news.tags || []
       }
-      
+
       try {
         // 获取详细内容
         const response = await getNewsDetail(news.id)
@@ -303,7 +313,7 @@ export default {
     },
     async handleMarkAsRead() {
       if (!this.selectedNews) return
-      
+
       try {
         await markNewsAsRead(this.selectedNews.id)
         this.$message.success('已标记为已读')
@@ -314,7 +324,7 @@ export default {
     },
     async handleAdoptSuggestion() {
       if (!this.selectedNews) return
-      
+
       try {
         await adoptNewsSuggestion(this.selectedNews.id, {
           action: 'adopt',
@@ -331,6 +341,15 @@ export default {
       await this.fetchNewsList()
     },
     async handleCategoryChange() {
+      this.pagination.page = 1
+      await this.fetchNewsList()
+    },
+    async handlePageChange(page) {
+      this.pagination.page = page
+      await this.fetchNewsList()
+    },
+    async handlePageSizeChange(size) {
+      this.pagination.pageSize = size
       this.pagination.page = 1
       await this.fetchNewsList()
     },
@@ -475,6 +494,15 @@ export default {
               }
             }
           }
+          .list-pagination {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #F5F7FA;
+            background: #fff;
+            position: sticky;
+            bottom: 0;
+          }
         }
       }
 
@@ -591,7 +619,7 @@ export default {
           align-items: center;
           justify-content: center;
           height: 300px;
-          
+
           .empty-content {
             text-align: center;
           }
