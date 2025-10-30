@@ -43,6 +43,20 @@ export const constantRoutes = [
     hidden: true
   },
 
+  // DataBoard 顶部菜单（显示在 Dashboard 之上）
+  {
+    path: '/databoard',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'DataBoard',
+        component: () => import('@/views/DataBoardView'),
+        meta: { title: 'DataBoard', icon: 'table' }
+      }
+    ]
+  },
+
   {
     path: '/',
     component: Layout,
