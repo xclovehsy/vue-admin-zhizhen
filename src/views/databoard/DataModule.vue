@@ -1,6 +1,6 @@
 <template>
   <div class="data-module">
-    <el-card shadow="hover" :body-style="{ height: 'calc(100vh - 140px)' }">
+    <el-card shadow="hover" :body-style="{ height: '100%', padding: '20px' }">
       <div slot="header" class="clearfix">
         <span class="module-title">数据模块</span>
       </div>
