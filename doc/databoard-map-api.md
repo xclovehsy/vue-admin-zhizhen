@@ -2,9 +2,9 @@
 
 ## 概述
 
-地图模块API提供中国地图数据可视化所需的数据接口，支持省/市/区三级地图展示，以及各类数据统计（线索、招标、政策、新闻等）。
+地图模块API提供中国地图和世界地图数据可视化所需的数据接口，支持省/市/区三级地图展示（中国地图）以及世界地图展示，以及各类数据统计（线索、招标、政策、新闻等）。
 
-> **重要说明**: 后端只需返回统计数据（`statistics` 和 `summary`），**不需要返回地图边界数据（`mapData`）**。前端会使用本地 `/china-map.json` 文件作为地图边界数据，以减少API响应大小并提升性能。
+> **重要说明**: 后端只需返回统计数据（`statistics` 和 `summary`），**不需要返回地图边界数据（`mapData`）**。前端会使用本地 `/china-map.json` 文件作为中国地图边界数据，使用本地 `world.js` 文件作为世界地图边界数据，以减少API响应大小并提升性能。
 
 ## 基础信息
 
@@ -22,9 +22,10 @@
 - `news`: 新闻数据
 
 ### 地图级别（level）
-- `province`: 省级地图（默认）
-- `city`: 市级地图
-- `district`: 区县级地图
+- `province`: 省级地图（默认，中国地图）
+- `city`: 市级地图（中国地图）
+- `district`: 区县级地图（中国地图）
+- `world`: 世界地图（国家级别）
 
 ### 时间范围（timeRange）
 - `day`: 当天（默认）
@@ -34,9 +35,13 @@
 - `year`: 近一年
 
 ### 区域代码格式
-- 省级：6位数字，如 `110000`（北京市）
-- 市级：6位数字，如 `110100`（北京市市辖区）
-- 区县级：6位数字，如 `110101`（北京市东城区）
+- **中国地图**：
+  - 省级：6位数字，如 `110000`（北京市）
+  - 市级：6位数字，如 `110100`（北京市市辖区）
+  - 区县级：6位数字，如 `110101`（北京市东城区）
+- **世界地图**：
+  - 使用国家英文名称作为标识，如 `China`（中国）、`United States`（美国）等
+  - 国家名称需与 ECharts 世界地图数据中的 `properties.name` 字段保持一致
 
 ## API 接口
 
@@ -52,7 +57,7 @@
 
 | 参数名 | 类型 | 必填 | 说明 | 示例 |
 |--------|------|------|------|------|
-| level | string | 否 | 地图级别，默认province | province |
+| level | string | 否 | 地图级别，默认province。可选值：province/city/district/world | province |
 | date | string | 否 | 查询日期，格式YYYY-MM-DD，默认当前日期 | 2024-01-15 |
 | type | string | 否 | 数据类型，默认all | all |
 | provinceCode | string | 条件必填 | 省份代码（level为city或district时必填） | 110000 |
@@ -61,10 +66,16 @@
 
 **请求示例**:
 ```bash
+# 中国地图 - 省级
 GET /api/databoard/map/data?level=province&date=2024-01-15&type=all&timeRange=month
+
+# 世界地图
+GET /api/databoard/map/data?level=world&date=2024-01-15&type=all&timeRange=month
 ```
 
 **响应数据结构**:
+
+**中国地图响应示例**:
 ```json
 {
   "code": 20000,
@@ -103,13 +114,56 @@ GET /api/databoard/map/data?level=province&date=2024-01-15&type=all&timeRange=mo
 }
 ```
 
+**世界地图响应示例**:
+```json
+{
+  "code": 20000,
+  "message": "success",
+  "data": {
+    "statistics": [
+      {
+        "name": "China",
+        "code": "CN",
+        "value": 250,
+        "leads": 60,
+        "tenders": 45,
+        "policies": 40,
+        "news": 105,
+        "trend": 12.5
+      },
+      {
+        "name": "United States",
+        "code": "US",
+        "value": 220,
+        "leads": 55,
+        "tenders": 40,
+        "policies": 35,
+        "news": 90,
+        "trend": 8.3
+      }
+    ],
+    "summary": {
+      "total": 5000,
+      "max": 300,
+      "min": 0,
+      "avg": 125.5,
+      "count": 150
+    }
+  }
+}
+```
+
 **响应字段说明**:
 
-> **注意**: `mapData` 字段不需要返回。前端会使用本地 `/china-map.json` 文件作为地图边界数据。GeoJSON格式的地图数据体积较大（通常500KB+），且相对固定，不需要每次请求都传输。
+> **注意**: `mapData` 字段不需要返回。前端会使用本地 `/china-map.json` 文件作为中国地图边界数据，使用本地 `world.js` 文件作为世界地图边界数据。GeoJSON格式的地图数据体积较大（通常500KB+），且相对固定，不需要每次请求都传输。
 
 - `statistics`: 统计数据数组（必填）
   - `name`: 区域名称
+    - **中国地图**：省份/城市名称（中文），如 `北京市`、`河南省`
+    - **世界地图**：国家名称（英文），如 `China`、`United States`，需与 ECharts 世界地图数据中的 `properties.name` 字段保持一致
   - `code`: 区域代码
+    - **中国地图**：6位数字代码，如 `110000`（北京市）
+    - **世界地图**：国家代码（ISO 3166-1 alpha-2），如 `CN`（中国）、`US`（美国），可选
   - `value`: 总数值（根据type参数返回对应类型的数据）
   - `leads`: 线索数量
   - `tenders`: 招标数量
@@ -398,7 +452,7 @@ GET /api/databoard/map/trend?region=110000&type=all&period=month
 ```javascript
 import { getMapData, getRegionDetail } from '@/api/databoard/map'
 
-// 获取省级地图数据
+// 获取省级地图数据（中国地图）
 const fetchProvinceMap = async () => {
   try {
     const response = await getMapData({
@@ -417,6 +471,29 @@ const fetchProvinceMap = async () => {
     // 注意：mapData 不需要从API获取，前端会使用本地文件
   } catch (error) {
     console.error('获取地图数据失败:', error)
+  }
+}
+
+// 获取世界地图数据
+const fetchWorldMap = async () => {
+  try {
+    const response = await getMapData({
+      level: 'world',
+      date: '2024-01-15',
+      type: 'all',
+      timeRange: 'month'
+    })
+    
+    const { statistics, summary } = response.data
+    
+    // 统计数据（前端会使用本地 world.js 作为地图边界）
+    // 注意：世界地图中的国家名称需使用英文，如 "China", "United States" 等
+    console.log('世界地图统计数据:', statistics)
+    console.log('汇总数据:', summary)
+    
+    // 注意：mapData 不需要从API获取，前端会使用本地文件
+  } catch (error) {
+    console.error('获取世界地图数据失败:', error)
   }
 }
 
@@ -445,19 +522,26 @@ const fetchRegionDetail = async (regionCode) => {
 
 1. **地图数据（mapData）**: 
    - **后端不需要返回 `mapData` 字段**
-   - 前端会使用本地 `/china-map.json` 文件作为地图边界数据
+   - 前端会使用本地 `/china-map.json` 文件作为中国地图边界数据，使用本地 `world.js` 文件作为世界地图边界数据
    - GeoJSON格式的地图数据体积较大（通常500KB+），且相对固定，不需要每次请求都传输
    - 前端已实现容错机制：如果API返回了 `mapData`，会优先使用；否则使用本地文件
 
 2. **日期格式**: 日期参数必须使用 `YYYY-MM-DD` 格式
 
-3. **区域代码**: 区域代码必须是6位数字字符串
+3. **区域代码**: 
+   - **中国地图**：区域代码必须是6位数字字符串
+   - **世界地图**：国家名称使用英文，需与 ECharts 世界地图数据中的 `properties.name` 字段保持一致（如 `China`、`United States`）
 
-4. **分页**: 统计数据列表如需分页，可在后续版本中添加分页参数
+4. **国家名称格式**: 
+   - 世界地图中的国家名称必须使用英文，且与 ECharts 世界地图 GeoJSON 数据中的 `properties.name` 字段完全一致
+   - 常见国家名称示例：`China`、`United States`、`India`、`Japan`、`Germany`、`United Kingdom`、`France`、`Brazil`、`Russia`、`Canada` 等
 
-5. **性能优化**: 建议使用 `timeRange` 参数限制查询范围，避免数据量过大
+5. **分页**: 统计数据列表如需分页，可在后续版本中添加分页参数
+
+6. **性能优化**: 建议使用 `timeRange` 参数限制查询范围，避免数据量过大
 
 ## 更新日志
 
+- **v1.1.0** (2024-01-XX): 新增世界地图支持，支持 `level=world` 参数
 - **v1.0.0** (2024-01-15): 初始版本，支持省级地图数据查询
 

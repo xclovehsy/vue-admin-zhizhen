@@ -2,7 +2,7 @@
   <div class="map-module">
     <el-card shadow="hover" :body-style="{ height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', marginBottom: 0 }">
       <div slot="header" class="clearfix">
-        <span class="module-title">中国地图</span>
+        <span class="module-title">{{ mapType === 'china' ? '中国地图' : '世界地图' }}</span>
         <div class="header-actions">
           <!-- 数据类型选择 -->
           <el-select v-model="dataType" size="mini" style="width: 100px; margin-right: 8px;" @change="handleDataTypeChange">
@@ -22,7 +22,7 @@
           </el-select>
           <el-button size="mini" @click="resetMap">重置</el-button>
           <el-button size="mini" type="primary" @click="toggleViewMode">
-            {{ viewMode === '2D' ? '切换到3D' : '切换到2D' }}
+            {{ mapType === 'china' ? '切换世界地图' : '切换中国地图' }}
           </el-button>
         </div>
       </div>
@@ -52,14 +52,16 @@ require('echarts/lib/component/visualMap')
 
 // 导入地图API
 import { getMapData, getRegionDetail } from '@/api/databoard/map'
+// 导入地图数据（JS文件会自动注册地图）
+import '@/assets/js/china.js'
+import '@/assets/js/world.js'
 
 export default {
   name: 'MapModule',
   data() {
     return {
       mapChart: null,
-      viewMode: '2D',
-      mapData: null,
+      mapType: 'china', // 地图类型：china/world
       loading: false,
       statistics: [],
       summary: null,
@@ -69,7 +71,7 @@ export default {
     }
   },
   mounted() {
-    this.loadChinaMapData()
+    this.loadMapData()
     window.addEventListener('resize', this.handleResize)
   },
   beforeDestroy() {
@@ -79,11 +81,21 @@ export default {
     window.removeEventListener('resize', this.handleResize)
   },
   methods: {
+    // 加载地图数据（根据mapType加载中国地图或世界地图）
+    async loadMapData() {
+      if (this.mapType === 'china') {
+        await this.loadChinaMapData()
+      } else {
+        await this.loadWorldMapData()
+      }
+    },
+
     // 加载中国地图数据
     async loadChinaMapData() {
       this.loading = true
       try {
-        // 优先尝试从API获取地图数据
+        // 中国地图数据已在 china.js 中注册，直接使用
+        // 优先尝试从API获取统计数据
         let apiResponse = null
         try {
           apiResponse = await getMapData({
@@ -93,77 +105,172 @@ export default {
             timeRange: this.timeRange
           })
         } catch (apiError) {
-          console.warn('API调用失败，使用本地地图数据:', apiError)
+          console.warn('API调用失败，使用模拟数据:', apiError)
         }
 
-        // 如果有API响应，使用API数据
+        // 处理统计数据
         if (apiResponse && apiResponse.data) {
-          const data = apiResponse.data
-          
-          // 如果API返回了地图数据，使用API数据
-          if (data.mapData) {
-            this.mapData = data.mapData
-            this.statistics = data.statistics || []
-            this.summary = data.summary || null
-          } else {
-            // API只返回统计数据，使用本地地图数据
-            await this.loadLocalMapData()
-            this.statistics = data.statistics || []
-            this.summary = data.summary || null
-          }
+          this.statistics = apiResponse.data.statistics || []
+          this.summary = apiResponse.data.summary || null
         } else {
-          // API调用失败，使用本地地图数据和示例数据
-          await this.loadLocalMapData()
-          this.statistics = []
-          this.summary = null
+          // 使用示例数据
+          this.statistics = this.getDefaultChinaStatistics()
+          this.summary = {
+            total: 3500,
+            max: 200,
+            min: 0,
+            avg: 105.5,
+            count: 34
+          }
         }
 
-        // 注册地图
-        if (this.mapData && this.mapData.features) {
-          try {
-            echarts.registerMap('china', this.mapData)
-            console.log('地图注册成功，特征数量:', this.mapData.features.length)
-          } catch (error) {
-            console.error('地图注册失败:', error)
-            throw error
-          }
-        } else {
-          console.warn('地图数据格式不正确，无法注册')
-        }
-
-        // 等待DOM更新后初始化地图
+        // 初始化地图
         await this.$nextTick()
-        // 再次等待确保容器已渲染
         setTimeout(() => {
           this.initMap()
         }, 200)
       } catch (error) {
-        console.error('加载地图数据失败:', error)
-        this.$message.error('加载地图数据失败，请检查网络连接')
+        console.error('加载中国地图数据失败:', error)
+        this.$message.error('加载中国地图数据失败')
+        // 使用示例数据
+        this.statistics = this.getDefaultChinaStatistics()
+        this.summary = {
+          total: 3500,
+          max: 200,
+          min: 0,
+          avg: 105.5,
+          count: 34
+        }
+        await this.$nextTick()
+        setTimeout(() => {
+          this.initMap()
+        }, 200)
       } finally {
         this.loading = false
       }
     },
 
-    // 加载本地地图数据
-    async loadLocalMapData() {
+    // 加载世界地图数据
+    async loadWorldMapData() {
+      this.loading = true
       try {
-        const response = await fetch('/china-map.json')
-        this.mapData = await response.json()
+        // 世界地图数据已在 world.js 中注册，直接使用
+        // 优先尝试从API获取统计数据
+        let apiResponse = null
+        try {
+          apiResponse = await getMapData({
+            level: 'world',
+            date: this.currentDate,
+            type: this.dataType,
+            timeRange: this.timeRange
+          })
+        } catch (apiError) {
+          console.warn('API调用失败，使用模拟数据:', apiError)
+        }
+
+        // 处理统计数据
+        if (apiResponse && apiResponse.data) {
+          this.statistics = apiResponse.data.statistics || []
+          this.summary = apiResponse.data.summary || null
+        } else {
+          // 使用模拟数据
+          this.statistics = this.getDefaultWorldStatistics()
+          this.summary = {
+            total: 5000,
+            max: 300,
+            min: 0,
+            avg: 125.5,
+            count: 150
+          }
+        }
+
+        // 初始化地图
+        await this.$nextTick()
+        this.initMap()
       } catch (error) {
-        console.error('加载本地地图数据失败:', error)
-        throw error
+        console.error('加载世界地图数据失败:', error)
+        this.$message.error('加载世界地图数据失败')
+        // 使用模拟数据
+        this.statistics = this.getDefaultWorldStatistics()
+        this.summary = {
+          total: 5000,
+          max: 300,
+          min: 0,
+          avg: 125.5,
+          count: 150
+        }
+        await this.$nextTick()
+        this.initMap()
+      } finally {
+        this.loading = false
       }
+    },
+
+    // 获取默认中国地图统计数据
+    // 注意：省份名称必须与 ECharts china.js 地图数据中的 properties.name 字段完全一致（使用简称）
+    getDefaultChinaStatistics() {
+      return [
+        { name: '北京', value: 177, leads: 45, tenders: 32, policies: 28, news: 72 },
+        { name: '天津', value: 42, leads: 12, tenders: 8, policies: 7, news: 15 },
+        { name: '河北', value: 102, leads: 26, tenders: 22, policies: 18, news: 36 },
+        { name: '山西', value: 81, leads: 21, tenders: 18, policies: 15, news: 27 },
+        { name: '内蒙古', value: 47, leads: 12, tenders: 10, policies: 8, news: 17 },
+        { name: '辽宁', value: 67, leads: 17, tenders: 14, policies: 12, news: 24 },
+        { name: '吉林', value: 82, leads: 21, tenders: 18, policies: 15, news: 28 },
+        { name: '黑龙江', value: 123, leads: 31, tenders: 27, policies: 22, news: 43 },
+        { name: '上海', value: 24, leads: 6, tenders: 5, policies: 4, news: 9 },
+        { name: '江苏', value: 92, leads: 23, tenders: 20, policies: 17, news: 32 },
+        { name: '浙江', value: 114, leads: 29, tenders: 25, policies: 21, news: 39 },
+        { name: '安徽', value: 109, leads: 28, tenders: 24, policies: 20, news: 37 },
+        { name: '福建', value: 116, leads: 30, tenders: 26, policies: 21, news: 39 },
+        { name: '江西', value: 91, leads: 23, tenders: 20, policies: 17, news: 31 },
+        { name: '山东', value: 119, leads: 30, tenders: 26, policies: 22, news: 41 },
+        { name: '河南', value: 137, leads: 35, tenders: 28, policies: 22, news: 52 },
+        { name: '湖北', value: 116, leads: 30, tenders: 26, policies: 21, news: 39 },
+        { name: '湖南', value: 114, leads: 29, tenders: 25, policies: 21, news: 39 },
+        { name: '广东', value: 92, leads: 23, tenders: 20, policies: 17, news: 32 },
+        { name: '广西', value: 59, leads: 15, tenders: 13, policies: 11, news: 20 },
+        { name: '海南', value: 14, leads: 4, tenders: 3, policies: 2, news: 5 },
+        { name: '重庆', value: 91, leads: 23, tenders: 20, policies: 17, news: 31 },
+        { name: '四川', value: 125, leads: 32, tenders: 28, policies: 23, news: 42 },
+        { name: '贵州', value: 62, leads: 16, tenders: 14, policies: 11, news: 21 },
+        { name: '云南', value: 83, leads: 21, tenders: 18, policies: 15, news: 29 },
+        { name: '西藏', value: 9, leads: 2, tenders: 2, policies: 2, news: 3 },
+        { name: '陕西', value: 80, leads: 20, tenders: 18, policies: 15, news: 27 },
+        { name: '甘肃', value: 56, leads: 14, tenders: 12, policies: 10, news: 20 },
+        { name: '青海', value: 10, leads: 3, tenders: 2, policies: 2, news: 3 },
+        { name: '宁夏', value: 18, leads: 5, tenders: 4, policies: 3, news: 6 },
+        { name: '新疆', value: 67, leads: 17, tenders: 15, policies: 12, news: 23 },
+        { name: '台湾', value: 0, leads: 0, tenders: 0, policies: 0, news: 0 },
+        { name: '香港', value: 0, leads: 0, tenders: 0, policies: 0, news: 0 },
+        { name: '澳门', value: 0, leads: 0, tenders: 0, policies: 0, news: 0 }
+      ]
+    },
+
+    // 获取默认世界地图统计数据
+    getDefaultWorldStatistics() {
+      return [
+        { name: 'China', value: 250, leads: 60, tenders: 45, policies: 40, news: 105 },
+        { name: 'United States', value: 220, leads: 55, tenders: 40, policies: 35, news: 90 },
+        { name: 'India', value: 180, leads: 45, tenders: 35, policies: 30, news: 70 },
+        { name: 'Japan', value: 150, leads: 38, tenders: 30, policies: 25, news: 57 },
+        { name: 'Germany', value: 140, leads: 35, tenders: 28, policies: 22, news: 55 },
+        { name: 'United Kingdom', value: 130, leads: 32, tenders: 26, policies: 20, news: 52 },
+        { name: 'France', value: 125, leads: 30, tenders: 25, policies: 18, news: 52 },
+        { name: 'Brazil', value: 120, leads: 28, tenders: 24, policies: 18, news: 50 },
+        { name: 'Russia', value: 115, leads: 27, tenders: 23, policies: 17, news: 48 },
+        { name: 'Canada', value: 110, leads: 26, tenders: 22, policies: 16, news: 46 }
+      ]
     },
 
     // 处理数据类型变化
     handleDataTypeChange() {
-      this.loadChinaMapData()
+      this.loadMapData()
     },
 
     // 处理时间范围变化
     handleTimeRangeChange() {
-      this.loadChinaMapData()
+      this.loadMapData()
     },
     
     // 初始化地图
@@ -230,12 +337,13 @@ export default {
       }
 
       // 检查地图是否已注册（echarts 5.0+的检查方式）
+      const mapName = this.mapType === 'china' ? 'china' : 'world'
       try {
         // 尝试获取已注册的地图，如果未注册会抛出错误
-        echarts.getMap('china')
-        console.log('地图"china"已注册')
+        echarts.getMap(mapName)
+        console.log(`地图"${mapName}"已注册`)
       } catch (error) {
-        console.error('地图"china"未注册，请先加载地图数据', error)
+        console.error(`地图"${mapName}"未注册，请先加载地图数据`, error)
         this.$message.error('地图数据未加载，请刷新页面重试')
         return
       }
@@ -310,10 +418,10 @@ export default {
           {
             name: this.getDataTypeText(),
             type: 'map',
-            map: 'china',
+            map: mapName,
             roam: true, // 开启缩放和平移
-            zoom: 1.2, // 设置初始缩放
-            center: [105, 36], // 设置地图中心点
+            zoom: this.mapType === 'china' ? 1.2 : 1.2,
+            center: this.mapType === 'china' ? [105, 36] : [0, 0], // 设置地图中心点
             itemStyle: {
               borderColor: '#4fa8ff',
               borderWidth: 1
@@ -321,7 +429,7 @@ export default {
             },
             emphasis: {
               label: {
-                show: true,
+                show: this.mapType === 'china', // 世界地图悬停时不显示标签
                 color: '#fff',
                 fontSize: 14
               },
@@ -332,7 +440,7 @@ export default {
               }
             },
             label: {
-              show: true,
+              show: this.mapType === 'china', // 世界地图不显示文字标签
               color: '#333',
               fontSize: 12
             },
@@ -387,42 +495,13 @@ export default {
       }
 
       // 否则使用示例数据作为备用
-      return [
-        { name: '北京市', value: 177 },
-        { name: '天津市', value: 42 },
-        { name: '河北省', value: 102 },
-        { name: '山西省', value: 81 },
-        { name: '内蒙古自治区', value: 47 },
-        { name: '辽宁省', value: 67 },
-        { name: '吉林省', value: 82 },
-        { name: '黑龙江省', value: 123 },
-        { name: '上海市', value: 24 },
-        { name: '江苏省', value: 92 },
-        { name: '浙江省', value: 114 },
-        { name: '安徽省', value: 109 },
-        { name: '福建省', value: 116 },
-        { name: '江西省', value: 91 },
-        { name: '山东省', value: 119 },
-        { name: '河南省', value: 137 },
-        { name: '湖北省', value: 116 },
-        { name: '湖南省', value: 114 },
-        { name: '重庆市', value: 91 },
-        { name: '四川省', value: 125 },
-        { name: '贵州省', value: 62 },
-        { name: '云南省', value: 83 },
-        { name: '西藏自治区', value: 9 },
-        { name: '陕西省', value: 80 },
-        { name: '甘肃省', value: 56 },
-        { name: '青海省', value: 10 },
-        { name: '宁夏回族自治区', value: 18 },
-        { name: '新疆维吾尔自治区', value: 67 },
-        { name: '广东省', value: 92 },
-        { name: '广西壮族自治区', value: 59 },
-        { name: '海南省', value: 14 },
-        { name: '台湾省', value: 0 },
-        { name: '香港特别行政区', value: 0 },
-        { name: '澳门特别行政区', value: 0 }
-      ]
+      if (this.mapType === 'world') {
+        // 世界地图默认数据
+        return this.getDefaultWorldStatistics()
+      } else {
+        // 中国地图默认数据
+        return this.getDefaultChinaStatistics()
+      }
     },
 
     // 获取数据类型文本
@@ -495,8 +574,44 @@ export default {
         }
       }
 
-      // 区域代码映射表（备用）
+      // 区域代码映射表（支持简称和全称）
       const regionCodeMap = {
+        // 简称映射（ECharts 地图数据使用）
+        '北京': '110000',
+        '天津': '120000',
+        '河北': '130000',
+        '山西': '140000',
+        '内蒙古': '150000',
+        '辽宁': '210000',
+        '吉林': '220000',
+        '黑龙江': '230000',
+        '上海': '310000',
+        '江苏': '320000',
+        '浙江': '330000',
+        '安徽': '340000',
+        '福建': '350000',
+        '江西': '360000',
+        '山东': '370000',
+        '河南': '410000',
+        '湖北': '420000',
+        '湖南': '430000',
+        '广东': '440000',
+        '广西': '450000',
+        '海南': '460000',
+        '重庆': '500000',
+        '四川': '510000',
+        '贵州': '520000',
+        '云南': '530000',
+        '西藏': '540000',
+        '陕西': '610000',
+        '甘肃': '620000',
+        '青海': '630000',
+        '宁夏': '640000',
+        '新疆': '650000',
+        '台湾': '710000',
+        '香港': '810000',
+        '澳门': '820000',
+        // 全称映射（兼容后端API可能返回的全称）
         '北京市': '110000',
         '天津市': '120000',
         '河北省': '130000',
@@ -552,11 +667,19 @@ export default {
       }
     },
     
-    // 切换视图模式
-    toggleViewMode() {
-      this.$message.info('3D地图功能开发中...')
-      // TODO: 实现3D地图切换
-      // 需要安装 echarts-gl 并实现3D地图
+    // 切换视图模式（切换地图类型）
+    async toggleViewMode() {
+      // 切换地图类型
+      this.mapType = this.mapType === 'china' ? 'world' : 'china'
+      
+      // 销毁当前地图实例
+      if (this.mapChart) {
+        this.mapChart.dispose()
+        this.mapChart = null
+      }
+      
+      // 重新加载地图数据
+      await this.loadMapData()
     },
     
     // 处理窗口大小变化
