@@ -16,14 +16,13 @@
               <div class="chart-item">
                 <line-chart 
                   :chart-data="policyNewsData" 
-                  height="160px"
                   title="政策新闻"
                 />
               </div>
               <div class="chart-item">
                 <line-chart 
                   :chart-data="industryNewsData" 
-                  height="160px"
+                  
                   title="行业新闻"
                 />
               </div>
@@ -41,14 +40,12 @@
               <div class="chart-item">
                 <line-chart 
                   :chart-data="competitorTrendData" 
-                  height="160px"
                   title="竞品公司动态变化"
                 />
               </div>
               <div class="chart-item">
                 <pie-chart 
                   :chart-data="competitorTypeData" 
-                  height="160px"
                   title="竞品动态类型分布"
                 />
               </div>
@@ -66,14 +63,12 @@
               <div class="chart-item">
                 <line-chart 
                   :chart-data="researchTrendData" 
-                  height="160px"
                   title="各研究主题数量变化"
                 />
               </div>
               <div class="chart-item">
                 <pie-chart 
                   :chart-data="researchTopicData" 
-                  height="160px"
                   title="论文研究主题统计"
                 />
               </div>
@@ -88,7 +83,7 @@
 <script>
 import LineChart from '@/components/Dashboard/LineChart.vue'
 import PieChart from '@/components/Dashboard/PieChart.vue'
-
+import { getChartData } from '@/api/databoard/data'
 export default {
   name: 'DataModule',
   components: {
@@ -97,50 +92,32 @@ export default {
   },
   data() {
     return {
-      // 政策新闻数据
-      policyNewsData: {
+
+      // 图表数据
+      policyNewsData : {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        seriesData: [
-          {
-            name: '政策新闻',
-            data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
-            color: '#5470c6'
-          }
-        ]
+        seriesData: [{
+          name: '政策新闻',
+          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
+          color: '#5470c6'
+        }]
       },
-      // 行业新闻数据
       industryNewsData: {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        seriesData: [
-          {
-            name: '行业新闻',
-            data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
-            color: 'green'
-          }
-        ]
+        seriesData: [{
+          name: '行业新闻',
+          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
+          color: 'green'
+        }]
       },
-      // 竞品趋势数据
       competitorTrendData: {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
         seriesData: [
-          {
-            name: '公司A',
-            data: [120, 132, 101, 134, 90, 230],
-            color: '#91cc75'
-          },
-          {
-            name: '公司B',
-            data: [220, 182, 191, 234, 290, 330],
-            color: '#fac858'
-          },
-          {
-            name: '公司C',
-            data: [150, 232, 201, 154, 190, 330],
-            color: '#ee6666'
-          }
+          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
+          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
+          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
         ]
       },
-      // 竞品类型数据
       competitorTypeData: {
         seriesData: [
           { value: 335, name: '产品发布' },
@@ -150,28 +127,14 @@ export default {
           { value: 1548, name: '其他动态' }
         ]
       },
-      // 研究趋势数据
       researchTrendData: {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
         seriesData: [
-          {
-            name: '人工智能',
-            data: [120, 132, 101, 134, 90, 230],
-            color: '#73c0de'
-          },
-          {
-            name: '大数据',
-            data: [220, 182, 191, 234, 290, 330],
-            color: '#3ba272'
-          },
-          {
-            name: '云计算',
-            data: [150, 232, 201, 154, 190, 330],
-            color: '#fc8452'
-          }
+          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
+          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
+          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
         ]
       },
-      // 研究主题数据
       researchTopicData: {
         seriesData: [
           { value: 335, name: '机器学习' },
@@ -180,14 +143,194 @@ export default {
           { value: 135, name: '计算机视觉' },
           { value: 1548, name: '其他主题' }
         ]
-      }
+      },
     }
   },
   mounted() {
-    
+    this.loadChartData()
   },
   methods: {
+    // 加载图表数据
+    async loadChartData() {
+      try {
+        // 优先尝试从API获取数据
+        let apiResponse = null
+        try {
+          apiResponse = await getChartData({})
+        } catch (apiError) {
+          console.warn('API调用失败，使用模拟数据:', apiError)
+        }
+        // 处理API返回的数据
+        if (apiResponse && apiResponse.data && apiResponse.data.statistics) {
+          this.processApiData(apiResponse.data)
+        } else {
+          console.warn('API数据为空或结构不完整，使用模拟数据')
+          this.useMockData()
+          this.$forceUpdate()
+        }
+      } catch (error) {
+        console.warn('API调用失败，使用模拟数据:', apiError)
+        this.useMockData()
+        this.$forceUpdate()
+      } finally {
+      }
+    },
+
+    // 处理API返回的数据
+    processApiData(apiData) {
+      const { statistics } = apiData
+      if (!statistics) {
+        console.warn('API返回数据格式不正确，使用模拟数据')
+        this.useMockData()
+        return
+      }
+      // 政策新闻数据
+      this.policyNewsData = {
+        xAxisData: statistics.policyNews?.xAxis || this.generateDefaultXAxis(),
+        seriesData: [{
+          name: '政策新闻',
+          data: statistics.policyNews?.data || [],
+          color: '#5470c6'
+        }]
+      }
+
+      // 行业新闻数据
+      this.industryNewsData = {
+        xAxisData: statistics.industryNews?.xAxis || this.generateDefaultXAxis(),
+        seriesData: [{
+          name: '行业新闻',
+          data: statistics.industryNews?.data || [],
+          color: 'green'
+        }]
+      }
+
+      // 竞品趋势数据
+      this.competitorTrendData = {
+        xAxisData: statistics.competitorTrend?.xAxis || this.generateShortXAxis(),
+        seriesData: statistics.competitorTrend?.series || [
+          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
+          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
+          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
+        ]
+      }
+
+      // 竞品类型数据
+      this.competitorTypeData = {
+        seriesData: statistics.competitorType || [
+          { value: 335, name: '产品发布' },
+          { value: 310, name: '市场活动' },
+          { value: 234, name: '技术更新' },
+          { value: 135, name: '合作签约' },
+          { value: 1548, name: '其他动态' }
+        ]
+      }
+
+      // 研究趋势数据
+      this.researchTrendData = {
+        xAxisData: statistics.researchTrend?.xAxis || this.generateShortXAxis(),
+        seriesData: statistics.researchTrend?.series || [
+          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
+          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
+          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
+        ]
+      }
+
+      // 研究主题数据
+      this.researchTopicData = {
+        seriesData: statistics.researchTopic || [
+          { value: 335, name: '机器学习' },
+          { value: 310, name: '深度学习' },
+          { value: 234, name: '自然语言处理' },
+          { value: 135, name: '计算机视觉' },
+          { value: 1548, name: '其他主题' }
+        ]
+      }
+    },
     
+    // 使用模拟数据
+    useMockData() {
+      // 政策新闻数据
+      this.policyNewsData = {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        seriesData: [{
+          name: '政策新闻',
+          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
+          color: '#5470c6'
+        }]
+      }
+
+      // 行业新闻数据
+      this.industryNewsData = {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        seriesData: [{
+          name: '行业新闻',
+          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
+          color: 'green'
+        }]
+      }
+
+      // 竞品趋势数据
+      this.competitorTrendData = {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        seriesData: [
+          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
+          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
+          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
+        ]
+      }
+
+      // 竞品类型数据
+      this.competitorTypeData = {
+        seriesData: [
+          { value: 335, name: '产品发布' },
+          { value: 310, name: '市场活动' },
+          { value: 234, name: '技术更新' },
+          { value: 135, name: '合作签约' },
+          { value: 1548, name: '其他动态' }
+        ]
+      }
+
+      // 研究趋势数据
+      this.researchTrendData = {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
+        seriesData: [
+          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
+          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
+          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
+        ]
+      }
+
+      // 研究主题数据
+      this.researchTopicData = {
+        seriesData: [
+          { value: 335, name: '机器学习' },
+          { value: 310, name: '深度学习' },
+          { value: 234, name: '自然语言处理' },
+          { value: 135, name: '计算机视觉' },
+          { value: 1548, name: '其他主题' }
+        ]
+      }
+    },
+    
+    // 生成默认时间轴（12个月）
+    generateDefaultXAxis() {
+      return ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+    },
+
+    // 生成短时间轴（6个月）
+    generateShortXAxis() {
+      return ['1月', '2月', '3月', '4月', '5月', '6月']
+    },
+
+    // 处理数据类型变化
+    handleDataTypeChange() {
+      this.loadChartData()
+    },
+
+    // 处理时间范围变化
+    handleTimeRangeChange() {
+      this.loadChartData()
+    },
   }
 }
 </script>
@@ -235,7 +378,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 160px;  // height1
+  min-height: 0;
   margin-bottom: 0;
   
   ::v-deep .el-card__body {
@@ -243,6 +386,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding: 10px !important;
+    min-height: 0;
   }
 
   .card-header {
@@ -266,7 +410,7 @@ export default {
   gap: 20px;
   width: 100%;
   height: 100%;
-  min-height: 160px; // height2
+  min-height: 0px;
 }
 
 .chart-item {
@@ -277,6 +421,7 @@ export default {
   flex-direction: column;
   width: 100%;
   height: 100%;
+  min-height: 0;
   h4 {
     margin: 0 0 16px 0;
     text-align: center;
@@ -292,7 +437,7 @@ export default {
   width: 100% !important;
   height: 100% !important;
   flex: 1;
-  min-height: 140px;
+  min-height: 0px;
 }
 
 // 响应式设计
