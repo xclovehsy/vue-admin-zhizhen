@@ -864,7 +864,7 @@ export default {
 
           .suggestions-section {
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
 
             .suggestions-header {
               display: flex;
@@ -888,7 +888,7 @@ export default {
             .suggestions-grid {
               display: flex;
               flex-direction: column;
-              gap: 12px;
+              gap: 10px;
               width: 100%;
               max-width: 100%;
               padding: 0;
@@ -897,12 +897,12 @@ export default {
               .suggestion-item {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                padding: 16px;
+                gap: 10px;
+                padding: 12px 14px;
                 background: #FFFFFF;
                 border: 2px solid transparent;
-                border-radius: 12px;
-                font-size: 14px;
+                border-radius: 10px;
+                font-size: 13px;
                 color: #303133;
                 cursor: pointer;
                 transition: all 0.3s ease;
@@ -964,9 +964,9 @@ export default {
 
                 .suggestion-icon {
                   flex-shrink: 0;
-                  width: 36px;
-                  height: 36px;
-                  border-radius: 8px;
+                  width: 32px;
+                  height: 32px;
+                  border-radius: 6px;
                   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                   display: flex;
                   align-items: center;
@@ -974,7 +974,7 @@ export default {
                   transition: transform 0.3s ease;
 
                   i {
-                    font-size: 18px;
+                    font-size: 16px;
                     color: white;
                   }
                 }
@@ -993,14 +993,14 @@ export default {
 
                 .suggestion-text {
                   flex: 1;
-                  line-height: 1.6;
+                  line-height: 1.5;
                   color: #606266;
                 }
 
                 .suggestion-arrow {
                   flex-shrink: 0;
-                  width: 24px;
-                  height: 24px;
+                  width: 20px;
+                  height: 20px;
                   border-radius: 50%;
                   background: #F5F7FA;
                   display: flex;
@@ -1011,7 +1011,7 @@ export default {
                   transition: all 0.3s ease;
 
                   i {
-                    font-size: 14px;
+                    font-size: 12px;
                     color: #409EFF;
                   }
                 }
