@@ -1,9 +1,9 @@
 <template>
   <div class="regional-heat-chart">
     <el-card shadow="hover" class="chart-card" :body-style="{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }">
-      <div slot="header" class="card-header">
+      <!-- <div slot="header" class="card-header">
         <span class="card-title">区域热度</span>
-      </div>
+      </div> -->
       <div class="chart-container" ref="chartContainer" v-loading="loading"></div>
     </el-card>
   </div>
@@ -73,9 +73,9 @@ export default {
           type: this.dataType,
           timeRange: this.timeRange
         })
-        
+
         const statistics = response.data?.statistics || []
-        
+
         if (statistics && statistics.length > 0) {
           // 处理API返回的数据：按总数值排序，取前8名
           this.chartData = statistics
@@ -93,7 +93,7 @@ export default {
           // API返回数据为空，使用默认数据
           this.chartData = this.getDefaultData()
         }
-        
+
         // 等待DOM更新后初始化或更新图表
         await this.$nextTick()
         if (this.chartInstance) {
@@ -124,7 +124,7 @@ export default {
         this.loading = false
       }
     },
-    
+
     // 获取默认数据
     getDefaultData() {
       return [
@@ -138,7 +138,7 @@ export default {
         { name: '四川省', leads: 25, tenders: 22, policies: 15, news: 33, value: 95 }
       ]
     },
-    
+
     // 初始化图表
     initChart() {
       if (!this.$refs.chartContainer) {
@@ -148,13 +148,13 @@ export default {
         }, 100)
         return
       }
-      
+
       const container = this.$refs.chartContainer
       const width = container.clientWidth || container.offsetWidth
       const height = container.clientHeight || container.offsetHeight
-      
+
       console.log('图表容器尺寸:', width, 'x', height)
-      
+
       if (!width || !height || width === 0 || height === 0) {
         console.warn('容器尺寸无效，等待容器渲染')
         setTimeout(() => {
@@ -162,23 +162,23 @@ export default {
         }, 100)
         return
       }
-      
+
       // 如果已经存在实例，先销毁
       if (this.chartInstance) {
         this.chartInstance.dispose()
         this.chartInstance = null
       }
-      
+
       try {
         this.chartInstance = echarts.init(container)
         if (!this.chartInstance) {
           console.error('ECharts实例创建失败')
           return
         }
-        
+
         console.log('ECharts实例创建成功')
         this.setChartOption()
-        
+
         // 确保图表正确渲染
         setTimeout(() => {
           if (this.chartInstance) {
@@ -190,20 +190,20 @@ export default {
         console.error('初始化图表失败:', error)
       }
     },
-    
+
     // 设置图表配置（参考 ECharts 官方示例）
     setChartOption() {
       if (!this.chartInstance) {
         return
       }
-      
+
       // 如果没有数据，使用默认数据
       if (!this.chartData || this.chartData.length === 0) {
         this.chartData = this.getDefaultData()
       }
-      
+
       const names = this.chartData.map(item => item.name)
-      
+
       // 参考 https://echarts.apache.org/examples/zh/editor.html?c=bar-simple
       const option = {
         tooltip: {
@@ -214,45 +214,53 @@ export default {
         },
         legend: {
           data: ['线索', '招标', '政策', '新闻'],
-          top: 0,
+          orient: 'vertical',
+          left: '2%',
+          top: 'center',
           textStyle: {
-            fontSize: 11,
+            fontSize: 10,
             color: '#666'
           },
-          itemWidth: 12,
-          itemHeight: 8
+          itemWidth: 10,
+          itemHeight: 6,
+          itemGap: 10
         },
         grid: {
-          left: '10%',
-          right: '5%',
-          bottom: '15%',
-          top: '15%',
-          containLabel: false
+          left: '9%',
+          right: '3%',
+          bottom: '8%',
+          top: '20%',
+          containLabel: true
         },
         xAxis: {
           type: 'category',
           data: names,
           axisLabel: {
-            fontSize: 11,
+            fontSize: 10,
             color: '#666',
-            rotate: 0
+            rotate: 0,
+            interval: 0
           },
           axisLine: {
             lineStyle: {
               color: '#e0e0e0'
             }
+          },
+          axisTick: {
+            show: false
           }
         },
         yAxis: {
           type: 'value',
           axisLabel: {
-            fontSize: 11,
+            fontSize: 10,
             color: '#666'
           },
           axisLine: {
-            lineStyle: {
-              color: '#e0e0e0'
-            }
+            show: false
+          },
+          axisTick: {
+            show: false
           },
           splitLine: {
             lineStyle: {
@@ -268,17 +276,17 @@ export default {
             data: this.chartData.map(item => item.leads),
             itemStyle: {
               color: '#67C23A',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [3, 3, 0, 0]
             },
             label: {
               show: true,
               position: 'top',
               formatter: '{c}',
-              fontSize: 10,
+              fontSize: 9,
               color: '#333',
               fontWeight: 600
             },
-            barWidth: '20%'
+            barWidth: '15%'
           },
           {
             name: '招标',
@@ -286,17 +294,17 @@ export default {
             data: this.chartData.map(item => item.tenders),
             itemStyle: {
               color: '#409EFF',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [3, 3, 0, 0]
             },
             label: {
               show: true,
               position: 'top',
               formatter: '{c}',
-              fontSize: 10,
+              fontSize: 9,
               color: '#333',
               fontWeight: 600
             },
-            barWidth: '20%'
+            barWidth: '15%'
           },
           {
             name: '政策',
@@ -304,17 +312,17 @@ export default {
             data: this.chartData.map(item => item.policies),
             itemStyle: {
               color: '#E6A23C',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [3, 3, 0, 0]
             },
             label: {
               show: true,
               position: 'top',
               formatter: '{c}',
-              fontSize: 10,
+              fontSize: 9,
               color: '#333',
               fontWeight: 600
             },
-            barWidth: '20%'
+            barWidth: '15%'
           },
           {
             name: '新闻',
@@ -322,31 +330,31 @@ export default {
             data: this.chartData.map(item => item.news),
             itemStyle: {
               color: '#F56C6C',
-              borderRadius: [4, 4, 0, 0]
+              borderRadius: [3, 3, 0, 0]
             },
             label: {
               show: true,
               position: 'top',
               formatter: '{c}',
-              fontSize: 10,
+              fontSize: 9,
               color: '#333',
               fontWeight: 600
             },
-            barWidth: '20%'
+            barWidth: '15%'
           }
         ]
       }
-      
+
       this.chartInstance.setOption(option)
     },
-    
+
     // 处理窗口大小变化
     handleResize() {
       if (this.chartInstance) {
         this.chartInstance.resize()
       }
     },
-    
+
     // 重置图表大小
     resize() {
       this.handleResize()
@@ -357,12 +365,15 @@ export default {
 
 <style lang="scss" scoped>
 .regional-heat-chart {
-  flex-shrink: 0;
-  height: 280px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 
   .chart-card {
     height: 100%;
-    margin-top: 0;
+    width: 100%;
+    margin: 0;
     display: flex;
     flex-direction: column;
 
@@ -370,6 +381,8 @@ export default {
       flex: 1;
       min-height: 0;
       padding: 0 !important;
+      display: flex;
+      flex-direction: column;
     }
 
     .card-header {
@@ -383,7 +396,7 @@ export default {
     .chart-container {
       flex: 1;
       width: 100%;
-      min-height: 200px; // 确保有最小高度
+      min-height: 0;
       position: relative;
     }
   }

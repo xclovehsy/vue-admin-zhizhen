@@ -1,12 +1,12 @@
 <template>
   <div class="info-overview-section" v-loading="loading">
-    <div class="overview-title">
+    <!-- <div class="overview-title">
       <span class="title-text">今日信息增量</span>
       <span class="title-hint">点击查看详情</span>
-    </div>
+    </div> -->
     <div class="overview-items">
-      <div 
-        v-for="(item, index) in items" 
+      <div
+        v-for="(item, index) in items"
         :key="item.cardId || index"
         class="overview-item"
         :class="{ 'has-change': item.change !== 0 }"
@@ -88,9 +88,9 @@ export default {
         const response = await getDataCards({
           period: 'day'
         })
-        
+
         const cards = response.data?.cards || []
-        
+
         // 将API返回的数据映射到items格式
         this.items = cards.map((card, index) => {
           // 解析趋势变化百分比
@@ -101,16 +101,16 @@ export default {
           if (changeMatch) {
             change = parseFloat(changeMatch[1])
           }
-          
+
           // 如果没有找到百分比，检查是否有↑↓符号
           if (change === 0 && trendText.includes('↓')) {
             // 如果只有↓符号但没有数字，设为-1表示下降
             change = -1
           }
-          
+
           // 根据label映射类型和图标
           const typeMap = this.getTypeMapping(card.label)
-          
+
           return {
             type: typeMap.type,
             label: card.label,
@@ -121,7 +121,7 @@ export default {
             cardId: card.id // 保存cardId用于跳转
           }
         })
-        
+
         // 如果API返回的数据不足4个，使用默认数据补充
         if (this.items.length < 4) {
           const defaultCards = this.getDefaultInfoIncrements()
@@ -135,7 +135,7 @@ export default {
         this.loading = false
       }
     },
-    
+
     // 根据label映射类型、图标和颜色
     getTypeMapping(label) {
       const mapping = {
@@ -180,14 +180,14 @@ export default {
           color: '#F56C6C'
         }
       }
-      
+
       return mapping[label] || {
         type: 'other',
         icon: 'el-icon-info',
         color: '#909399'
       }
     },
-    
+
     // 获取默认信息增量数据
     getDefaultInfoIncrements() {
       return [
@@ -225,12 +225,12 @@ export default {
         }
       ]
     },
-    
+
     // 处理卡片点击事件
     handleItemClick(item) {
       this.$emit('item-click', item)
     },
-    
+
     // 格式化数值显示
     formatValue(value) {
       if (!value || value === '--') {
@@ -252,13 +252,13 @@ export default {
 
 <style lang="scss" scoped>
 .info-overview-section {
-  background: #ffffff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  padding: 12px 16px;
-  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 
   .overview-title {
     display: flex;
@@ -286,7 +286,6 @@ export default {
     gap: 20px;
     flex: 1;
     overflow-x: auto;
-    padding-bottom: 2px;
 
     // 自定义滚动条样式
     &::-webkit-scrollbar {
@@ -310,14 +309,14 @@ export default {
     .overview-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
+      gap: 6px;
+      padding: 4px 8px;
       background: #fff;
-      border-radius: 10px;
+      border-radius: 6px;
       border: 1px solid #e4e7ed;
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      min-width: 180px;
+      min-width: 140px;
       flex-shrink: 0;
       position: relative;
       overflow: hidden;
@@ -359,31 +358,31 @@ export default {
         flex-shrink: 0;
 
         .item-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 10px;
+          width: 32px;
+          height: 32px;
+          border-radius: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: #fff;
-          font-size: 24px;
+          font-size: 16px;
           transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .change-badge {
           position: absolute;
-          top: -4px;
-          right: -4px;
-          width: 18px;
-          height: 18px;
+          top: -2px;
+          right: -2px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 9px;
+          font-size: 7px;
           border: 1.5px solid #fff;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 
           &.positive {
             background: #67C23A;
@@ -402,9 +401,9 @@ export default {
         min-width: 0;
 
         .item-label {
-          font-size: 12px;
+          font-size: 10px;
           color: #909399;
-          margin-bottom: 4px;
+          margin-bottom: 1px;
           font-weight: 500;
           white-space: nowrap;
           overflow: hidden;
@@ -414,29 +413,29 @@ export default {
         .item-value-wrapper {
           display: flex;
           align-items: baseline;
-          gap: 6px;
+          gap: 3px;
           flex-wrap: wrap;
 
           .item-value {
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
             color: #303133;
-            line-height: 1.2;
+            line-height: 1;
             letter-spacing: -0.5px;
           }
 
           .item-change {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 2px;
-            padding: 1px 4px;
-            border-radius: 3px;
+            gap: 1px;
+            padding: 1px 3px;
+            border-radius: 2px;
             white-space: nowrap;
 
             i {
-              font-size: 12px;
+              font-size: 10px;
             }
 
             &.positive {
@@ -477,32 +476,32 @@ export default {
   .info-overview-section {
     padding: 10px 14px;
     gap: 12px;
-    
+
     .overview-items {
       gap: 16px;
-      
+
       .overview-item {
         padding: 8px 12px;
         min-width: 160px;
         gap: 8px;
-        
+
         .item-icon {
           width: 44px;
           height: 44px;
           font-size: 22px;
         }
-        
+
         .item-content {
           .item-label {
             font-size: 11px;
             margin-bottom: 3px;
           }
-          
+
           .item-value-wrapper {
             .item-value {
               font-size: 18px;
             }
-            
+
             .item-change {
               font-size: 11px;
             }

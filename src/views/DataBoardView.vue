@@ -1,10 +1,10 @@
 <template>
   <div class="databoard-container">
     <!-- 顶部导航栏 -->
-    <div class="top-header">
+    <!-- <div class="top-header">
       <div class="header-left">
         <div class="logo-container">
-          <i class="el-icon-cpu logo-icon"></i>
+          <i class="el-icon-cpu logo-icon" />
           <div class="logo-text">
             <h1 class="app-name">致真信息大脑</h1>
             <p class="app-subtitle">全域感知，智能决策</p>
@@ -21,7 +21,7 @@
           </el-button>
         </el-button-group>
       </div>
-    </div>
+    </div> -->
 
     <!-- 主要内容区 -->
     <div class="main-content-container">
@@ -33,7 +33,8 @@
           <el-col :span="18" class="content-col">
             <div class="middle-content">
               <div class="top-content" style="margin-bottom: 10px;">
-                <info-overview @item-click="scrollToDetail" />
+                <!-- <info-overview @item-click="scrollToDetail" /> -->
+                <simple-daily-report />
               </div>
 
               <el-row :gutter="10" class="middle-row">
@@ -50,7 +51,7 @@
                     </div>
                   </div>
                 </el-col>
-                
+
                 <!-- 右侧：DataModule -->
                 <el-col :span="12" class="right-data-col">
                   <div class="data-column">
@@ -77,8 +78,8 @@
 import MapModule from './databoard/MapModule.vue'
 import DataModule from './databoard/DataModule.vue'
 import AgentModule from './databoard/AgentModule.vue'
-import InfoOverview from '@/components/Dashboard/InfoOverview.vue'
-import RegionalHeatChart from '@/components/Dashboard/RegionalHeatChart.vue'
+import RegionalHeatChart from '@/components/Databoard/RegionalHeatChart.vue'
+import SimpleDailyReport from '@/components/Databoard/SimpleDailyReport.vue'
 
 export default {
   name: 'DataBoardView',
@@ -86,8 +87,8 @@ export default {
     MapModule,
     DataModule,
     AgentModule,
-    InfoOverview,
-    RegionalHeatChart
+    RegionalHeatChart,
+    SimpleDailyReport
   },
   data() {
     return {
@@ -166,8 +167,6 @@ export default {
   }
 }
 
-
-
 // 主内容容器
 .main-content-container {
   flex: 1;
@@ -197,12 +196,12 @@ export default {
     flex: 1;
     min-height: 0;
     display: flex;
-    
+
     .content-col {
       height: 100%;
       display: flex;
       flex-direction: column;
-      
+
       // 右侧列（智能助手）
       &.agent-col {
         padding-left: 10px;
@@ -215,18 +214,18 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
-    
+
     .middle-row {
       flex: 1;
       min-height: 0;
       height: 100%;
-      
+
       .left-map-col {
         height: 100%;
         display: flex;
         flex-direction: column;
       }
-      
+
       .right-data-col {
         height: 100%;
         display: flex;
@@ -244,11 +243,11 @@ export default {
   gap: 16px;
 
   .map-section {
-    flex: 1;
+    flex: 3;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    
+
     ::v-deep .el-card {
       margin-bottom: 0;
       height: 100%;
@@ -256,8 +255,15 @@ export default {
   }
 
   .chart-section {
-    flex-shrink: 0;
-    height: 280px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+
+    ::v-deep .el-card {
+      margin-bottom: 0;
+      height: 100%;
+    }
   }
 }
 
@@ -266,7 +272,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  
+
   ::v-deep .el-card {
     height: 100%;
     margin-bottom: 0;
@@ -278,7 +284,7 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  
+
   ::v-deep .el-card {
     height: 100%;
     margin-bottom: 0;
