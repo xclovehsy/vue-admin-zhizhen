@@ -3,11 +3,11 @@
     <el-card shadow="hover" :body-style="{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }">
       <!-- 顶部导航栏 -->
       <div slot="header" class="top-header">
-        <div class="header-left">
+        <!-- <div class="header-left">
           <i class="el-icon-arrow-left header-back-icon" @click="handleBack"></i>
-        </div>
+        </div> -->
         <div class="header-center">
-          <el-avatar :size="32" :src="aiAvatar" class="header-avatar">
+          <el-avatar :size="40" :src="aiAvatar" class="header-avatar">
             <i class="el-icon-cpu" />
           </el-avatar>
           <div class="header-info">
@@ -15,38 +15,49 @@
             <div class="ai-tag">内容由 AI 生成</div>
           </div>
         </div>
-        <div class="header-right">
+        <!-- <div class="header-right">
           <div class="header-icon-wrapper" @click="handlePhoneCall">
             <i class="el-icon-phone header-icon" />
             <span class="icon-badge"></span>
           </div>
           <i class="el-icon-microphone header-icon speaker-icon" :class="{ active: isSpeakerActive }" @click="handleSpeakerToggle"></i>
           <i class="el-icon-more header-icon" @click="handleMoreOptions"></i>
-        </div>
+        </div> -->
       </div>
 
       <!-- 消息列表区域 -->
       <div class="chat-container">
-        <el-scrollbar class="message-list" ref="messageScrollbar">
+        <div class="message-list">
           <div class="messages">
             <!-- AI 欢迎区域 -->
             <div v-if="showWelcome" class="welcome-section">
-              <el-avatar :size="80" :src="aiAvatar" class="welcome-avatar">
-                  <i class="el-icon-cpu" />
-                </el-avatar>
-              <div class="welcome-message ai-bubble">
-                嗨,我是你的新朋友致真智能体!初次见面很开心。我呢,可以回答你的各种问题,给你工作学习上提供帮助,还能随时陪你聊天。嗯,你想问点什么呢?
-              </div>
-              
+              <!-- 初始报告组件 -->
+              <agent-initial-report />
+
               <!-- 建议提示 -->
-              <div class="suggestions-grid">
-                <div
-                  v-for="suggestion in suggestions"
-                  :key="suggestion.id"
-                  class="suggestion-item"
-                  @click="handleSuggestion(suggestion)"
-                >
-                  {{ suggestion.text }}
+              <div class="suggestions-section">
+                <div class="suggestions-header">
+                  <i class="el-icon-chat-dot-round" />
+                  <span>试试这些问题</span>
+                </div>
+                <div class="suggestions-grid">
+                  <div
+                    v-for="suggestion in suggestions"
+                    :key="suggestion.id"
+                    class="suggestion-item"
+                    :class="suggestion.gradient"
+                    @click="handleSuggestion(suggestion)"
+                  >
+                    <div class="suggestion-icon">
+                      <i :class="suggestion.icon" />
+                    </div>
+                    <div class="suggestion-text">
+                      {{ suggestion.text }}
+                    </div>
+                    <div class="suggestion-arrow">
+                      <i class="el-icon-right" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -88,7 +99,7 @@
               </div>
             </div>
           </div>
-        </el-scrollbar>
+        </div>
 
         <!-- 快捷功能区域 -->
         <div class="feature-shortcuts">
@@ -106,19 +117,30 @@
         <!-- 输入区域 -->
         <div class="input-area">
           <div class="input-wrapper">
-            <i class="el-icon-camera input-left-icon" @click="handleTakePhoto" title="拍照"></i>
+            <!-- <i class="el-icon-camera input-left-icon" @click="handleTakePhoto" title="拍照"></i> -->
             <input
             v-model="inputMessage"
               type="text"
             class="message-input"
-              placeholder="发消息或按住说话..."
+              placeholder="发消息..."
               :disabled="sending"
               @keydown.enter="handleSendMessage"
             />
-            <div class="input-right-icons">
+            <el-button
+              type="primary"
+              size="small"
+              icon="el-icon-s-promotion"
+              :loading="sending"
+              :disabled="!inputMessage.trim()"
+              @click="handleSendMessage"
+              class="send-button"
+            >
+              发送
+            </el-button>
+            <!-- <div class="input-right-icons">
               <i class="el-icon-microphone input-icon" @click="handleVoiceInput" title="语音输入"></i>
               <i class="el-icon-plus input-icon" @click="handleMoreActions" title="更多操作"></i>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -129,22 +151,27 @@
 <script>
 import { chatWithQwen } from '@/api/agent/qwen'
 import marked from 'marked'
+import agentAvatar from '@/assets/agent_avator.jpg'
+import AgentInitialReport from '@/components/Databoard/AgentInitialReport.vue'
 
 export default {
   name: 'AgentModule',
+  components: {
+    AgentInitialReport
+  },
   data() {
     return {
       inputMessage: '',
       sending: false,
-      aiAvatar: '',
+      aiAvatar: agentAvatar,
       isSpeakerActive: true,
       showWelcome: true,
       conversationHistory: [], // 对话历史记录
       systemPrompt: '你是致真智能体，一个友好、专业的AI助手。你可以回答各种问题，提供工作学习上的帮助，还能随时陪伴聊天。请用简洁、友好的语气回复。',
       suggestions: [
-        { id: 1, text: '近期有哪些新出台的高端科学仪器国产化相关政策？' },
-        { id: 2, text: '过去一个月，原子力显微镜的整体态势：政策支持、头部公司动态、技术突破？' },
-        { id: 3, text: '近一周有哪些新的招标需求可重点关注？' }
+        { id: 1, text: '近期有哪些新出台的高端科学仪器国产化相关政策？', icon: 'el-icon-document-checked', gradient: 'gradient-1' },
+        { id: 2, text: '过去一个月，原子力显微镜的整体态势：政策支持、头部公司动态、技术突破？', icon: 'el-icon-data-analysis', gradient: 'gradient-2' },
+        { id: 3, text: '近一周有哪些新的招标需求可重点关注？', icon: 'el-icon-tickets', gradient: 'gradient-3' }
       ],
       messages: [],
       features: [
@@ -158,7 +185,7 @@ export default {
   mounted() {
     // 初始化智能体
     this.scrollToBottom()
-    
+
     // 配置 marked 选项（marked 4.x 兼容）
     if (typeof marked.setOptions === 'function') {
       marked.setOptions({
@@ -185,7 +212,7 @@ export default {
           headerIds: false, // 不生成header ID
           mangle: false // 不混淆邮箱地址
         }
-        
+
         // 优先使用 parse 方法，否则直接调用
         if (typeof marked.parse === 'function') {
           return marked.parse(markdown, options)
@@ -227,7 +254,7 @@ export default {
       // 3. 控制音量大小
       this.isSpeakerActive = !this.isSpeakerActive
       this.$message({
-        message: this.isSpeakerActive 
+        message: this.isSpeakerActive
           ? '扬声器已开启：功能待完善，可添加语音播报 AI 回复内容'
           : '扬声器已关闭：功能待完善，可添加音频输出模式切换',
         type: 'info',
@@ -249,14 +276,14 @@ export default {
       if (!this.inputMessage.trim() || this.sending) {
         return
       }
-      
+
       // 隐藏欢迎区域
       if (this.showWelcome) {
         this.showWelcome = false
       }
-      
+
       const userContent = this.inputMessage.trim()
-      
+
       // 添加用户消息
       const userMessage = {
         type: 'user',
@@ -265,22 +292,22 @@ export default {
         showTime: true
       }
       this.messages.push(userMessage)
-      
+
       // 添加到对话历史
       this.conversationHistory.push({
         role: 'user',
         content: userContent
       })
-      
+
       // 清空输入框
       this.inputMessage = ''
       this.sending = true
-      
+
       // 滚动到底部
       this.$nextTick(() => {
         this.scrollToBottom()
       })
-      
+
       // 添加加载中的AI消息
       const loadingMessage = {
         type: 'ai',
@@ -291,7 +318,7 @@ export default {
       }
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
-      
+
       try {
         // 调用 Qwen API
         const response = await chatWithQwen(
@@ -303,7 +330,7 @@ export default {
             top_p: 0.8
           }
         )
-        
+
         // 获取AI回复内容（OpenAI 兼容格式）
         let aiContent = ''
         if (response.data && response.data.choices && response.data.choices.length > 0) {
@@ -317,11 +344,11 @@ export default {
             aiContent = response.data.output.choices[0].message?.content || response.data.output.choices[0].text || ''
           }
         }
-        
+
         if (!aiContent) {
           aiContent = '抱歉，我暂时无法理解您的问题，请换个方式提问。'
         }
-        
+
         // 更新加载中的消息
         this.messages[loadingIndex] = {
           type: 'ai',
@@ -330,21 +357,21 @@ export default {
           showTime: false,
           loading: false
         }
-        
+
         // 添加到对话历史
         this.conversationHistory.push({
           role: 'assistant',
           content: aiContent
         })
-        
+
         // 限制历史记录长度，避免超出token限制
         if (this.conversationHistory.length > 20) {
           this.conversationHistory = this.conversationHistory.slice(-20)
         }
-        
+
       } catch (error) {
         console.error('API调用失败:', error)
-        
+
         // 更新错误消息
         let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
         if (error.response) {
@@ -358,7 +385,7 @@ export default {
         } else if (error.message) {
           errorMsg = `网络错误: ${error.message}`
         }
-        
+
         this.messages[loadingIndex] = {
           type: 'ai',
           content: errorMsg,
@@ -367,11 +394,11 @@ export default {
           loading: false,
           error: true
         }
-        
+
         this.$message.error('发送消息失败')
       } finally {
         this.sending = false
-        
+
         // 滚动到底部
         this.$nextTick(() => {
           this.scrollToBottom()
@@ -383,7 +410,7 @@ export default {
       if (this.showWelcome) {
         this.showWelcome = false
       }
-      
+
       // 添加用户消息
       const userMessage = {
         type: 'user',
@@ -392,18 +419,18 @@ export default {
         showTime: true
       }
       this.messages.push(userMessage)
-      
+
       // 添加到对话历史
       this.conversationHistory.push({
         role: 'user',
         content: suggestion.text
       })
-      
+
       // 滚动到底部
       this.$nextTick(() => {
         this.scrollToBottom()
       })
-      
+
       // 添加加载中的AI消息
       const loadingMessage = {
         type: 'ai',
@@ -415,7 +442,7 @@ export default {
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
       this.sending = true
-      
+
       try {
         // 调用 Qwen API
         const response = await chatWithQwen(
@@ -427,7 +454,7 @@ export default {
             top_p: 0.8
           }
         )
-        
+
         // 获取AI回复内容
         let aiContent = ''
         if (response.data && response.data.output) {
@@ -437,15 +464,15 @@ export default {
             aiContent = response.data.output.text
           }
         }
-        
+
         if (!aiContent && response.data && response.data.choices && response.data.choices.length > 0) {
           aiContent = response.data.choices[0].message?.content || ''
         }
-        
+
         if (!aiContent) {
           aiContent = '抱歉，我暂时无法理解您的问题，请换个方式提问。'
         }
-        
+
         // 更新加载中的消息
         this.messages[loadingIndex] = {
           type: 'ai',
@@ -454,21 +481,21 @@ export default {
           showTime: false,
           loading: false
         }
-        
+
         // 添加到对话历史
         this.conversationHistory.push({
           role: 'assistant',
           content: aiContent
         })
-        
+
         // 限制历史记录长度
         if (this.conversationHistory.length > 20) {
           this.conversationHistory = this.conversationHistory.slice(-20)
         }
-        
+
       } catch (error) {
         console.error('API调用失败:', error)
-        
+
         let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
         if (error.response) {
           if (error.response.status === 401) {
@@ -481,7 +508,7 @@ export default {
         } else if (error.message) {
           errorMsg = `网络错误: ${error.message}`
         }
-        
+
         this.messages[loadingIndex] = {
           type: 'ai',
           content: errorMsg,
@@ -490,11 +517,11 @@ export default {
           loading: false,
           error: true
         }
-        
+
         this.$message.error('发送消息失败')
       } finally {
         this.sending = false
-        
+
         // 滚动到底部
         this.$nextTick(() => {
           this.scrollToBottom()
@@ -541,18 +568,18 @@ export default {
           ]
         }
       }
-      
+
       const featureInfo = featureMap[feature.text] || {
         message: `功能 "${feature.text}" 待开发`,
         tips: []
       }
-      
+
       this.$message({
         message: featureInfo.message,
         type: 'info',
         duration: 4000
       })
-      
+
       // 在控制台输出开发提示
       console.log(`%c功能开发提示: ${feature.text}`, 'color: #409EFF; font-weight: bold; font-size: 14px;')
       featureInfo.tips.forEach((tip, index) => {
@@ -636,13 +663,16 @@ export default {
 <style lang="scss" scoped>
 .agent-module {
   height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 
   // 确保 el-card 高度正确
   ::v-deep .el-card {
     height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    
+
     .el-card__body {
       flex: 1;
       overflow: hidden;
@@ -656,9 +686,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 16px;
+    // padding: 12px 16px;
     background: #FFFFFF;
-    border-bottom: 1px solid #EBEEF5;
+    // border-bottom: 1px solid #EBEEF5;
 
     .header-left {
       width: 40px;
@@ -681,7 +711,7 @@ export default {
       flex: 1;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       gap: 10px;
 
       .header-avatar {
@@ -770,30 +800,49 @@ export default {
     display: flex;
     flex-direction: column;
     background: #FFFFFF;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     min-height: 0;
+    // width: 100%;
 
     .message-list {
       flex: 1;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       min-height: 0;
-      
-      ::v-deep .el-scrollbar {
-        height: 100%;
-        
-        .el-scrollbar__wrap {
-          overflow-x: hidden;
+      width: 100%;
+      box-sizing: border-box;
+
+      /* 自定义滚动条样式 */
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #dcdfe6;
+        border-radius: 3px;
+
+        &:hover {
+          background: #c0c4cc;
         }
       }
 
       .messages {
         padding: 20px 16px;
-        
+        width: 100%;
+        box-sizing: border-box;
+
         .welcome-section {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 20px 0 40px;
+          // padding: 0px 0 40px;
+          width: 100%;
+          box-sizing: border-box;
 
           .welcome-avatar {
           margin-bottom: 20px;
@@ -813,30 +862,159 @@ export default {
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           }
 
-          .suggestions-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+          .suggestions-section {
             width: 100%;
-            max-width: 600px;
-            padding: 0 20px;
+            margin-top: 20px;
 
-            .suggestion-item {
-              padding: 12px 16px;
-              background: #FFFFFF;
-              border: 1px solid #E4E7ED;
-              border-radius: 8px;
-              font-size: 14px;
-              color: #303133;
-              cursor: pointer;
-              transition: all 0.3s;
-              text-align: left;
-              word-break: break-word;
+            .suggestions-header {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-bottom: 16px;
+              padding: 0 4px;
 
-              &:hover {
-                background: #F5F7FA;
-                border-color: #409EFF;
-                transform: translateY(-1px);
+              i {
+                font-size: 18px;
+                color: #409EFF;
+              }
+
+              span {
+                font-size: 14px;
+                font-weight: 600;
+                color: #606266;
+              }
+            }
+
+            .suggestions-grid {
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              width: 100%;
+              max-width: 100%;
+              padding: 0;
+              box-sizing: border-box;
+
+              .suggestion-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px;
+                background: #FFFFFF;
+                border: 2px solid transparent;
+                border-radius: 12px;
+                font-size: 14px;
+                color: #303133;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: left;
+                word-break: break-word;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                position: relative;
+                overflow: hidden;
+
+                &::before {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 4px;
+                  height: 100%;
+                  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+                  opacity: 0;
+                  transition: opacity 0.3s ease;
+                }
+
+                &.gradient-1 {
+                  &::before {
+                    background: linear-gradient(180deg, #f093fb 0%, #f5576c 100%);
+                  }
+                }
+
+                &.gradient-2 {
+                  &::before {
+                    background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+                  }
+                }
+
+                &.gradient-3 {
+                  &::before {
+                    background: linear-gradient(180deg, #43e97b 0%, #38f9d7 100%);
+                  }
+                }
+
+                &:hover {
+                  background: #F5F7FA;
+                  border-color: #409EFF;
+                  transform: translateX(4px);
+                  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+
+                  &::before {
+                    opacity: 1;
+                  }
+
+                  .suggestion-icon {
+                    transform: scale(1.1);
+                  }
+
+                  .suggestion-arrow {
+                    opacity: 1;
+                    transform: translateX(0);
+                  }
+                }
+
+                .suggestion-icon {
+                  flex-shrink: 0;
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 8px;
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  transition: transform 0.3s ease;
+
+                  i {
+                    font-size: 18px;
+                    color: white;
+                  }
+                }
+
+                &.gradient-1 .suggestion-icon {
+                  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                }
+
+                &.gradient-2 .suggestion-icon {
+                  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                }
+
+                &.gradient-3 .suggestion-icon {
+                  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                }
+
+                .suggestion-text {
+                  flex: 1;
+                  line-height: 1.6;
+                  color: #606266;
+                }
+
+                .suggestion-arrow {
+                  flex-shrink: 0;
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 50%;
+                  background: #F5F7FA;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  opacity: 0;
+                  transform: translateX(-8px);
+                  transition: all 0.3s ease;
+
+                  i {
+                    font-size: 14px;
+                    color: #409EFF;
+                  }
+                }
               }
             }
           }
@@ -863,7 +1041,7 @@ export default {
 
             .message-content {
                 margin-left: 10px;
-                max-width: 70%;
+                max-width: 80%;
             }
           }
 
@@ -872,7 +1050,7 @@ export default {
 
             .message-content {
                 margin-right: 10px;
-                max-width: 70%;
+                max-width: 80%;
             }
           }
 
@@ -1107,8 +1285,8 @@ export default {
     .feature-shortcuts {
       flex-shrink: 0;
       padding: 12px 16px;
-      background: #FFFFFF;
-      border-top: 1px solid #EBEEF5;
+      // background: #FFFFFF;
+      // border-top: 1px solid #EBEEF5;
       display: flex;
       gap: 8px;
       justify-content: space-between;
@@ -1152,6 +1330,8 @@ export default {
       padding: 12px 16px;
       background: #FFFFFF;
       border-top: 1px solid #EBEEF5;
+      width: 100%;
+      box-sizing: border-box;
 
       .input-wrapper {
         display: flex;
@@ -1184,6 +1364,17 @@ export default {
           &:disabled {
             cursor: not-allowed;
             opacity: 0.6;
+          }
+        }
+
+        .send-button {
+          flex-shrink: 0;
+          border-radius: 18px;
+          padding: 6px 16px;
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
           }
         }
 
