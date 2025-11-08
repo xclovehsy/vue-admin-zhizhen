@@ -32,7 +32,7 @@
               </div>
               <div class="header-text">
                 <h4 class="section-title">今日重点关注</h4>
-                <p class="section-subtitle">以下是AI为您精选的3条关键信息</p>
+                <p class="section-subtitle">以下是AI为您精选的{{ topThreeHighlights.length }}条关键信息</p>
               </div>
             </div>
             <div class="header-right">
