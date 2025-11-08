@@ -20,7 +20,7 @@
     </div>
 
     <!-- 关键信息卡片 -->
-    <div v-else>
+    <div v-else-if="reportSections.length > 0">
       <div
         v-for="(section, index) in reportSections"
         :key="section.id || index"
@@ -29,7 +29,6 @@
         <div class="highlights-header">
           <i :class="section.icon" />
           <span class="highlights-title">{{ section.title }}</span>
-          <el-tag v-if="isTestData" size="mini" type="warning">测试数据</el-tag>
         </div>
 
         <div class="markdown-content" v-html="renderMarkdown(section.content)" />
@@ -47,68 +46,7 @@ export default {
   data() {
     return {
       loading: false,
-      isTestData: false,
-      reportSections: [],
-      // 测试数据
-      testData: [
-        {
-          id: 1,
-          title: '政策解读',
-          icon: 'el-icon-document-checked',
-          content: `
-**国家发改委发布《高端科学仪器国产化实施方案》**
-
-本月初，国家发改委联合科技部发布了重要文件，明确提出：
-
-- 重点支持**原子力显微镜**等关键设备的研发
-- 设立专项资金，总额达**50亿元**
-- 鼓励产学研合作，加快技术转化
-
-### 核心要点
-
-1. **技术突破方向**：聚焦高分辨率成像、纳米级测量等核心技术
-2. **资金支持**：对符合条件的企业提供最高**5000万元**的研发补贴
-3. **市场准入**：简化国产仪器政府采购流程，优先采购国产设备
-
-> 💡 这对国内仪器企业来说是重大利好，预计将带动整个行业的快速发展。
-          `,
-          priority: 1
-        },
-        {
-          id: 2,
-          title: '论文报告',
-          icon: 'el-icon-reading',
-          content: `
-### Nature最新发表
-
-**《新型原子力显微镜技术突破亚纳米分辨率》**
-
-清华大学材料学院团队在Nature上发表重要成果：
-
-- 实现了**0.3纳米**的超高分辨率成像
-- 新型扫描探针技术，速度提升**10倍**
-- 可应用于生物大分子结构分析
-
-### Science相关研究
-
-中科院物理所在原子级材料表征领域取得突破：
-
-\`\`\`
-关键技术指标：
-- 扫描速度：100 lines/sec
-- 力灵敏度：< 1 pN
-- 工作温度：4K - 400K
-\`\`\`
-
-**研究意义**：为二维材料、量子材料的研究提供了全新工具。
-
----
-
-📊 **统计数据**：过去一年，相关领域发表SCI论文**127篇**，同比增长**45%**
-          `,
-          priority: 2
-        }
-      ]
+      reportSections: []
     }
   },
   mounted() {
@@ -127,34 +65,23 @@ export default {
      */
     async fetchReport() {
       this.loading = true
-      this.isTestData = false
+      this.reportSections = []
 
       try {
-        // 设置超时Promise
-        const timeoutPromise = new Promise((resolve, reject) => {
-          setTimeout(() => {
-            reject(new Error('Request timeout'))
-          }, 5000)
-        })
-
-        // 发起API请求
-        const apiPromise = getAgentInitialReport()
-
-        // 使用Promise.race实现超时控制
-        const response = await Promise.race([apiPromise, timeoutPromise])
+        const response = await getAgentInitialReport()
 
         if (response.code === 200 && response.data && response.data.sections) {
           this.reportSections = response.data.sections
-          this.isTestData = false
           console.log('✅ 成功获取智能体初始报告数据')
         } else {
           throw new Error('Invalid response format')
         }
       } catch (error) {
-        console.warn('⚠️ 获取智能体报告失败，使用测试数据:', error.message)
-        // 使用测试数据
-        this.reportSections = this.testData
-        this.isTestData = true
+        console.warn('⚠️ 获取智能体报告失败:', error.message)
+        // 加载失败时不显示任何内容
+        this.reportSections = []
+        // 显示错误提示
+        this.$message.error('获取报告数据失败，请稍后重试')
       } finally {
         this.loading = false
       }

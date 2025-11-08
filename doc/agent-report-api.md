@@ -10,7 +10,6 @@
 - **认证方式**: Bearer Token
 - **数据格式**: JSON
 - **字符编码**: UTF-8
-- **超时时间**: 5秒
 
 ---
 
@@ -112,11 +111,6 @@
 }
 ```
 
-**超时处理**:
-- 请求超时时间设置为5秒
-- 超时后自动使用本地测试数据
-- 不影响用户体验，确保页面正常显示
-
 ---
 
 ## 2. 使用说明
@@ -137,8 +131,7 @@ import request from '@/utils/request'
 export function getAgentInitialReport() {
   return request({
     url: '/agent/initial-report',
-    method: 'get',
-    timeout: 5000
+    method: 'get'
   })
 }
 ```
