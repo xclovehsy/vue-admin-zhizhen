@@ -30,7 +30,7 @@
         <!-- 下方：两列布局 -->
         <el-row :gutter="10" class="content-row">
           <!-- 左侧列：地图 + DataModule -->
-          <el-col :span="18" class="content-col">
+          <el-col :span="16" class="content-col">
             <div class="middle-content">
               <div class="top-content" style="margin-bottom: 10px;">
                 <!-- <info-overview @item-click="scrollToDetail" /> -->
@@ -63,7 +63,7 @@
           </el-col>
 
           <!-- 右侧列：智能助手 -->
-          <el-col :span="6" class="content-col agent-col">
+          <el-col :span="8" class="content-col agent-col">
             <div class="right-column">
               <agent-module />
             </div>
