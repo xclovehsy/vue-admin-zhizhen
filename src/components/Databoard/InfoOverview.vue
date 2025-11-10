@@ -190,7 +190,7 @@ export default {
         },
         '招标机会': {
           type: 'tenders',
-          icon: 'el-icon-table',
+          icon: 'el-icon-trophy',
           color: '#409EFF'
         },
         '相关论文': {
