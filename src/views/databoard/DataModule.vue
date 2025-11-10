@@ -7,11 +7,11 @@
         <div class="data-board">
           <!-- 新闻消息卡片 -->
           <el-card class="chart-card" shadow="hover" :body-style="{ padding: '5px' }">
-            <template #header>
+            <!-- <template #header>
               <div class="card-header">
                 <span class="card-title">新闻消息</span>
               </div>
-            </template>
+            </template> -->
             <div class="chart-container">
               <div class="chart-item">
                 <line-chart 
@@ -19,34 +19,16 @@
                   title="政策新闻"
                 />
               </div>
-              <div class="chart-item">
-                <line-chart 
-                  :chart-data="industryNewsData" 
-                  
-                  title="行业新闻"
-                />
-              </div>
             </div>
           </el-card>
     
           <!-- 竞品活动卡片 -->
           <el-card class="chart-card" shadow="hover">
-            <template #header>
-              <div class="card-header">
-                <span class="card-title">竞品活动</span>
-              </div>
-            </template>
             <div class="chart-container">
-              <div class="chart-item">
-                <line-chart 
-                  :chart-data="competitorTrendData" 
-                  title="竞品公司动态变化"
-                />
-              </div>
               <div class="chart-item">
                 <pie-chart 
                   :chart-data="competitorTypeData" 
-                  title="竞品动态类型分布"
+                  title="竞品公司动态"
                 />
               </div>
             </div>
@@ -54,22 +36,11 @@
     
           <!-- 科技论文卡片 -->
           <el-card class="chart-card" shadow="never" :body-style="{ padding: '15px' }">
-            <template #header>
-              <div class="card-header">
-                <span class="card-title">科技论文</span>
-              </div>
-            </template>
             <div class="chart-container">
-              <div class="chart-item">
-                <line-chart 
-                  :chart-data="researchTrendData" 
-                  title="各研究主题数量变化"
-                />
-              </div>
               <div class="chart-item">
                 <pie-chart 
                   :chart-data="researchTopicData" 
-                  title="论文研究主题统计"
+                  title="学术论文主题"
                 />
               </div>
             </div>
@@ -100,48 +71,29 @@ export default {
           name: '政策新闻',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
-        }]
-      },
-      industryNewsData: {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        seriesData: [{
-          name: '行业新闻',
-          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
-          color: 'green'
-        }]
-      },
-      competitorTrendData: {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
-        seriesData: [
-          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
-          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
-          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
-        ]
+        }, {
+          name: '行业新闻', 
+          data: [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
+          color: '#91cc75'
+        }
+      ]
       },
       competitorTypeData: {
         seriesData: [
-          { value: 335, name: '产品发布' },
-          { value: 310, name: '市场活动' },
-          { value: 234, name: '技术更新' },
-          { value: 135, name: '合作签约' },
-          { value: 1548, name: '其他动态' }
-        ]
-      },
-      researchTrendData: {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
-        seriesData: [
-          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
-          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
-          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
+          { value: 335, name: '融资' },
+          { value: 310, name: '产品发布' },
+          { value: 234, name: '合作' },
+          { value: 135, name: '技术更新' }
         ]
       },
       researchTopicData: {
         seriesData: [
-          { value: 335, name: '机器学习' },
-          { value: 310, name: '深度学习' },
-          { value: 234, name: '自然语言处理' },
-          { value: 135, name: '计算机视觉' },
-          { value: 1548, name: '其他主题' }
+          { value: 335, name: '磁学与自旋电子学' },
+          { value: 310, name: '量子与低温测量' },
+          { value: 234, name: '纳米与光学成像' },
+          { value: 135, name: '科学仪器智能化' },
+          { value: 1548, name: '光谱与分析技术' },
+          { value: 872  , name: '仪器工程与国产化' },
         ]
       },
     }
@@ -169,7 +121,7 @@ export default {
           this.$forceUpdate()
         }
       } catch (error) {
-        console.warn('API调用失败，使用模拟数据:', apiError)
+        console.warn('API调用失败，使用模拟数据:', error)
         this.useMockData()
         this.$forceUpdate()
       } finally {
@@ -187,62 +139,39 @@ export default {
       // 政策新闻数据
       this.policyNewsData = {
         xAxisData: statistics.policyNews?.xAxis || this.generateDefaultXAxis(),
-        seriesData: [{
-          name: '政策新闻',
-          data: statistics.policyNews?.data || [],
-          color: '#5470c6'
-        }]
-      }
-
-      // 行业新闻数据
-      this.industryNewsData = {
-        xAxisData: statistics.industryNews?.xAxis || this.generateDefaultXAxis(),
-        seriesData: [{
-          name: '行业新闻',
-          data: statistics.industryNews?.data || [],
-          color: 'green'
-        }]
-      }
-
-      // 竞品趋势数据
-      this.competitorTrendData = {
-        xAxisData: statistics.competitorTrend?.xAxis || this.generateShortXAxis(),
-        seriesData: statistics.competitorTrend?.series || [
-          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
-          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
-          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
+        seriesData: statistics.policyNews?.series || [
+          {
+            name: '政策新闻',
+            data: statistics.policyNews?.data || [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
+            color: '#5470c6'
+          },
+          {
+            name: '行业新闻',
+            data: statistics.industryNews?.data || [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
+            color: '#91cc75'
+          }
         ]
       }
 
       // 竞品类型数据
       this.competitorTypeData = {
         seriesData: statistics.competitorType || [
-          { value: 335, name: '产品发布' },
-          { value: 310, name: '市场活动' },
-          { value: 234, name: '技术更新' },
-          { value: 135, name: '合作签约' },
-          { value: 1548, name: '其他动态' }
-        ]
-      }
-
-      // 研究趋势数据
-      this.researchTrendData = {
-        xAxisData: statistics.researchTrend?.xAxis || this.generateShortXAxis(),
-        seriesData: statistics.researchTrend?.series || [
-          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
-          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
-          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
+          { value: 335, name: '融资' },
+          { value: 310, name: '产品发布' },
+          { value: 234, name: '合作' },
+          { value: 135, name: '技术更新' }
         ]
       }
 
       // 研究主题数据
       this.researchTopicData = {
         seriesData: statistics.researchTopic || [
-          { value: 335, name: '机器学习' },
-          { value: 310, name: '深度学习' },
-          { value: 234, name: '自然语言处理' },
-          { value: 135, name: '计算机视觉' },
-          { value: 1548, name: '其他主题' }
+          { value: 335, name: '磁学与自旋电子学' },
+          { value: 310, name: '量子与低温测量' },
+          { value: 234, name: '纳米与光学成像' },
+          { value: 135, name: '科学仪器智能化' },
+          { value: 1548, name: '光谱与分析技术' },
+          { value: 872  , name: '仪器工程与国产化' },
         ]
       }
     },
@@ -256,58 +185,32 @@ export default {
           name: '政策新闻',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
-        }]
-      }
-
-      // 行业新闻数据
-      this.industryNewsData = {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        seriesData: [{
+        },{
           name: '行业新闻',
-          data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
-          color: 'green'
+          data: [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
+          color: '#91cc75'
         }]
-      }
-
-      // 竞品趋势数据
-      this.competitorTrendData = {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
-        seriesData: [
-          { name: '公司A', data: [120, 132, 101, 134, 90, 230], color: '#91cc75' },
-          { name: '公司B', data: [220, 182, 191, 234, 290, 330], color: '#fac858' },
-          { name: '公司C', data: [150, 232, 201, 154, 190, 330], color: '#ee6666' }
-        ]
       }
 
       // 竞品类型数据
       this.competitorTypeData = {
         seriesData: [
-          { value: 335, name: '产品发布' },
-          { value: 310, name: '市场活动' },
-          { value: 234, name: '技术更新' },
-          { value: 135, name: '合作签约' },
-          { value: 1548, name: '其他动态' }
-        ]
-      }
-
-      // 研究趋势数据
-      this.researchTrendData = {
-        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月'],
-        seriesData: [
-          { name: '人工智能', data: [120, 132, 101, 134, 90, 230], color: '#73c0de' },
-          { name: '大数据', data: [220, 182, 191, 234, 290, 330], color: '#3ba272' },
-          { name: '云计算', data: [150, 232, 201, 154, 190, 330], color: '#fc8452' }
+          { value: 335, name: '融资' },
+          { value: 310, name: '产品发布' },
+          { value: 234, name: '合作' },
+          { value: 135, name: '技术更新' }
         ]
       }
 
       // 研究主题数据
       this.researchTopicData = {
         seriesData: [
-          { value: 335, name: '机器学习' },
-          { value: 310, name: '深度学习' },
-          { value: 234, name: '自然语言处理' },
-          { value: 135, name: '计算机视觉' },
-          { value: 1548, name: '其他主题' }
+          { value: 335, name: '磁学与自旋电子学' },
+          { value: 310, name: '量子与低温测量' },
+          { value: 234, name: '纳米与光学成像' },
+          { value: 135, name: '科学仪器智能化' },
+          { value: 1548, name: '光谱与分析技术' },
+          { value: 872  , name: '仪器工程与国产化' },
         ]
       }
     },
@@ -340,7 +243,6 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  
   ::v-deep .el-card__body {
     flex: 1;
     display: flex;
@@ -405,8 +307,7 @@ export default {
 
 .chart-container {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 20px;
   width: 100%;
   height: 100%;
