@@ -85,6 +85,8 @@ export default {
           timeRange: this.timeRange
         })
 
+        console.log('response.data', response.data)
+
         const statistics = response.data?.statistics || []
 
         if (statistics && statistics.length > 0) {
@@ -232,10 +234,10 @@ export default {
 
       // 根据数据类型决定显示哪些系列
       const seriesConfig = {
-        leads: { name: '线索', field: 'leads', color: '#67C23A' },
-        tenders: { name: '招标', field: 'tenders', color: '#409EFF' },
-        policies: { name: '政策', field: 'policies', color: '#E6A23C' },
-        news: { name: '新闻', field: 'news', color: '#F56C6C' }
+        leads: { name: '竞品动态', field: 'leads', color: '#67C23A' },
+        tenders: { name: '招标机会', field: 'tenders', color: '#409EFF' },
+        policies: { name: '相关论文', field: 'policies', color: '#E6A23C' },
+        news: { name: '新闻消息', field: 'news', color: '#F56C6C' }
       }
 
       // 确定要显示的系列
@@ -245,7 +247,7 @@ export default {
       if (this.dataType === 'all') {
         // 显示所有系列
         seriesToShow = ['leads', 'tenders', 'policies', 'news']
-        legendData = ['线索', '招标', '政策', '新闻']
+        legendData = ['竞品动态', '招标机会', '相关论文', '新闻消息']
       } else {
         // 只显示选中的系列
         seriesToShow = [this.dataType]
@@ -260,19 +262,7 @@ export default {
             type: 'shadow'
           }
         },
-        legend: this.dataType === 'all' ? {
-          data: legendData,
-          orient: 'vertical',
-          left: '2%',
-          top: 'center',
-          textStyle: {
-            fontSize: 10,
-            color: '#666'
-          },
-          itemWidth: 10,
-          itemHeight: 6,
-          itemGap: 10
-        } : {
+        legend: {
           data: legendData,
           orient: 'horizontal',
           left: 'center',
@@ -282,15 +272,10 @@ export default {
             color: '#666'
           },
           itemWidth: 10,
-          itemHeight: 6
+          itemHeight: 6,
+          itemGap: 10
         },
-        grid: this.dataType === 'all' ? {
-          left: '9%',
-          right: '3%',
-          bottom: '8%',
-          top: '20%',
-          containLabel: true
-        } : {
+        grid: {
           left: '3%',
           right: '3%',
           bottom: '8%',

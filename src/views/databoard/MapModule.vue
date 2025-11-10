@@ -83,7 +83,7 @@ export default {
         leads: '竞品动态',
         tenders: '招标机会',
         policies: '相关论文',
-        news: '政策新闻'
+        news: '新闻消息'
       }
     }
   },
@@ -415,15 +415,16 @@ export default {
               const typeText = this.getDataTypeText()
               let tooltip = `${params.name}<br/>${typeText}: ${data.value || 0}`
 
-              // 如果有详细数据，显示更多信息
-              if (data.leads !== undefined) {
-                // 始终使用组件级别的 typeLabels（新值），确保显示一致
+              // 根据当前选择的数据类型，决定是否显示详细分类
+              if (this.dataType === 'all' && data.leads !== undefined) {
+                // 显示全部：显示所有类别的详细数据
                 const labels = this.typeLabels
                 tooltip += `<br/>${labels.leads}: ${data.leads || 0}`
                 tooltip += `<br/>${labels.tenders}: ${data.tenders || 0}`
                 tooltip += `<br/>${labels.policies}: ${data.policies || 0}`
                 tooltip += `<br/>${labels.news}: ${data.news || 0}`
               }
+              // 如果选择了特定类别，只显示总数，不显示详细分类
 
               return tooltip
             }
@@ -573,16 +574,23 @@ export default {
 
           // 显示区域详情信息
           const stats = data.statistics || {}
-          // 始终使用组件级别的 typeLabels（新值），确保显示一致
           const labels = this.typeLabels
-          const message = `
-            ${params.name}<br/>
-            总计: ${stats.total || 0}<br/>
-            ${labels.leads}: ${stats.leads || 0}<br/>
-            ${labels.tenders}: ${stats.tenders || 0}<br/>
-            ${labels.policies}: ${stats.policies || 0}<br/>
-            ${labels.news}: ${stats.news || 0}
-          `
+
+          let message = `${params.name}<br/>`
+
+          if (this.dataType === 'all') {
+            // 显示全部：显示所有类别的详细数据
+            message += `总计: ${stats.total || 0}<br/>`
+            message += `${labels.leads}: ${stats.leads || 0}<br/>`
+            message += `${labels.tenders}: ${stats.tenders || 0}<br/>`
+            message += `${labels.policies}: ${stats.policies || 0}<br/>`
+            message += `${labels.news}: ${stats.news || 0}`
+          } else {
+            // 选择了特定类别：只显示该类别的数据
+            const typeText = this.getDataTypeText()
+            const typeField = this.dataType
+            message += `${typeText}: ${stats[typeField] || 0}`
+          }
 
           this.$message({
             message: message,

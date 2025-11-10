@@ -14,32 +14,32 @@
             </template> -->
             <div class="chart-container">
               <div class="chart-item">
-                <line-chart 
-                  :chart-data="policyNewsData" 
-                  title="政策新闻"
+                <line-chart
+                  :chart-data="policyNewsData"
+                  title="新闻消息"
                 />
               </div>
             </div>
           </el-card>
-    
+
           <!-- 竞品活动卡片 -->
           <el-card class="chart-card" shadow="hover">
             <div class="chart-container">
               <div class="chart-item">
-                <pie-chart 
-                  :chart-data="competitorTypeData" 
+                <pie-chart
+                  :chart-data="competitorTypeData"
                   title="竞品公司动态"
                 />
               </div>
             </div>
           </el-card>
-    
+
           <!-- 科技论文卡片 -->
           <el-card class="chart-card" shadow="never" :body-style="{ padding: '15px' }">
             <div class="chart-container">
               <div class="chart-item">
-                <pie-chart 
-                  :chart-data="researchTopicData" 
+                <pie-chart
+                  :chart-data="researchTopicData"
                   title="学术论文主题"
                 />
               </div>
@@ -68,11 +68,11 @@ export default {
       policyNewsData : {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
-          name: '政策新闻',
+          name: '新闻消息',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
         }, {
-          name: '行业新闻', 
+          name: '行业新闻',
           data: [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
           color: '#91cc75'
         }
@@ -136,12 +136,12 @@ export default {
         this.useMockData()
         return
       }
-      // 政策新闻数据
+      // 新闻消息数据
       this.policyNewsData = {
         xAxisData: statistics.policyNews?.xAxis || this.generateDefaultXAxis(),
         seriesData: statistics.policyNews?.series || [
           {
-            name: '政策新闻',
+            name: '新闻消息',
             data: statistics.policyNews?.data || [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
             color: '#5470c6'
           },
@@ -175,14 +175,14 @@ export default {
         ]
       }
     },
-    
+
     // 使用模拟数据
     useMockData() {
-      // 政策新闻数据
+      // 新闻消息数据
       this.policyNewsData = {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
-          name: '政策新闻',
+          name: '新闻消息',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
         },{
@@ -214,7 +214,7 @@ export default {
         ]
       }
     },
-    
+
     // 生成默认时间轴（12个月）
     generateDefaultXAxis() {
       return ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -249,7 +249,7 @@ export default {
     flex-direction: column;
     padding: 0 !important;
   }
-  
+
   .module-title {
     font-size: 16px;
     font-weight: bold;
@@ -271,7 +271,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px; 
+  padding: 8px;
   height: auto;
   overflow-y: auto;
 }
@@ -282,7 +282,7 @@ export default {
   flex-direction: column;
   min-height: 0;
   margin-bottom: 0;
-  
+
   ::v-deep .el-card__body {
     flex: 1;
     display: flex;
@@ -297,7 +297,7 @@ export default {
     align-items: center;
     padding: 0;
   }
-  
+
   .card-title {
     font-size: 16px;
     font-weight: bold;
@@ -316,8 +316,8 @@ export default {
 
 .chart-item {
   background: #f8f9fa;
-  border-radius: 8px; 
-  padding: 10px; 
+  border-radius: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -358,13 +358,13 @@ export default {
     padding: 12px;
     gap: 12px;
   }
-  
+
   .chart-card {
     ::v-deep .el-card__body {
       padding: 16px !important;
     }
   }
-  
+
   .chart-container {
     gap: 12px;
   }

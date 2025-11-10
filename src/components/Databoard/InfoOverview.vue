@@ -89,6 +89,8 @@ export default {
           period: 'day'
         })
 
+        console.log('fetchInfoIncrements', response.data)
+
         const cards = response.data?.cards || []
 
         // 将API返回的数据映射到items格式

@@ -205,7 +205,7 @@ export default {
       loading: false,
       categories: [
         { label: '全部', value: 'all' },
-        { label: '政策新闻', value: '政策新闻' },
+        { label: '新闻消息', value: '新闻消息' },
         { label: '行业动态', value: '行业动态' },
         { label: '竞品消息', value: '竞品消息' },
         { label: '技术前沿', value: '技术前沿' }
@@ -269,7 +269,7 @@ export default {
             id: 1,
             category: '机会',
             title: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型',
-            source: '政策新闻',
+            source: '新闻消息',
             time: '09:32',
             publishTime: '2023-11-15',
             readTime: '5分钟',
