@@ -41,31 +41,48 @@
           </div>
 
           <div class="highlights-list" v-loading="loading">
-            <div
-              v-for="(item, index) in topThreeHighlights"
-              :key="index"
-              class="highlight-item"
-            >
-              <div class="item-indicator">
+            <div class="scroll-container" @mouseenter="pauseScroll" @mouseleave="resumeScroll">
+              <div class="scroll-content" :class="{ paused: isPaused }">
+                <!-- 第一组数据 -->
                 <div
-                  class="priority-dot"
-                  :class="getHighlightColor(item.priority)"
-                />
-                <div v-if="index < topThreeHighlights.length - 1" class="connector-line" />
-              </div>
-              <div class="item-content">
-                <p class="item-text">
-                  <span class="category-label">{{ item.category }}：</span>
-                  {{ item.content }}
-                </p>
-                <!-- <div class="item-meta">
-                  <el-tag
-                    :type="getPriorityType(item.priority)"
-                    size="mini"
-                  >
-                    优先级：{{ item.priorityText }}
-                  </el-tag>
-                </div> -->
+                  v-for="(item, index) in topThreeHighlights"
+                  :key="'first-' + index"
+                  class="highlight-item"
+                >
+                  <div class="item-indicator">
+                    <div
+                      class="priority-dot"
+                      :class="getHighlightColor(item.priority)"
+                    />
+                    <div class="connector-line" />
+                  </div>
+                  <div class="item-content">
+                    <p class="item-text">
+                      <span class="category-label">{{ item.category }}：</span>
+                      {{ item.content }}
+                    </p>
+                  </div>
+                </div>
+                <!-- 第二组数据（用于无缝循环） -->
+                <div
+                  v-for="(item, index) in topThreeHighlights"
+                  :key="'second-' + index"
+                  class="highlight-item"
+                >
+                  <div class="item-indicator">
+                    <div
+                      class="priority-dot"
+                      :class="getHighlightColor(item.priority)"
+                    />
+                    <div class="connector-line" />
+                  </div>
+                  <div class="item-content">
+                    <p class="item-text">
+                      <span class="category-label">{{ item.category }}：</span>
+                      {{ item.content }}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -89,7 +106,8 @@ export default {
       selectedView: 'management',
       currentDate: '',
       dailyHighlights: [],
-      loading: false
+      loading: false,
+      isPaused: false
     }
   },
   computed: {
@@ -138,6 +156,12 @@ export default {
         low: 'priority-low'
       }
       return colors[priority] || 'priority-default'
+    },
+    pauseScroll() {
+      this.isPaused = true
+    },
+    resumeScroll() {
+      this.isPaused = false
     },
     getPriorityType(priority) {
       const types = {
@@ -253,36 +277,36 @@ export default {
 
         .highlights-list {
           flex: 1;
-          overflow-y: auto;
+          overflow: hidden;
           padding-right: 4px;
           max-height: 120px;
+          position: relative;
 
-          // 自定义滚动条样式
-          &::-webkit-scrollbar {
-            width: 6px;
+          .scroll-container {
+            height: 100%;
+            overflow: hidden;
           }
 
-          &::-webkit-scrollbar-track {
-            background: #f5f7fa;
-            border-radius: 3px;
+          .scroll-content {
+            animation: scroll-up 20s linear infinite;
+
+            &.paused {
+              animation-play-state: paused;
+            }
           }
 
-          &::-webkit-scrollbar-thumb {
-            background: #c0c4cc;
-            border-radius: 3px;
-
-            &:hover {
-              background: #909399;
+          @keyframes scroll-up {
+            0% {
+              transform: translateY(0);
+            }
+            100% {
+              transform: translateY(-50%);
             }
           }
 
           .highlight-item {
             display: flex;
             margin-bottom: 12px;
-
-            &:last-child {
-              margin-bottom: 0;
-            }
 
             .item-indicator {
               flex-shrink: 0;

@@ -26,10 +26,10 @@
         :key="section.id || index"
         class="highlights-container"
       >
-        <div class="highlights-header">
+        <!-- <div class="highlights-header">
           <i :class="section.icon" />
           <span class="highlights-title">{{ section.title }}</span>
-        </div>
+        </div> -->
 
         <div class="markdown-content" v-html="renderMarkdown(section.content)" />
       </div>
@@ -255,7 +255,7 @@ export default {
       ::v-deep {
         h1, h2, h3, h4, h5, h6 {
           color: #303133;
-          margin-top: 16px;
+          margin-top: 0px;
           margin-bottom: 12px;
           font-weight: 600;
         }
