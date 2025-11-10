@@ -34,6 +34,11 @@ export default {
     timeRange: {
       type: String,
       default: 'month'
+    },
+    // 地图类型：china/world
+    mapType: {
+      type: String,
+      default: 'china'
     }
   },
   data() {
@@ -49,6 +54,9 @@ export default {
       this.fetchData()
     },
     timeRange() {
+      this.fetchData()
+    },
+    mapType() {
       this.fetchData()
     }
   },
@@ -68,8 +76,11 @@ export default {
     async fetchData() {
       this.loading = true
       try {
+        // 根据地图类型设置正确的级别：中国地图用province，世界地图用world
+        const level = this.mapType === 'china' ? 'province' : 'world'
+
         const response = await getMapData({
-          level: 'province',
+          level: level,
           type: this.dataType,
           timeRange: this.timeRange
         })
@@ -127,16 +138,31 @@ export default {
 
     // 获取默认数据
     getDefaultData() {
-      return [
-        { name: '北京市', leads: 45, tenders: 32, policies: 28, news: 72, value: 177 },
-        { name: '广东省', leads: 42, tenders: 38, policies: 25, news: 51, value: 156 },
-        { name: '江苏省', leads: 38, tenders: 35, policies: 22, news: 47, value: 142 },
-        { name: '河南省', leads: 35, tenders: 28, policies: 22, news: 52, value: 137 },
-        { name: '山东省', leads: 32, tenders: 28, policies: 20, news: 48, value: 128 },
-        { name: '浙江省', leads: 30, tenders: 25, policies: 18, news: 42, value: 115 },
-        { name: '上海市', leads: 28, tenders: 24, policies: 16, news: 40, value: 108 },
-        { name: '四川省', leads: 25, tenders: 22, policies: 15, news: 33, value: 95 }
-      ]
+      if (this.mapType === 'world') {
+        // 世界地图默认数据
+        return [
+          { name: 'United States', leads: 85, tenders: 65, policies: 55, news: 120, value: 325 },
+          { name: 'China', leads: 75, tenders: 60, policies: 50, news: 100, value: 285 },
+          { name: 'Japan', leads: 55, tenders: 45, policies: 40, news: 80, value: 220 },
+          { name: 'Germany', leads: 50, tenders: 42, policies: 38, news: 75, value: 205 },
+          { name: 'United Kingdom', leads: 45, tenders: 38, policies: 35, news: 68, value: 186 },
+          { name: 'France', leads: 42, tenders: 35, policies: 32, news: 65, value: 174 },
+          { name: 'India', leads: 38, tenders: 32, policies: 28, news: 58, value: 156 },
+          { name: 'Canada', leads: 35, tenders: 30, policies: 25, news: 52, value: 142 }
+        ]
+      } else {
+        // 中国地图默认数据
+        return [
+          { name: '北京市', leads: 45, tenders: 32, policies: 28, news: 72, value: 177 },
+          { name: '广东省', leads: 42, tenders: 38, policies: 25, news: 51, value: 156 },
+          { name: '江苏省', leads: 38, tenders: 35, policies: 22, news: 47, value: 142 },
+          { name: '河南省', leads: 35, tenders: 28, policies: 22, news: 52, value: 137 },
+          { name: '山东省', leads: 32, tenders: 28, policies: 20, news: 48, value: 128 },
+          { name: '浙江省', leads: 30, tenders: 25, policies: 18, news: 42, value: 115 },
+          { name: '上海市', leads: 28, tenders: 24, policies: 16, news: 40, value: 108 },
+          { name: '四川省', leads: 25, tenders: 22, policies: 15, news: 33, value: 95 }
+        ]
+      }
     },
 
     // 初始化图表
@@ -204,6 +230,28 @@ export default {
 
       const names = this.chartData.map(item => item.name)
 
+      // 根据数据类型决定显示哪些系列
+      const seriesConfig = {
+        leads: { name: '线索', field: 'leads', color: '#67C23A' },
+        tenders: { name: '招标', field: 'tenders', color: '#409EFF' },
+        policies: { name: '政策', field: 'policies', color: '#E6A23C' },
+        news: { name: '新闻', field: 'news', color: '#F56C6C' }
+      }
+
+      // 确定要显示的系列
+      let seriesToShow = []
+      let legendData = []
+
+      if (this.dataType === 'all') {
+        // 显示所有系列
+        seriesToShow = ['leads', 'tenders', 'policies', 'news']
+        legendData = ['线索', '招标', '政策', '新闻']
+      } else {
+        // 只显示选中的系列
+        seriesToShow = [this.dataType]
+        legendData = [seriesConfig[this.dataType].name]
+      }
+
       // 参考 https://echarts.apache.org/examples/zh/editor.html?c=bar-simple
       const option = {
         tooltip: {
@@ -212,8 +260,8 @@ export default {
             type: 'shadow'
           }
         },
-        legend: {
-          data: ['线索', '招标', '政策', '新闻'],
+        legend: this.dataType === 'all' ? {
+          data: legendData,
           orient: 'vertical',
           left: '2%',
           top: 'center',
@@ -224,9 +272,26 @@ export default {
           itemWidth: 10,
           itemHeight: 6,
           itemGap: 10
+        } : {
+          data: legendData,
+          orient: 'horizontal',
+          left: 'center',
+          top: '3%',
+          textStyle: {
+            fontSize: 10,
+            color: '#666'
+          },
+          itemWidth: 10,
+          itemHeight: 6
         },
-        grid: {
+        grid: this.dataType === 'all' ? {
           left: '9%',
+          right: '3%',
+          bottom: '8%',
+          top: '20%',
+          containLabel: true
+        } : {
+          left: '3%',
           right: '3%',
           bottom: '8%',
           top: '20%',
@@ -269,13 +334,14 @@ export default {
             }
           }
         },
-        series: [
-          {
-            name: '线索',
+        series: seriesToShow.map(type => {
+          const config = seriesConfig[type]
+          return {
+            name: config.name,
             type: 'bar',
-            data: this.chartData.map(item => item.leads),
+            data: this.chartData.map(item => item[config.field]),
             itemStyle: {
-              color: '#67C23A',
+              color: config.color,
               borderRadius: [3, 3, 0, 0]
             },
             label: {
@@ -286,66 +352,12 @@ export default {
               color: '#333',
               fontWeight: 600
             },
-            barWidth: '15%'
-          },
-          {
-            name: '招标',
-            type: 'bar',
-            data: this.chartData.map(item => item.tenders),
-            itemStyle: {
-              color: '#409EFF',
-              borderRadius: [3, 3, 0, 0]
-            },
-            label: {
-              show: true,
-              position: 'top',
-              formatter: '{c}',
-              fontSize: 9,
-              color: '#333',
-              fontWeight: 600
-            },
-            barWidth: '15%'
-          },
-          {
-            name: '政策',
-            type: 'bar',
-            data: this.chartData.map(item => item.policies),
-            itemStyle: {
-              color: '#E6A23C',
-              borderRadius: [3, 3, 0, 0]
-            },
-            label: {
-              show: true,
-              position: 'top',
-              formatter: '{c}',
-              fontSize: 9,
-              color: '#333',
-              fontWeight: 600
-            },
-            barWidth: '15%'
-          },
-          {
-            name: '新闻',
-            type: 'bar',
-            data: this.chartData.map(item => item.news),
-            itemStyle: {
-              color: '#F56C6C',
-              borderRadius: [3, 3, 0, 0]
-            },
-            label: {
-              show: true,
-              position: 'top',
-              formatter: '{c}',
-              fontSize: 9,
-              color: '#333',
-              fontWeight: 600
-            },
-            barWidth: '15%'
+            barWidth: this.dataType === 'all' ? '15%' : '30%' // 单个类别时柱子更宽
           }
-        ]
+        })
       }
 
-      this.chartInstance.setOption(option)
+      this.chartInstance.setOption(option, true) // 第二个参数 true 表示不合并，完全替换
     },
 
     // 处理窗口大小变化

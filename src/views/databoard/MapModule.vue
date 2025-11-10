@@ -5,7 +5,7 @@
         <span class="module-title">{{ mapType === 'china' ? '中国地图' : '世界地图' }}</span>
         <div class="header-actions">
           <!-- 数据类型选择 -->
-          <el-select v-model="dataType" size="mini" style="width: 100px; margin-right: 8px;" @change="handleDataTypeChange">
+          <el-select :value="dataType" size="mini" style="width: 100px; margin-right: 8px;" @change="handleDataTypeChange">
             <el-option label="全部" value="all"></el-option>
             <el-option :label="typeLabels.leads" value="leads"></el-option>
             <el-option :label="typeLabels.tenders" value="tenders"></el-option>
@@ -13,14 +13,14 @@
             <el-option :label="typeLabels.news" value="news"></el-option>
           </el-select>
           <!-- 时间范围选择 -->
-          <el-select v-model="timeRange" size="mini" style="width: 100px; margin-right: 8px;" @change="handleTimeRangeChange">
+          <el-select :value="timeRange" size="mini" style="width: 100px; margin-right: 8px;" @change="handleTimeRangeChange">
             <el-option label="当天" value="day"></el-option>
             <el-option label="近一周" value="week"></el-option>
             <el-option label="近一月" value="month"></el-option>
             <el-option label="近一季度" value="quarter"></el-option>
             <el-option label="近一年" value="year"></el-option>
           </el-select>
-          <el-button size="mini" @click="resetMap">重置</el-button>
+          <!-- <el-button size="mini" @click="resetMap">重置</el-button> -->
           <el-button size="mini" type="primary" @click="toggleViewMode">
             {{ mapType === 'china' ? '切换世界地图' : '切换中国地图' }}
           </el-button>
@@ -58,6 +58,18 @@ import '@/assets/js/world.js'
 
 export default {
   name: 'MapModule',
+  props: {
+    // 数据类型：all/leads/tenders/policies/news
+    dataType: {
+      type: String,
+      default: 'all'
+    },
+    // 时间范围：day/week/month/quarter/year
+    timeRange: {
+      type: String,
+      default: 'month'
+    }
+  },
   data() {
     return {
       mapChart: null,
@@ -65,8 +77,6 @@ export default {
       loading: false,
       statistics: [],
       summary: null,
-      dataType: 'all', // 数据类型：all/leads/tenders/policies/news
-      timeRange: 'month', // 时间范围：day/week/month/quarter/year
       currentDate: new Date().toISOString().split('T')[0], // 当前查询日期
       typeLabels: {
         // 默认值
@@ -75,6 +85,15 @@ export default {
         policies: '相关论文',
         news: '政策新闻'
       }
+    }
+  },
+  watch: {
+    // 监听props变化，重新加载数据
+    dataType() {
+      this.loadMapData()
+    },
+    timeRange() {
+      this.loadMapData()
     }
   },
   mounted() {
@@ -277,15 +296,15 @@ export default {
     },
 
     // 处理数据类型变化
-    handleDataTypeChange() {
-      this.loadMapData()
+    handleDataTypeChange(value) {
+      this.$emit('data-type-change', value)
     },
 
     // 处理时间范围变化
-    handleTimeRangeChange() {
-      this.loadMapData()
+    handleTimeRangeChange(value) {
+      this.$emit('time-range-change', value)
     },
-    
+
     // 初始化地图
     initMap() {
       if (!this.$refs.mapContainer) {
@@ -341,7 +360,7 @@ export default {
         this.$message.error('地图初始化失败')
       }
     },
-    
+
     // 设置地图配置
     setMapOption() {
       if (!this.mapChart) {
@@ -364,28 +383,28 @@ export default {
       // 准备地图数据
       const mapData = this.prepareMapData()
       console.log('准备的地图数据:', mapData.slice(0, 5)) // 打印前5条数据
-      
+
       // 计算visualMap的最大最小值
       const allValues = mapData.map(item => item.value || 0)
       const values = allValues.filter(v => v > 0)
-      
+
       let maxValue = this.summary?.max
       let minValue = this.summary?.min
-      
+
       if (!maxValue) {
         maxValue = values.length > 0 ? Math.max(...values) : (allValues.length > 0 ? Math.max(...allValues) : 100)
       }
       if (minValue === undefined || minValue === null) {
         minValue = values.length > 0 ? Math.min(...values) : (allValues.length > 0 ? Math.min(...allValues) : 0)
       }
-      
+
       // 确保maxValue > minValue
       if (maxValue <= minValue) {
         maxValue = minValue + 1
       }
-      
+
       console.log('VisualMap范围:', { min: minValue, max: maxValue, valuesCount: values.length })
-      
+
       const option = {
         backgroundColor: '#fff',
         tooltip: {
@@ -395,7 +414,7 @@ export default {
               const data = params.data
               const typeText = this.getDataTypeText()
               let tooltip = `${params.name}<br/>${typeText}: ${data.value || 0}`
-              
+
               // 如果有详细数据，显示更多信息
               if (data.leads !== undefined) {
                 // 始终使用组件级别的 typeLabels（新值），确保显示一致
@@ -405,7 +424,7 @@ export default {
                 tooltip += `<br/>${labels.policies}: ${data.policies || 0}`
                 tooltip += `<br/>${labels.news}: ${data.news || 0}`
               }
-              
+
               return tooltip
             }
             return params.name
@@ -463,20 +482,20 @@ export default {
           }
         ]
       }
-      
+
       console.log('设置地图配置，数据点数量:', mapData.length)
       console.log('VisualMap范围:', `min=${minValue}, max=${maxValue}`)
-      
+
       try {
         this.mapChart.setOption(option, true) // 使用notMerge=true强制更新
         console.log('地图配置设置成功')
-        
+
         // 设置配置后立即调整大小
         this.$nextTick(() => {
           if (this.mapChart) {
             this.mapChart.resize()
             console.log('地图resize完成')
-            
+
             // 验证地图是否正确渲染
             setTimeout(() => {
               if (this.mapChart) {
@@ -532,14 +551,14 @@ export default {
       }
       return typeMap[this.dataType] || '数据'
     },
-    
+
     // 处理地图点击事件
     async handleMapClick(params) {
       console.log('点击了:', params.name)
-      
+
       // 获取区域代码
       const regionCode = params.data?.code || this.getRegionCodeByName(params.name)
-      
+
       if (regionCode) {
         try {
           // 调用API获取区域详情
@@ -549,9 +568,9 @@ export default {
             type: this.dataType,
             timeRange: this.timeRange
           })
-          
+
           const data = response.data || response
-          
+
           // 显示区域详情信息
           const stats = data.statistics || {}
           // 始终使用组件级别的 typeLabels（新值），确保显示一致
@@ -564,14 +583,14 @@ export default {
             ${labels.policies}: ${stats.policies || 0}<br/>
             ${labels.news}: ${stats.news || 0}
           `
-          
+
           this.$message({
             message: message,
             type: 'info',
             dangerouslyUseHTMLString: true,
             duration: 3000
           })
-          
+
           // TODO: 可以在这里实现下钻到市级地图的功能
           // 例如：加载对应省份的市级地图数据
         } catch (error) {
@@ -669,7 +688,7 @@ export default {
 
       return regionCodeMap[name]
     },
-    
+
     // 重置地图
     resetMap() {
       if (this.mapChart) {
@@ -685,22 +704,25 @@ export default {
         })
       }
     },
-    
+
     // 切换视图模式（切换地图类型）
     async toggleViewMode() {
       // 切换地图类型
       this.mapType = this.mapType === 'china' ? 'world' : 'china'
-      
+
+      // 通知父组件地图类型已改变
+      this.$emit('map-type-change', this.mapType)
+
       // 销毁当前地图实例
       if (this.mapChart) {
         this.mapChart.dispose()
         this.mapChart = null
       }
-      
+
       // 重新加载地图数据
       await this.loadMapData()
     },
-    
+
     // 处理窗口大小变化
     handleResize() {
       if (this.mapChart) {
@@ -732,7 +754,7 @@ export default {
 
   .header-actions {
     float: right;
-    
+
     .el-button {
       margin-left: 8px;
     }

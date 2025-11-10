@@ -43,11 +43,21 @@
                   <div class="map-column">
                     <!-- 地图区域 -->
                     <div class="map-section">
-                      <map-module />
+                      <map-module
+                        :data-type="filterDataType"
+                        :time-range="filterTimeRange"
+                        @data-type-change="handleDataTypeChange"
+                        @time-range-change="handleTimeRangeChange"
+                        @map-type-change="handleMapTypeChange"
+                      />
                     </div>
                     <!-- 区域热度柱状图 -->
                     <div class="chart-section">
-                      <regional-heat-chart />
+                      <regional-heat-chart
+                        :data-type="filterDataType"
+                        :time-range="filterTimeRange"
+                        :map-type="mapType"
+                      />
                     </div>
                   </div>
                 </el-col>
@@ -92,7 +102,11 @@ export default {
   },
   data() {
     return {
-      viewMode: 'domestic' // domestic | international
+      viewMode: 'domestic', // domestic | international
+      // 地图和图表的联动筛选条件
+      filterDataType: 'all',
+      filterTimeRange: 'month',
+      mapType: 'china' // 地图类型：china/world
     }
   },
   methods: {
@@ -105,6 +119,21 @@ export default {
     scrollToDetail(item) {
       // TODO: 滚动到页面下方的"今日全球要问"区域
       this.$message.info(`跳转到${item.label}详情`)
+    },
+    // 处理地图数据类型变化
+    handleDataTypeChange(dataType) {
+      this.filterDataType = dataType
+      console.log('数据类型切换:', dataType)
+    },
+    // 处理地图时间范围变化
+    handleTimeRangeChange(timeRange) {
+      this.filterTimeRange = timeRange
+      console.log('时间范围切换:', timeRange)
+    },
+    // 处理地图类型变化
+    handleMapTypeChange(mapType) {
+      this.mapType = mapType
+      console.log('地图类型切换:', mapType)
     }
   }
 }
