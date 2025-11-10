@@ -7,10 +7,10 @@
           <!-- 数据类型选择 -->
           <el-select v-model="dataType" size="mini" style="width: 100px; margin-right: 8px;" @change="handleDataTypeChange">
             <el-option label="全部" value="all"></el-option>
-            <el-option label="线索" value="leads"></el-option>
-            <el-option label="招标" value="tenders"></el-option>
-            <el-option label="政策" value="policies"></el-option>
-            <el-option label="新闻" value="news"></el-option>
+            <el-option :label="typeLabels.leads" value="leads"></el-option>
+            <el-option :label="typeLabels.tenders" value="tenders"></el-option>
+            <el-option :label="typeLabels.policies" value="policies"></el-option>
+            <el-option :label="typeLabels.news" value="news"></el-option>
           </el-select>
           <!-- 时间范围选择 -->
           <el-select v-model="timeRange" size="mini" style="width: 100px; margin-right: 8px;" @change="handleTimeRangeChange">
@@ -67,7 +67,14 @@ export default {
       summary: null,
       dataType: 'all', // 数据类型：all/leads/tenders/policies/news
       timeRange: 'month', // 时间范围：day/week/month/quarter/year
-      currentDate: new Date().toISOString().split('T')[0] // 当前查询日期
+      currentDate: new Date().toISOString().split('T')[0], // 当前查询日期
+      typeLabels: {
+        // 默认值
+        leads: '竞品动态',
+        tenders: '招标机会',
+        policies: '相关论文',
+        news: '政策新闻'
+      }
     }
   },
   mounted() {
@@ -112,6 +119,9 @@ export default {
         if (apiResponse && apiResponse.data) {
           this.statistics = apiResponse.data.statistics || []
           this.summary = apiResponse.data.summary || null
+          // 始终使用前端设置的新默认值，不合并 API 返回的 typeLabels，确保显示一致
+          // 如果后续需要支持 API 返回的 typeLabels，可以在这里添加逻辑
+          console.log('使用前端设置的typeLabels:', this.typeLabels)
         } else {
           // 使用示例数据
           this.statistics = this.getDefaultChinaStatistics()
@@ -172,6 +182,9 @@ export default {
         if (apiResponse && apiResponse.data) {
           this.statistics = apiResponse.data.statistics || []
           this.summary = apiResponse.data.summary || null
+          // 始终使用前端设置的新默认值，不合并 API 返回的 typeLabels，确保显示一致
+          // 如果后续需要支持 API 返回的 typeLabels，可以在这里添加逻辑
+          console.log('使用前端设置的typeLabels:', this.typeLabels)
         } else {
           // 使用模拟数据
           this.statistics = this.getDefaultWorldStatistics()
@@ -385,10 +398,12 @@ export default {
               
               // 如果有详细数据，显示更多信息
               if (data.leads !== undefined) {
-                tooltip += `<br/>线索: ${data.leads || 0}`
-                tooltip += `<br/>招标: ${data.tenders || 0}`
-                tooltip += `<br/>政策: ${data.policies || 0}`
-                tooltip += `<br/>新闻: ${data.news || 0}`
+                // 始终使用组件级别的 typeLabels（新值），确保显示一致
+                const labels = this.typeLabels
+                tooltip += `<br/>${labels.leads}: ${data.leads || 0}`
+                tooltip += `<br/>${labels.tenders}: ${data.tenders || 0}`
+                tooltip += `<br/>${labels.policies}: ${data.policies || 0}`
+                tooltip += `<br/>${labels.news}: ${data.news || 0}`
               }
               
               return tooltip
@@ -490,7 +505,9 @@ export default {
           tenders: item.tenders,
           policies: item.policies,
           news: item.news,
-          code: item.code
+          code: item.code,
+          // 始终使用组件级别的 typeLabels（新值），确保显示一致
+          typeLabels: this.typeLabels
         }))
       }
 
@@ -508,10 +525,10 @@ export default {
     getDataTypeText() {
       const typeMap = {
         all: '全部数据',
-        leads: '线索',
-        tenders: '招标',
-        policies: '政策',
-        news: '新闻'
+        leads: this.typeLabels.leads,
+        tenders: this.typeLabels.tenders,
+        policies: this.typeLabels.policies,
+        news: this.typeLabels.news
       }
       return typeMap[this.dataType] || '数据'
     },
@@ -537,13 +554,15 @@ export default {
           
           // 显示区域详情信息
           const stats = data.statistics || {}
+          // 始终使用组件级别的 typeLabels（新值），确保显示一致
+          const labels = this.typeLabels
           const message = `
             ${params.name}<br/>
             总计: ${stats.total || 0}<br/>
-            线索: ${stats.leads || 0}<br/>
-            招标: ${stats.tenders || 0}<br/>
-            政策: ${stats.policies || 0}<br/>
-            新闻: ${stats.news || 0}
+            ${labels.leads}: ${stats.leads || 0}<br/>
+            ${labels.tenders}: ${stats.tenders || 0}<br/>
+            ${labels.policies}: ${stats.policies || 0}<br/>
+            ${labels.news}: ${stats.news || 0}
           `
           
           this.$message({
