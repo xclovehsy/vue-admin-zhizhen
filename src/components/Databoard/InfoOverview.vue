@@ -141,6 +141,7 @@ export default {
     // 根据label映射类型、图标和颜色
     getTypeMapping(label) {
       const mapping = {
+        // 原有映射
         '政策动态': {
           type: 'policy',
           icon: 'el-icon-document',
@@ -179,6 +180,27 @@ export default {
         '预警监控数': {
           type: 'competitor',
           icon: 'el-icon-warning',
+          color: '#F56C6C'
+        },
+        // 新增后端返回的标签映射
+        '竞品动态': {
+          type: 'leads',
+          icon: 'el-icon-user',
+          color: '#67C23A'
+        },
+        '招标机会': {
+          type: 'tenders',
+          icon: 'el-icon-table',
+          color: '#409EFF'
+        },
+        '相关论文': {
+          type: 'policies',
+          icon: 'el-icon-reading',
+          color: '#E6A23C'
+        },
+        '新闻消息': {
+          type: 'news',
+          icon: 'el-icon-news',
           color: '#F56C6C'
         }
       }
