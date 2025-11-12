@@ -1,12 +1,12 @@
 <template>
   <div class="data-module">
-    <el-card shadow="hover" :body-style="{ height: '100%', padding: '20px' }">
+    <el-card shadow="hover" :body-style="{ height: '100%'}">
       <div class="module-content">
         <p>数据展示区域</p>
         <!-- 这里可以添加数据表格、图表等 -->
         <div class="data-board">
           <!-- 新闻消息卡片 -->
-          <el-card class="chart-card" shadow="hover" :body-style="{ padding: '5px' }">
+          <el-card class="chart-card" shadow="hover">
             <!-- <template #header>
               <div class="card-header">
                 <span class="card-title">新闻消息</span>
@@ -48,7 +48,7 @@
           </el-card>
     
           <!-- 科技论文卡片 -->
-          <el-card class="chart-card" shadow="never" :body-style="{ padding: '15px' }">
+          <el-card class="chart-card" shadow="never">
             <div class="chart-container">
               <div class="chart-item">
                 <pie-chart 
@@ -57,7 +57,7 @@
                 />
               </div>
               <div class="chart-item">
-                <line-chart 
+                <LineChart2
                   :chart-data="researchTopicNumData" 
                   title="各研究主题数量变化"
                 />
@@ -72,16 +72,19 @@
 
 <script>
 import LineChart from '@/components/Dashboard/LineChart.vue'
+import LineChart2 from '@/components/Dashboard/LineChart2.vue'
 import PieChart from '@/components/Dashboard/PieChart.vue'
 import BarChart from '@/components/Dashboard/BarChart.vue'
 import { getChartData } from '@/api/databoard/data'
+
 export default {
   name: 'DataModule',
   components: {
     LineChart,
+    LineChart2,
     PieChart,
-    BarChart
-  },
+    BarChart,
+},
   data() {
     return {
       // 图表数据
@@ -377,7 +380,7 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 10px !important;
+    padding: 5px !important;
     min-height: 0;
   }
 
@@ -385,7 +388,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0;
+
   }
   
   .card-title {
@@ -415,7 +418,7 @@ export default {
   height: 100%;
   min-height: 0;
   h4 {
-    margin: 0 0 16px 0;
+    margin: 0 0 8px 0;
     text-align: center;
     color: #606266;
     font-size: 14px;
@@ -436,41 +439,41 @@ export default {
 @media (max-width: 1200px) {
   .chart-container {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 5px;
   }
   .data-board {
-    padding: 16px;
-    gap: 16px;
+    padding: 5px;
+    gap: 5px;
   }
 }
 
 @media (max-width: 768px) {
   .data-board {
-    padding: 12px;
+    padding: 5px;
     gap: 12px;
   }
   
   .chart-card {
     ::v-deep .el-card__body {
-      padding: 16px !important;
+      padding: 5px !important;
     }
   }
   
   .chart-container {
-    gap: 12px;
+    gap: 5px;
   }
 }
 
 @media (max-width: 576px) {
   .data-board {
-    padding: 8px;
-    gap: 8px;
+    padding: 5px;
+    gap: 5px;
   }
   .chart-item {
-    padding: 8px;
+    padding: 5px;
     h4 {
       font-size: 13px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
   }
 }

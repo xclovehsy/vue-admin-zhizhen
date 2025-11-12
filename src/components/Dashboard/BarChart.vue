@@ -41,9 +41,10 @@ export default {
         title: {
           text: this.title,
           left: 'center',
+          top:0,
           textStyle: {
-            fontSize: 14,
-            fontWeight: 'normal'
+            fontSize: 16,
+            fontWeight: 'bold'
           }
         },
         tooltip: {
@@ -55,10 +56,6 @@ export default {
           bottom: '15%',
           top: '15%',
           containLabel: true
-        },
-        legend: {
-          data: this.chartData.seriesData.map(item => item.name),
-          bottom: 0
         },
         xAxis: {
           type: 'category', 

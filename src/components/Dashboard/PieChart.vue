@@ -41,9 +41,10 @@ export default {
         title: {
           text: this.title,
           left: 'center',
+          top:0,
           textStyle: {
-            fontSize: 14,
-            fontWeight: 'normal'
+            fontSize: 16,
+            fontWeight: 'bold'
           }
         },
         tooltip: {
@@ -56,7 +57,7 @@ export default {
           bottom:0, 
           itemWidth: 12,
           itemHeight: 12,
-          itemGap: 15, // 图例项之间的间距
+          itemGap: 6, // 图例项之间的间距
           textStyle: {
             fontSize: 11,
             color: '#666'
@@ -68,7 +69,7 @@ export default {
             name: '数据分布',
             type: 'pie',
             center: ['30%', '60%'],
-            radius: ['0%', '50%'],
+            radius: ['10%', '60%'],
             avoidLabelOverlap: true,
             itemStyle: {
               borderRadius: 10,
