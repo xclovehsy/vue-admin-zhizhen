@@ -38,7 +38,7 @@
                 />
               </div>
               <div class="chart-item">
-                <pie-chart 
+                <PieChart2
                   :chart-data="competitorTypeData" 
                   title="竞品公司动态"
                 />
@@ -74,6 +74,7 @@
 import LineChart from '@/components/Dashboard/LineChart.vue'
 import LineChart2 from '@/components/Dashboard/LineChart2.vue'
 import PieChart from '@/components/Dashboard/PieChart.vue'
+import PieChart2 from '@/components/Dashboard/PieChart2.vue'
 import BarChart from '@/components/Dashboard/BarChart.vue'
 import { getChartData } from '@/api/databoard/data'
 
@@ -83,6 +84,7 @@ export default {
     LineChart,
     LineChart2,
     PieChart,
+    PieChart2,
     BarChart,
 },
   data() {
