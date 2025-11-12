@@ -182,7 +182,7 @@ export default {
 
 <style lang="scss" scoped>
 .daily-report {
-  height: 220px;
+  height: 200px;
 
   .report-card {
     margin-bottom: 0;
@@ -353,11 +353,9 @@ export default {
                 font-size: 13px;
                 line-height: 1.5;
                 margin: 0 0 0px 0;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
-                overflow: hidden;
-                text-overflow: ellipsis;
+                white-space: normal;
+                word-wrap: break-word;
+                word-break: break-word;
 
                 .category-label {
                   font-weight: 600;
