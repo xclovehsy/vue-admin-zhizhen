@@ -3,10 +3,10 @@
 </template>
 
 <script>
-import * as echarts from 'echarts'
+import * as echarts from 'echarts';
 
 export default {
-  name: 'LineChart',
+  name: 'BarChart',
   props: {
     chartData: {
       type: Object,
@@ -48,12 +48,7 @@ export default {
         },
         tooltip: {
           trigger: 'axis'
-        },
-        legend: {
-          data: this.chartData.seriesData.map(item => item.name),
-          bottom: -6,
-          // type: 'scroll', // 启用滚动 
-        },
+        }, 
         grid: {
           left: '3%',
           right: '4%',
@@ -61,27 +56,29 @@ export default {
           top: '15%',
           containLabel: true
         },
+        legend: {
+          data: this.chartData.seriesData.map(item => item.name),
+          bottom: 0
+        },
         xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: this.chartData.xAxisData
+          type: 'category', 
+          
+          data: this.chartData.xAxisData,
         },
         yAxis: {
-          type: 'value'
+          type: 'value' 
         },
         series: this.chartData.seriesData.map(item => ({
           name: item.name,
-          type: 'line',
+          type: 'bar',
           data: item.data,
           itemStyle: {
             color: item.color
           },
-          smooth: true
+          barWidth: '30%',
         }))
       }
       this.chart.setOption(option)
-      
-      // 响应式调整
       window.addEventListener('resize', this.handleResize)
     },
     handleResize() {
@@ -90,5 +87,5 @@ export default {
       }
     }
   }
-}
+};
 </script>

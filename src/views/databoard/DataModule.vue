@@ -15,32 +15,51 @@
             <div class="chart-container">
               <div class="chart-item">
                 <line-chart
-                  :chart-data="policyNewsData"
-                  title="新闻消息"
+                  :chart-data="policyNewsData" 
+                  title="政策新闻"
+                />
+              </div>
+              <div class="chart-item">
+                <line-chart 
+                  :chart-data="industryNewsData" 
+                  title="行业新闻"
                 />
               </div>
             </div>
           </el-card>
-
+    
           <!-- 竞品活动卡片 -->
           <el-card class="chart-card" shadow="hover">
             <div class="chart-container">
               <div class="chart-item">
-                <pie-chart
-                  :chart-data="competitorTypeData"
+                <bar-chart 
+                  :chart-data="bidListData" 
+                  title="近一周招标消息"
+                />
+              </div>
+              <div class="chart-item">
+                <pie-chart 
+                  :chart-data="competitorTypeData" 
                   title="竞品公司动态"
                 />
               </div>
+              
             </div>
           </el-card>
-
+    
           <!-- 科技论文卡片 -->
           <el-card class="chart-card" shadow="never" :body-style="{ padding: '15px' }">
             <div class="chart-container">
               <div class="chart-item">
-                <pie-chart
-                  :chart-data="researchTopicData"
+                <pie-chart 
+                  :chart-data="researchTopicData" 
                   title="学术论文主题"
+                />
+              </div>
+              <div class="chart-item">
+                <line-chart 
+                  :chart-data="researchTopicNumData" 
+                  title="各研究主题数量变化"
                 />
               </div>
             </div>
@@ -54,30 +73,44 @@
 <script>
 import LineChart from '@/components/Dashboard/LineChart.vue'
 import PieChart from '@/components/Dashboard/PieChart.vue'
+import BarChart from '@/components/Dashboard/BarChart.vue'
 import { getChartData } from '@/api/databoard/data'
 export default {
   name: 'DataModule',
   components: {
     LineChart,
-    PieChart
+    PieChart,
+    BarChart
   },
   data() {
     return {
-
       // 图表数据
       policyNewsData : {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
-          name: '新闻消息',
+          name: '政策新闻',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
-        }, {
+        }]
+      },
+      industryNewsData: {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        seriesData: [{
           name: '行业新闻',
           data: [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
           color: '#91cc75'
-        }
-      ]
+        }]
       },
+      // 近一周招标消息
+      bidListData: {
+        xAxisData: ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        seriesData: [{
+          name: '数量',
+          data: [8, 2, 3, 5, 6, 3, 5],
+          color: '#d37448'
+        }]
+      },
+      // 竞品公司动态
       competitorTypeData: {
         seriesData: [
           { value: 335, name: '融资' },
@@ -86,6 +119,7 @@ export default {
           { value: 135, name: '技术更新' }
         ]
       },
+      // 学术论文主题
       researchTopicData: {
         seriesData: [
           { value: 335, name: '磁学与自旋电子学' },
@@ -96,6 +130,43 @@ export default {
           { value: 872  , name: '仪器工程与国产化' },
         ]
       },
+      // 各研究主题数量变化
+      researchTopicNumData: {
+        xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        seriesData: [
+          {
+            name: '磁学',
+            // name: '磁学与自旋电子学',
+            data: [45, 48, 52, 55, 58, 62, 65, 70, 68, 72, 75, 78], // 稳定上升趋势
+            color: '#5470C6'
+          }, {
+            name: '量子',
+            // name: '量子与低温测量',
+            data: [28, 32, 35, 40, 45, 50, 55, 60, 65, 63, 60, 58],
+            color: '#91CC75'
+          }, {
+            name: '纳米',
+            // name: '纳米与光学成像',
+            data: [60, 58, 55, 62, 65, 68, 72, 70, 74, 78, 75, 80], 
+            color: '#FAC858'
+          }, {
+            name: '科学仪器',
+            // name: '科学仪器智能化'
+            data: [35, 40, 45, 50, 55, 60, 65, 70, 75, 72, 68, 65],
+            color: '#EE6666'
+          }, {
+            name: '光谱',
+            // name: '光谱与分析技术',
+            data: [80, 78, 82, 85, 88, 90, 92, 95, 98, 100, 105, 108],
+            color: '#73C0DE'
+          }, {
+            name: '仪器国产化',
+            // name: '仪器工程与国产化',
+            data: [50, 55, 60, 58, 65, 70, 68, 75, 80, 85, 82, 88], 
+            color: '#3BA272'
+          }
+        ]
+      }
     }
   },
   mounted() {
@@ -136,19 +207,38 @@ export default {
         this.useMockData()
         return
       }
-      // 新闻消息数据
+      // 政策新闻数据
       this.policyNewsData = {
         xAxisData: statistics.policyNews?.xAxis || this.generateDefaultXAxis(),
         seriesData: statistics.policyNews?.series || [
           {
-            name: '新闻消息',
+            name: '政策新闻',
             data: statistics.policyNews?.data || [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
             color: '#5470c6'
           },
+        ]
+      },
+      
+      // 行业新闻数据
+      this.industryNewsData = {
+        xAxisData: statistics.industryNewsData?.xAxis || this.generateDefaultXAxis(),
+        seriesData: statistics.industryNewsData?.series || [
           {
             name: '行业新闻',
             data: statistics.industryNews?.data || [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
             color: '#91cc75'
+          }
+        ]
+      }
+
+      // 近一周招标消息
+      this.bidListData = {
+        xAxisData: statistics.bidListData?.xAxis || ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        seriesData: statistics.bidListData?.series || [
+          {
+            name: '数量',
+            data: statistics.bidListData?.data || [80, 95, 120, 150, 110, 180, 160, 140, 165, 190, 210, 250],
+            color: '#d37448'
           }
         ]
       }
@@ -175,14 +265,14 @@ export default {
         ]
       }
     },
-
+    
     // 使用模拟数据
     useMockData() {
-      // 新闻消息数据
+      // 政策新闻数据
       this.policyNewsData = {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
-          name: '新闻消息',
+          name: '政策新闻',
           data: [120, 132, 101, 134, 90, 230, 210, 182, 191, 234, 290, 330],
           color: '#5470c6'
         },{
@@ -214,7 +304,7 @@ export default {
         ]
       }
     },
-
+    
     // 生成默认时间轴（12个月）
     generateDefaultXAxis() {
       return ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -249,7 +339,7 @@ export default {
     flex-direction: column;
     padding: 0 !important;
   }
-
+  
   .module-title {
     font-size: 16px;
     font-weight: bold;
@@ -271,7 +361,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px;
+  padding: 8px; 
   height: auto;
   overflow-y: auto;
 }
@@ -282,7 +372,7 @@ export default {
   flex-direction: column;
   min-height: 0;
   margin-bottom: 0;
-
+  
   ::v-deep .el-card__body {
     flex: 1;
     display: flex;
@@ -297,7 +387,7 @@ export default {
     align-items: center;
     padding: 0;
   }
-
+  
   .card-title {
     font-size: 16px;
     font-weight: bold;
@@ -307,7 +397,8 @@ export default {
 
 .chart-container {
   flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
   width: 100%;
   height: 100%;
@@ -316,8 +407,8 @@ export default {
 
 .chart-item {
   background: #f8f9fa;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 8px; 
+  padding: 10px; 
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -358,13 +449,13 @@ export default {
     padding: 12px;
     gap: 12px;
   }
-
+  
   .chart-card {
     ::v-deep .el-card__body {
       padding: 16px !important;
     }
   }
-
+  
   .chart-container {
     gap: 12px;
   }

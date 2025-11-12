@@ -51,11 +51,12 @@ export default {
           formatter: '{a} <br/>{b}: {c} ({d}%)'
         },
         legend: {
-          orient: 'vertical',
-          right:100,
+          orient: 'vertical', 
+          right: 10, 
+          bottom:0, 
           itemWidth: 12,
           itemHeight: 12,
-          itemGap: 20, // 图例项之间的间距
+          itemGap: 15, // 图例项之间的间距
           textStyle: {
             fontSize: 11,
             color: '#666'
@@ -66,9 +67,9 @@ export default {
           {
             name: '数据分布',
             type: 'pie',
-            radius: ['40%', '70%'],
-            center: ['40%', '60%'],
-            avoidLabelOverlap: false,
+            center: ['30%', '60%'],
+            radius: ['0%', '50%'],
+            avoidLabelOverlap: true,
             itemStyle: {
               borderRadius: 10,
               borderColor: '#fff',
