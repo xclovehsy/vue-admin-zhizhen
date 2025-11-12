@@ -1,4 +1,5 @@
 <template>
+  <!-- 第二行右边的饼图 -->
   <div ref="chart" :style="{ height: height, width: '100%' }"></div>
 </template>
 
@@ -6,7 +7,7 @@
 import * as echarts from 'echarts'
 
 export default {
-  name: 'PieChart',
+  name: 'PieChart2',
   props: {
     chartData: {
       type: Object,
@@ -68,7 +69,7 @@ export default {
           {
             name: '数据分布',
             type: 'pie',
-            center: ['30%', '60%'],
+            center: ['40%', '60%'],
             radius: ['10%', '60%'],
             avoidLabelOverlap: true,
             itemStyle: {
