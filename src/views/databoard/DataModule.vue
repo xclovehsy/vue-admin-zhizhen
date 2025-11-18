@@ -53,7 +53,7 @@
               <div class="chart-item">
                 <pie-chart 
                   :chart-data="researchTopicData" 
-                  title="学术论文主题"
+                  title="科技论文主题"
                 />
               </div>
               <div class="chart-item">
@@ -124,7 +124,7 @@ export default {
           { value: 135, name: '技术更新' }
         ]
       },
-      // 学术论文主题
+      // 科技论文主题
       researchTopicData: {
         seriesData: [
           { value: 335, name: '磁学与自旋电子学' },
