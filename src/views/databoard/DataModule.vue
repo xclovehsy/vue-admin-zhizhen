@@ -78,6 +78,21 @@ import PieChart2 from '@/components/Dashboard/PieChart2.vue'
 import BarChart from '@/components/Dashboard/BarChart.vue'
 import { getChartData } from '@/api/databoard/data'
 
+// 默认数据常量，统一管理
+const DEFAULT_DATA = {
+  policyNews: [142, 187, 123, 198, 156, 179, 134, 191, 165, 148, 172, 109],
+  industryNews: [172, 95, 143, 127, 158, 134, 176, 92, 165, 148, 117, 179],
+  bidList: [3, 10, 2, 12, 4, 15, 5],
+  researchTopicNum: {
+    magnetism: [28, 55, 32, 60, 25, 42, 35, 68, 38, 42, 15, 38],
+    quantum: [47, 12, 89, 23, 76, 34, 91, 5, 67, 19, 84, 56],
+    nano: [32, 18, 8, 45, 45, 78, 92, 85, 25, 58, 12, 35],
+    instrument: [73, 29, 96, 14, 61, 87, 3, 52, 40, 78, 21, 65],
+    spectrum: [65, 95, 35, 18, 58, 85, 58, 35, 15, 95, 88, 72],
+    localization: [19, 64, 7, 91, 43, 26, 80, 37, 54, 12, 99, 6]
+  }
+}
+
 export default {
   name: 'DataModule',
   components: {
@@ -94,7 +109,7 @@ export default {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
           name: '政策新闻',
-          data: [165, 178, 192, 185, 200, 215, 230, 245, 260, 275, 290, 305],
+          data: DEFAULT_DATA.policyNews,
           color: '#5470c6'
         }]
       },
@@ -102,7 +117,7 @@ export default {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
           name: '行业新闻',
-          data: [95, 108, 125, 142, 135, 150, 168, 155, 172, 188, 205, 220],
+          data: DEFAULT_DATA.industryNews,
           color: '#91cc75'
         }]
       },
@@ -111,7 +126,7 @@ export default {
         xAxisData: ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
         seriesData: [{
           name: '数量',
-          data: [5, 7, 4, 8, 6, 9, 7],
+          data: DEFAULT_DATA.bidList,
           color: '#d37448'
         }]
       },
@@ -141,27 +156,27 @@ export default {
         seriesData: [
           {
             name: '磁学',
-            data: [52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85],
+            data: DEFAULT_DATA.researchTopicNum.magnetism,
             color: '#5470C6'
           }, {
             name: '量子',
-            data: [38, 42, 45, 48, 52, 55, 58, 62, 65, 68, 72, 75],
+            data: DEFAULT_DATA.researchTopicNum.quantum,
             color: '#91CC75'
           }, {
             name: '纳米',
-            data: [65, 68, 72, 75, 78, 82, 85, 88, 92, 95, 98, 102],
+            data: DEFAULT_DATA.researchTopicNum.nano,
             color: '#FAC858'
           }, {
             name: '科学仪器',
-            data: [42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86],
+            data: DEFAULT_DATA.researchTopicNum.instrument,
             color: '#EE6666'
           }, {
             name: '光谱',
-            data: [88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132],
+            data: DEFAULT_DATA.researchTopicNum.spectrum,
             color: '#73C0DE'
           }, {
             name: '仪器国产化',
-            data: [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110],
+            data: DEFAULT_DATA.researchTopicNum.localization,
             color: '#3BA272'
           }
         ]
@@ -206,45 +221,48 @@ export default {
         this.useMockData()
         return
       }
-      // 政策新闻数据
+      
+      // 政策新闻数据 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       this.policyNewsData = {
-        xAxisData: statistics.policyNews?.xAxis || this.generateDefaultXAxis(),
-        seriesData: statistics.policyNews?.series || [
+        xAxisData: statistics.policyNews?.xAxisData || this.generateDefaultXAxis(),
+        seriesData: statistics.policyNews?.seriesData || [
           {
             name: '政策新闻',
-            data: statistics.policyNews?.data || [165, 178, 192, 185, 200, 215, 230, 245, 260, 275, 290, 305],
+            data: DEFAULT_DATA.policyNews,
             color: '#5470c6'
-          },
+          }
         ]
-      },
+      }
       
-      // 行业新闻数据
+      // 行业新闻数据 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
+      // 注意：后端字段名是 industryNews，不是 industryNewsData
       this.industryNewsData = {
-        xAxisData: statistics.industryNewsData?.xAxis || this.generateDefaultXAxis(),
-        seriesData: statistics.industryNewsData?.series || [
+        xAxisData: statistics.industryNews?.xAxisData || this.generateDefaultXAxis(),
+        seriesData: statistics.industryNews?.seriesData || [
           {
             name: '行业新闻',
-            data: statistics.industryNews?.data || [95, 108, 125, 142, 135, 150, 168, 155, 172, 188, 205, 220],
+            data: DEFAULT_DATA.industryNews,
             color: '#91cc75'
           }
         ]
       }
 
-      // 近一周招标消息
+      // 近一周招标消息 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       this.bidListData = {
-        xAxisData: statistics.bidListData?.xAxis || ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
-        seriesData: statistics.bidListData?.series || [
+        xAxisData: statistics.bidListData?.xAxisData || ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        seriesData: statistics.bidListData?.seriesData || [
           {
             name: '数量',
-            data: statistics.bidListData?.data || [5, 7, 4, 8, 6, 9, 7],
+            data: DEFAULT_DATA.bidList,
             color: '#d37448'
           }
         ]
       }
 
-      // 竞品类型数据
+      // 竞品类型数据 - 后端返回格式: [{ seriesData: [{ value, name }] }]
+      // 需要提取第一个元素的 seriesData
       this.competitorTypeData = {
-        seriesData: statistics.competitorType || [
+        seriesData: (statistics.competitorType && statistics.competitorType[0]?.seriesData) || [
           { value: 420, name: '融资' },
           { value: 380, name: '产品发布' },
           { value: 290, name: '合作' },
@@ -252,45 +270,47 @@ export default {
         ]
       }
 
-      // 研究主题数据
+      // 研究主题数据 - 后端返回格式: { seriesData: [{ value, name }] }
+      // 注意：后端字段名是 researchTopicData，不是 researchTopic
       this.researchTopicData = {
-        seriesData: statistics.researchTopic || [
+        seriesData: statistics.researchTopicData?.seriesData || [
           { value: 485, name: '磁学与自旋电子学' },
           { value: 420, name: '量子与低温测量' },
           { value: 360, name: '纳米与光学成像' },
           { value: 280, name: '科学仪器智能化' },
           { value: 1250, name: '光谱与分析技术' },
-          { value: 720, name: '仪器工程与国产化' },
+          { value: 720, name: '仪器工程与国产化' }
         ]
       }
 
-      // 各研究主题数量变化
+      // 各研究主题数量变化 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
+      // 后端直接返回 seriesData 数组，不需要按主题名分字段
       this.researchTopicNumData = {
-        xAxisData: statistics.researchTopicNumData?.xAxis || this.generateDefaultXAxis(),
-        seriesData: statistics.researchTopicNumData?.series || [
+        xAxisData: statistics.researchTopicNumData?.xAxisData || this.generateDefaultXAxis(),
+        seriesData: statistics.researchTopicNumData?.seriesData || [
           {
             name: '磁学',
-            data: statistics.researchTopicNumData?.magnetism || [52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85],
+            data: DEFAULT_DATA.researchTopicNum.magnetism,
             color: '#5470C6'
           }, {
             name: '量子',
-            data: statistics.researchTopicNumData?.quantum || [38, 42, 45, 48, 52, 55, 58, 62, 65, 68, 72, 75],
+            data: DEFAULT_DATA.researchTopicNum.quantum,
             color: '#91CC75'
           }, {
             name: '纳米',
-            data: statistics.researchTopicNumData?.nano || [65, 68, 72, 75, 78, 82, 85, 88, 92, 95, 98, 102],
+            data: DEFAULT_DATA.researchTopicNum.nano,
             color: '#FAC858'
           }, {
             name: '科学仪器',
-            data: statistics.researchTopicNumData?.instrument || [42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86],
+            data: DEFAULT_DATA.researchTopicNum.instrument,
             color: '#EE6666'
           }, {
             name: '光谱',
-            data: statistics.researchTopicNumData?.spectrum || [88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132],
+            data: DEFAULT_DATA.researchTopicNum.spectrum,
             color: '#73C0DE'
           }, {
             name: '仪器国产化',
-            data: statistics.researchTopicNumData?.localization || [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110],
+            data: DEFAULT_DATA.researchTopicNum.localization,
             color: '#3BA272'
           }
         ]
@@ -304,7 +324,7 @@ export default {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
           name: '政策新闻',
-          data: [165, 178, 192, 185, 200, 215, 230, 245, 260, 275, 290, 305],
+          data: DEFAULT_DATA.policyNews,
           color: '#5470c6'
         }]
       }
@@ -314,7 +334,7 @@ export default {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
           name: '行业新闻',
-          data: [95, 108, 125, 142, 135, 150, 168, 155, 172, 188, 205, 220],
+          data: DEFAULT_DATA.industryNews,
           color: '#91cc75'
         }]
       }
@@ -324,7 +344,7 @@ export default {
         xAxisData: ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
         seriesData: [{
           name: '数量',
-          data: [5, 7, 4, 8, 6, 9, 7],
+          data: DEFAULT_DATA.bidList,
           color: '#d37448'
         }]
       }
@@ -357,27 +377,27 @@ export default {
         seriesData: [
           {
             name: '磁学',
-            data: [52, 55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85],
+            data: DEFAULT_DATA.researchTopicNum.magnetism,
             color: '#5470C6'
           }, {
             name: '量子',
-            data: [38, 42, 45, 48, 52, 55, 58, 62, 65, 68, 72, 75],
+            data: DEFAULT_DATA.researchTopicNum.quantum,
             color: '#91CC75'
           }, {
             name: '纳米',
-            data: [65, 68, 72, 75, 78, 82, 85, 88, 92, 95, 98, 102],
+            data: DEFAULT_DATA.researchTopicNum.nano,
             color: '#FAC858'
           }, {
             name: '科学仪器',
-            data: [42, 46, 50, 54, 58, 62, 66, 70, 74, 78, 82, 86],
+            data: DEFAULT_DATA.researchTopicNum.instrument,
             color: '#EE6666'
           }, {
             name: '光谱',
-            data: [88, 92, 96, 100, 104, 108, 112, 116, 120, 124, 128, 132],
+            data: DEFAULT_DATA.researchTopicNum.spectrum,
             color: '#73C0DE'
           }, {
             name: '仪器国产化',
-            data: [55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110],
+            data: DEFAULT_DATA.researchTopicNum.localization,
             color: '#3BA272'
           }
         ]

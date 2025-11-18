@@ -72,7 +72,7 @@ export default {
           itemStyle: {
             color: item.color
           },
-          smooth: true
+          smooth: false
         }))
       }
       this.chart.setOption(option)

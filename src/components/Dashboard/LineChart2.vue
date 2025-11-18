@@ -27,11 +27,40 @@ export default {
       chart: null
     }
   },
+  watch: {
+    chartData: {
+      handler(newVal) {
+        if (this.chart && newVal && newVal.xAxisData && newVal.seriesData) {
+          // 更新图表数据
+          this.chart.setOption({
+            xAxis: {
+              data: newVal.xAxisData
+            },
+            legend: {
+              data: newVal.seriesData.map(item => item.name)
+            },
+            series: newVal.seriesData.map(item => ({
+              name: item.name,
+              type: 'line',
+              data: item.data,
+              itemStyle: {
+                color: item.color
+              },
+              smooth: false
+            }))
+          })
+        }
+      },
+      deep: true,
+      immediate: false
+    }
+  },
   mounted() {
     this.initChart()
   },
   beforeUnmount() {
     if (this.chart) {
+      window.removeEventListener('resize', this.handleResize)
       this.chart.dispose()
     }
   },
@@ -79,7 +108,7 @@ export default {
           itemStyle: {
             color: item.color
           },
-          smooth: true
+          smooth: false
         }))
       }
       this.chart.setOption(option)
