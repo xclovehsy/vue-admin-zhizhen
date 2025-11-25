@@ -149,7 +149,7 @@
 </template>
 
 <script>
-import { chatWithQwen } from '@/api/agent/qwen'
+import { chatWithAgentStream, getChatHistory } from '@/api/agent/chat'
 import marked from 'marked'
 import agentAvatar from '@/assets/agent_avator.jpg'
 import AgentInitialReport from '@/components/Databoard/AgentInitialReport.vue'
@@ -167,6 +167,8 @@ export default {
       isSpeakerActive: true,
       showWelcome: true,
       conversationHistory: [], // 对话历史记录
+      sessionId: null, // 当前会话ID
+      streamController: null, // 流式传输控制器
       systemPrompt: '你是致真智能体，一个友好、专业的AI助手。你可以回答各种问题，提供工作学习上的帮助，还能随时陪伴聊天。请用简洁、友好的语气回复。',
       // 全局系统提示词（每次调用都会附带）
       globalSystemPrompts: [
@@ -383,6 +385,11 @@ export default {
         mangle: false // 不混淆邮箱地址
       })
     }
+
+    // 如果有sessionId，加载历史记录
+    if (this.sessionId) {
+      this.loadChatHistory()
+    }
   },
   methods: {
     /**
@@ -511,6 +518,12 @@ export default {
         return
       }
 
+      // 如果已有流式传输在进行，先取消
+      if (this.streamController) {
+        this.streamController.cancel()
+        this.streamController = null
+      }
+
       // 隐藏欢迎区域
       if (this.showWelcome) {
         this.showWelcome = false
@@ -545,7 +558,7 @@ export default {
       // 添加加载中的AI消息
       const loadingMessage = {
         type: 'ai',
-        content: '正在思考中...',
+        content: '',
         time: '',
         showTime: false,
         loading: true
@@ -554,58 +567,107 @@ export default {
       const loadingIndex = this.messages.length - 1
 
       try {
-        // 调用 Qwen API
+        // 调用后端流式API
         const combinedSystemPrompt = this.buildCombinedSystemPrompt()
-        const response = await chatWithQwen(
-          userContent,
-          combinedSystemPrompt,
-          this.conversationHistory.slice(0, -1), // 排除刚添加的用户消息，因为chatWithQwen会自动添加
+        let aiContent = ''
+        
+        this.streamController = chatWithAgentStream(
           {
-            temperature: 0.8,
-            top_p: 0.8
+            message: userContent,
+            session_id: this.sessionId,
+            system_prompt: combinedSystemPrompt,
+            conversation_history: this.conversationHistory.slice(0, -1), // 排除刚添加的用户消息
+            options: {
+              temperature: 0.8,
+              top_p: 0.8
+            }
+          },
+          {
+            onChunk: (chunk) => {
+              // 接收数据块，实时更新
+              if (chunk) {
+                aiContent += chunk
+                // 使用Vue.set确保响应式更新
+                this.$set(this.messages, loadingIndex, {
+                  type: 'ai',
+                  content: aiContent,
+                  time: '',
+                  showTime: false,
+                  loading: false
+                })
+                // 实时滚动到底部
+                this.$nextTick(() => {
+                  this.scrollToBottom()
+                })
+                // 调试信息（开发环境默认开启）
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('📝 [发送] 更新消息内容，当前长度:', aiContent.length, 'chunk:', chunk)
+                }
+              }
+            },
+            onDone: (data) => {
+              // 流式传输完成
+              this.sending = false
+              this.streamController = null
+              
+              // 更新会话ID（如果是新会话）
+              if (data && data.session_id) {
+                this.sessionId = data.session_id
+              }
+              
+              // 添加到对话历史
+              if (aiContent) {
+                this.conversationHistory.push({
+                  role: 'assistant',
+                  content: aiContent
+                })
+              }
+              
+              // 限制历史记录长度，避免超出token限制
+              if (this.conversationHistory.length > 20) {
+                this.conversationHistory = this.conversationHistory.slice(-20)
+              }
+              
+              // 临时系统提示词为一次性，调用完成后清空
+              this.clearTemporarySystemPrompts()
+              
+              // 滚动到底部
+              this.$nextTick(() => {
+                this.scrollToBottom()
+              })
+            },
+            onError: (error) => {
+              // 处理错误
+              console.error('流式传输错误:', error)
+              this.sending = false
+              this.streamController = null
+              
+              let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
+              if (error.message) {
+                errorMsg = `网络错误: ${error.message}`
+              }
+              
+              this.messages[loadingIndex] = {
+                type: 'ai',
+                content: errorMsg,
+                time: '',
+                showTime: false,
+                loading: false,
+                error: true
+              }
+              
+              this.$message.error('发送消息失败')
+              
+              // 临时系统提示词为一次性，调用完成后清空
+              this.clearTemporarySystemPrompts()
+            }
           }
         )
 
-        // 获取AI回复内容（OpenAI 兼容格式）
-        let aiContent = ''
-        if (response.data && response.data.choices && response.data.choices.length > 0) {
-          // OpenAI 兼容格式：response.data.choices[0].message.content
-          aiContent = response.data.choices[0].message?.content || ''
-        } else if (response.data && response.data.output) {
-          // DashScope 标准格式（兼容旧格式）
-          if (response.data.output.text) {
-            aiContent = response.data.output.text
-          } else if (response.data.output.choices && response.data.output.choices.length > 0) {
-            aiContent = response.data.output.choices[0].message?.content || response.data.output.choices[0].text || ''
-          }
-        }
-
-        if (!aiContent) {
-          aiContent = '抱歉，我暂时无法理解您的问题，请换个方式提问。'
-        }
-
-        // 更新加载中的消息
-        this.messages[loadingIndex] = {
-          type: 'ai',
-          content: aiContent,
-          time: '',
-          showTime: false,
-          loading: false
-        }
-
-        // 添加到对话历史
-        this.conversationHistory.push({
-          role: 'assistant',
-          content: aiContent
-        })
-
-        // 限制历史记录长度，避免超出token限制
-        if (this.conversationHistory.length > 20) {
-          this.conversationHistory = this.conversationHistory.slice(-20)
-        }
-
       } catch (error) {
         console.error('API调用失败:', error)
+        this.sending = false
+        this.streamController = null
 
         // 更新错误消息
         let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
@@ -631,15 +693,9 @@ export default {
         }
 
         this.$message.error('发送消息失败')
-      } finally {
-        this.sending = false
+        
         // 临时系统提示词为一次性，调用完成后清空
         this.clearTemporarySystemPrompts()
-
-        // 滚动到底部
-        this.$nextTick(() => {
-          this.scrollToBottom()
-        })
       }
     },
     async handleSuggestion(suggestion) {
@@ -681,58 +737,96 @@ export default {
       this.sending = true
 
       try {
-        // 调用 Qwen API
+        // 调用后端流式API
         const combinedSystemPrompt = this.buildCombinedSystemPrompt()
-        const response = await chatWithQwen(
-          suggestion.text,
-          combinedSystemPrompt,
-          this.conversationHistory.slice(0, -1),
+        let aiContent = ''
+        
+        this.streamController = chatWithAgentStream(
           {
-            temperature: 0.8,
-            top_p: 0.8
+            message: suggestion.text,
+            session_id: this.sessionId,
+            system_prompt: combinedSystemPrompt,
+            conversation_history: this.conversationHistory.slice(0, -1),
+            options: {
+              temperature: 0.8,
+              top_p: 0.8
+            }
+          },
+          {
+            onChunk: (chunk) => {
+              if (chunk) {
+                aiContent += chunk
+                // 使用Vue.set确保响应式更新
+                this.$set(this.messages, loadingIndex, {
+                  type: 'ai',
+                  content: aiContent,
+                  time: '',
+                  showTime: false,
+                  loading: false
+                })
+                // 实时滚动到底部
+                this.$nextTick(() => {
+                  this.scrollToBottom()
+                })
+                // 调试信息
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('📝 [建议] 更新消息内容，当前长度:', aiContent.length, 'chunk:', chunk)
+                }
+              }
+            },
+            onDone: (data) => {
+              this.sending = false
+              this.streamController = null
+              
+              if (data && data.session_id) {
+                this.sessionId = data.session_id
+              }
+              
+              if (aiContent) {
+                this.conversationHistory.push({
+                  role: 'assistant',
+                  content: aiContent
+                })
+              }
+              
+              if (this.conversationHistory.length > 20) {
+                this.conversationHistory = this.conversationHistory.slice(-20)
+              }
+              
+              this.clearTemporarySystemPrompts()
+              this.$nextTick(() => {
+                this.scrollToBottom()
+              })
+            },
+            onError: (error) => {
+              console.error('流式传输错误:', error)
+              this.sending = false
+              this.streamController = null
+              
+              let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
+              if (error.message) {
+                errorMsg = `网络错误: ${error.message}`
+              }
+              
+              this.messages[loadingIndex] = {
+                type: 'ai',
+                content: errorMsg,
+                time: '',
+                showTime: false,
+                loading: false,
+                error: true
+              }
+              
+              this.$message.error('发送消息失败')
+              this.clearTemporarySystemPrompts()
+            }
           }
         )
 
-        // 获取AI回复内容
-        let aiContent = ''
-        if (response.data && response.data.output) {
-          if (response.data.output.choices && response.data.output.choices.length > 0) {
-            aiContent = response.data.output.choices[0].message.content || ''
-          } else if (response.data.output.text) {
-            aiContent = response.data.output.text
-          }
-        }
-
-        if (!aiContent && response.data && response.data.choices && response.data.choices.length > 0) {
-          aiContent = response.data.choices[0].message?.content || ''
-        }
-
-        if (!aiContent) {
-          aiContent = '抱歉，我暂时无法理解您的问题，请换个方式提问。'
-        }
-
-        // 更新加载中的消息
-        this.messages[loadingIndex] = {
-          type: 'ai',
-          content: aiContent,
-          time: '',
-          showTime: false,
-          loading: false
-        }
-
-        // 添加到对话历史
-        this.conversationHistory.push({
-          role: 'assistant',
-          content: aiContent
-        })
-
-        // 限制历史记录长度
-        if (this.conversationHistory.length > 20) {
-          this.conversationHistory = this.conversationHistory.slice(-20)
-        }
-
       } catch (error) {
         console.error('API调用失败:', error)
+        this.sending = false
+        this.streamController = null
 
         let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
         if (error.response) {
@@ -757,15 +851,7 @@ export default {
         }
 
         this.$message.error('发送消息失败')
-      } finally {
-        this.sending = false
-        // 临时系统提示词为一次性，调用完成后清空
         this.clearTemporarySystemPrompts()
-
-        // 滚动到底部
-        this.$nextTick(() => {
-          this.scrollToBottom()
-        })
       }
     },
     handleFeature(feature) {
@@ -895,6 +981,52 @@ export default {
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       return `${weekday} ${hours}:${minutes}`
+    },
+    /**
+     * 加载聊天历史记录
+     */
+    async loadChatHistory() {
+      if (!this.sessionId) {
+        return
+      }
+      
+      try {
+        const response = await getChatHistory(this.sessionId)
+        if (response.code === 200 && response.data && response.data.messages) {
+          // 转换历史记录格式
+          this.messages = []
+          this.conversationHistory = []
+          
+          response.data.messages.forEach((msg, index) => {
+            const message = {
+              type: msg.role === 'user' ? 'user' : 'ai',
+              content: msg.content,
+              time: msg.time || '',
+              showTime: index === 0 || (index > 0 && response.data.messages[index - 1].time !== msg.time),
+              loading: false
+            }
+            this.messages.push(message)
+            
+            // 添加到对话历史
+            this.conversationHistory.push({
+              role: msg.role,
+              content: msg.content
+            })
+          })
+          
+          // 如果有历史记录，隐藏欢迎区域
+          if (this.messages.length > 0) {
+            this.showWelcome = false
+          }
+          
+          // 滚动到底部
+          this.$nextTick(() => {
+            this.scrollToBottom()
+          })
+        }
+      } catch (error) {
+        console.error('加载聊天历史失败:', error)
+      }
     }
   }
 }
