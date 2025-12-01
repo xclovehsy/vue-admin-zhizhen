@@ -34,7 +34,7 @@
               <div class="chart-item">
                 <bar-chart 
                   :chart-data="bidListData" 
-                  title="近一周招标消息"
+                  title="近六个月招标消息"
                 />
               </div>
               <div class="chart-item">
@@ -82,16 +82,35 @@ import { getChartData } from '@/api/databoard/data'
 const DEFAULT_DATA = {
   policyNews: [142, 187, 123, 198, 156, 179, 134, 191, 165, 148, 172, 109],
   industryNews: [172, 95, 143, 127, 158, 134, 176, 92, 165, 148, 117, 179],
-  bidList: [3, 10, 2, 12, 4, 15, 5],
+  bidList: [28, 35, 42, 38, 51, 45],  // 近6个月招标数据
+  // 4个分类：磁学与量子、纳米与光谱、科学仪器、仪器国产化
   researchTopicNum: {
-    magnetism: [28, 55, 32, 60, 25, 42, 35, 68, 38, 42, 15, 38],
-    quantum: [47, 12, 89, 23, 76, 34, 91, 5, 67, 19, 84, 56],
-    nano: [32, 18, 8, 45, 45, 78, 92, 85, 25, 58, 12, 35],
-    instrument: [73, 29, 96, 14, 61, 87, 3, 52, 40, 78, 21, 65],
-    spectrum: [65, 95, 35, 18, 58, 85, 58, 35, 15, 95, 88, 72],
-    localization: [19, 64, 7, 91, 43, 26, 80, 37, 54, 12, 99, 6]
+    magnetismQuantum: [75, 67, 121, 83, 101, 76, 126, 73, 105, 61, 99, 94],    // 磁学+量子
+    nanoSpectrum: [97, 113, 43, 63, 103, 163, 150, 120, 40, 153, 100, 107],    // 纳米+光谱
+    instrument: [73, 29, 96, 14, 61, 87, 3, 52, 40, 78, 21, 65],               // 科学仪器
+    localization: [19, 64, 7, 91, 43, 26, 80, 37, 54, 12, 99, 6]               // 仪器国产化
   }
 }
+
+const buildDefaultResearchTopicSeries = () => ([
+  {
+    name: '磁学与量子',
+    data: [...DEFAULT_DATA.researchTopicNum.magnetismQuantum],
+    color: '#5470C6'
+  }, {
+    name: '纳米与光谱',
+    data: [...DEFAULT_DATA.researchTopicNum.nanoSpectrum],
+    color: '#91CC75'
+  }, {
+    name: '科学仪器',
+    data: [...DEFAULT_DATA.researchTopicNum.instrument],
+    color: '#EE6666'
+  }, {
+    name: '仪器国产化',
+    data: [...DEFAULT_DATA.researchTopicNum.localization],
+    color: '#3BA272'
+  }
+])
 
 export default {
   name: 'DataModule',
@@ -121,11 +140,11 @@ export default {
           color: '#91cc75'
         }]
       },
-      // 近一周招标消息
+      // 近六个月招标消息
       bidListData: {
-        xAxisData: ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        xAxisData: ['7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [{
-          name: '数量',
+          name: '招标数量',
           data: DEFAULT_DATA.bidList,
           color: '#d37448'
         }]
@@ -139,41 +158,31 @@ export default {
           { value: 180, name: '技术更新' }
         ]
       },
-      // 科技论文主题
+      // 科技论文主题（4个分类）
       researchTopicData: {
         seriesData: [
-          { value: 485, name: '磁学与自旋电子学' },
-          { value: 420, name: '量子与低温测量' },
-          { value: 360, name: '纳米与光学成像' },
-          { value: 280, name: '科学仪器智能化' },
-          { value: 1250, name: '光谱与分析技术' },
-          { value: 720, name: '仪器工程与国产化' },
+          { value: 905, name: '磁学与量子' },
+          { value: 1610, name: '纳米与光谱' },
+          { value: 280, name: '科学仪器' },
+          { value: 720, name: '仪器国产化' },
         ]
       },
-      // 各研究主题数量变化
+      // 各研究主题数量变化（4个分类）
       researchTopicNumData: {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         seriesData: [
           {
-            name: '磁学',
-            data: DEFAULT_DATA.researchTopicNum.magnetism,
+            name: '磁学与量子',
+            data: DEFAULT_DATA.researchTopicNum.magnetismQuantum,
             color: '#5470C6'
           }, {
-            name: '量子',
-            data: DEFAULT_DATA.researchTopicNum.quantum,
+            name: '纳米与光谱',
+            data: DEFAULT_DATA.researchTopicNum.nanoSpectrum,
             color: '#91CC75'
-          }, {
-            name: '纳米',
-            data: DEFAULT_DATA.researchTopicNum.nano,
-            color: '#FAC858'
           }, {
             name: '科学仪器',
             data: DEFAULT_DATA.researchTopicNum.instrument,
             color: '#EE6666'
-          }, {
-            name: '光谱',
-            data: DEFAULT_DATA.researchTopicNum.spectrum,
-            color: '#73C0DE'
           }, {
             name: '仪器国产化',
             data: DEFAULT_DATA.researchTopicNum.localization,
@@ -247,12 +256,12 @@ export default {
         ]
       }
 
-      // 近一周招标消息 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
+      // 近六个月招标消息 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       this.bidListData = {
-        xAxisData: statistics.bidListData?.xAxisData || ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        xAxisData: statistics.bidListData?.xAxisData || this.generateShortXAxis(),
         seriesData: statistics.bidListData?.seriesData || [
           {
-            name: '数量',
+            name: '招标数量',
             data: DEFAULT_DATA.bidList,
             color: '#d37448'
           }
@@ -271,49 +280,26 @@ export default {
       }
 
       // 研究主题数据 - 后端返回格式: { seriesData: [{ value, name }] }
-      // 注意：后端字段名是 researchTopicData，不是 researchTopic
+      // 4个分类：磁学与量子、纳米与光谱、科学仪器、仪器国产化
       this.researchTopicData = {
         seriesData: statistics.researchTopicData?.seriesData || [
-          { value: 485, name: '磁学与自旋电子学' },
-          { value: 420, name: '量子与低温测量' },
-          { value: 360, name: '纳米与光学成像' },
-          { value: 280, name: '科学仪器智能化' },
-          { value: 1250, name: '光谱与分析技术' },
-          { value: 720, name: '仪器工程与国产化' }
+          { value: 905, name: '磁学与量子' },
+          { value: 1610, name: '纳米与光谱' },
+          { value: 280, name: '科学仪器' },
+          { value: 720, name: '仪器国产化' }
         ]
       }
 
       // 各研究主题数量变化 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       // 后端直接返回 seriesData 数组，不需要按主题名分字段
+      const researchTopicNumFromApi = statistics.researchTopicNumData
+      const hasValidXAxis = Array.isArray(researchTopicNumFromApi?.xAxisData) && researchTopicNumFromApi.xAxisData.length > 0
+      const hasValidSeries = Array.isArray(researchTopicNumFromApi?.seriesData) && researchTopicNumFromApi.seriesData.length > 0 &&
+        researchTopicNumFromApi.seriesData.every(item => Array.isArray(item.data) && item.data.length > 0)
+
       this.researchTopicNumData = {
-        xAxisData: statistics.researchTopicNumData?.xAxisData || this.generateDefaultXAxis(),
-        seriesData: statistics.researchTopicNumData?.seriesData || [
-          {
-            name: '磁学',
-            data: DEFAULT_DATA.researchTopicNum.magnetism,
-            color: '#5470C6'
-          }, {
-            name: '量子',
-            data: DEFAULT_DATA.researchTopicNum.quantum,
-            color: '#91CC75'
-          }, {
-            name: '纳米',
-            data: DEFAULT_DATA.researchTopicNum.nano,
-            color: '#FAC858'
-          }, {
-            name: '科学仪器',
-            data: DEFAULT_DATA.researchTopicNum.instrument,
-            color: '#EE6666'
-          }, {
-            name: '光谱',
-            data: DEFAULT_DATA.researchTopicNum.spectrum,
-            color: '#73C0DE'
-          }, {
-            name: '仪器国产化',
-            data: DEFAULT_DATA.researchTopicNum.localization,
-            color: '#3BA272'
-          }
-        ]
+        xAxisData: hasValidXAxis ? researchTopicNumFromApi.xAxisData : this.generateDefaultXAxis(),
+        seriesData: hasValidSeries ? researchTopicNumFromApi.seriesData : buildDefaultResearchTopicSeries()
       }
     },
     
@@ -339,11 +325,11 @@ export default {
         }]
       }
 
-      // 近一周招标消息
+      // 近六个月招标消息
       this.bidListData = {
-        xAxisData: ['11月4日', '11月5日', '11月6日', '11月7日', '11月8日', '11月9日', '11月10日'],
+        xAxisData: this.generateShortXAxis(),
         seriesData: [{
-          name: '数量',
+          name: '招标数量',
           data: DEFAULT_DATA.bidList,
           color: '#d37448'
         }]
@@ -359,48 +345,20 @@ export default {
         ]
       }
 
-      // 研究主题数据
+      // 研究主题数据（4个分类）
       this.researchTopicData = {
         seriesData: [
-          { value: 485, name: '磁学与自旋电子学' },
-          { value: 420, name: '量子与低温测量' },
-          { value: 360, name: '纳米与光学成像' },
-          { value: 280, name: '科学仪器智能化' },
-          { value: 1250, name: '光谱与分析技术' },
-          { value: 720, name: '仪器工程与国产化' },
+          { value: 905, name: '磁学与量子' },
+          { value: 1610, name: '纳米与光谱' },
+          { value: 280, name: '科学仪器' },
+          { value: 720, name: '仪器国产化' },
         ]
       }
 
       // 各研究主题数量变化
       this.researchTopicNumData = {
         xAxisData: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        seriesData: [
-          {
-            name: '磁学',
-            data: DEFAULT_DATA.researchTopicNum.magnetism,
-            color: '#5470C6'
-          }, {
-            name: '量子',
-            data: DEFAULT_DATA.researchTopicNum.quantum,
-            color: '#91CC75'
-          }, {
-            name: '纳米',
-            data: DEFAULT_DATA.researchTopicNum.nano,
-            color: '#FAC858'
-          }, {
-            name: '科学仪器',
-            data: DEFAULT_DATA.researchTopicNum.instrument,
-            color: '#EE6666'
-          }, {
-            name: '光谱',
-            data: DEFAULT_DATA.researchTopicNum.spectrum,
-            color: '#73C0DE'
-          }, {
-            name: '仪器国产化',
-            data: DEFAULT_DATA.researchTopicNum.localization,
-            color: '#3BA272'
-          }
-        ]
+        seriesData: buildDefaultResearchTopicSeries()
       }
     },
     

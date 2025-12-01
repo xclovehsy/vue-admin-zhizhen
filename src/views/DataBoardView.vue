@@ -201,7 +201,8 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: auto; // 允许水平滚动，确保右侧列可见
+  overflow-y: hidden;
   padding: 20px;
   background-color: #f5f7fa;
 }
@@ -225,15 +226,19 @@ export default {
     flex: 1;
     min-height: 0;
     display: flex;
+    overflow: visible; // 确保内容可见
 
     .content-col {
       height: 100%;
       display: flex;
       flex-direction: column;
+      min-width: 0; // 防止 flex 子元素溢出
 
       // 右侧列（智能助手）
       &.agent-col {
         padding-left: 10px;
+        flex-shrink: 0; // 防止右侧列被压缩
+        min-width: 300px; // 确保最小宽度
       }
     }
   }

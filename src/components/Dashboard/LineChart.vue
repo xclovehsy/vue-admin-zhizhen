@@ -26,6 +26,30 @@ export default {
       chart: null
     }
   },
+  watch: {
+    chartData: {
+      handler(newVal) {
+        if (this.chart && newVal && newVal.xAxisData && newVal.seriesData) {
+          this.chart.setOption({
+            xAxis: {
+              data: newVal.xAxisData
+            },
+            series: newVal.seriesData.map(item => ({
+              name: item.name,
+              type: 'line',
+              data: item.data,
+              itemStyle: {
+                color: item.color
+              },
+              smooth: false
+            }))
+          })
+        }
+      },
+      deep: true,
+      immediate: false
+    }
+  },
   mounted() {
     this.initChart()
   },

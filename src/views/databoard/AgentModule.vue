@@ -27,7 +27,7 @@
 
       <!-- 消息列表区域 -->
       <div class="chat-container">
-        <div class="message-list">
+        <div class="message-list" ref="messageList">
           <div class="messages">
             <!-- AI 欢迎区域 -->
             <div v-if="showWelcome" class="welcome-section">
@@ -67,27 +67,98 @@
               <!-- 时间戳 -->
               <div v-if="message.showTime" class="message-timestamp">
                 {{ message.time }}
-            </div>
+              </div>
 
               <!-- AI 消息 -->
               <div v-if="message.type === 'ai'" class="message-item ai-message">
-              <div class="message-avatar">
+                <div class="message-avatar">
                   <el-avatar :size="32" :src="aiAvatar">
-                  <i class="el-icon-cpu" />
-                </el-avatar>
-              </div>
-              <div class="message-content">
+                    <i class="el-icon-cpu" />
+                  </el-avatar>
+                </div>
+                <div class="message-content">
                   <div class="message-bubble ai-bubble" :class="{ loading: message.loading, error: message.error }">
-                    <span v-if="message.loading" class="loading-dots">
-                      <span></span><span></span><span></span>
+                    <!-- 思考过程 + 详细日志统一卡片 -->
+                    <div
+                      v-if="(message.thinkingSteps && message.thinkingSteps.length > 0) || (message.detailLogs && message.detailLogs.length > 0)"
+                      class="thinking-process"
+                    >
+                      <div class="thinking-header" @click="toggleThinkingProcess(message)">
+                        <i class="el-icon-cpu thinking-icon" />
+                        <span class="thinking-title">思考过程</span>
+                        <i
+                          :class="message.showThinking !== false ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                          class="thinking-toggle"
+                        />
+                      </div>
+                      <div v-show="message.showThinking !== false">
+                        <!-- 步骤列表：只展示已经到达的步骤 -->
+                        <div
+                          v-if="message.thinkingSteps && message.thinkingSteps.length > 0"
+                          class="thinking-steps"
+                          :ref="`thinkingSteps-${index}`"
+                        >
+                          <div
+                            v-for="step in getVisibleSteps(message)"
+                            :key="step.id"
+                            class="thinking-step"
+                            :class="`step-${step.status}`"
+                          >
+                            <div class="step-indicator">
+                              <i v-if="step.status === 'completed'" class="el-icon-check step-icon completed" />
+                              <i v-else-if="step.status === 'running'" class="el-icon-loading step-icon running" />
+                              <i v-else class="step-icon pending" />
+                            </div>
+                            <div class="step-content">
+                              <div class="step-title">{{ step.title }}</div>
+                              <div v-if="step.content" class="step-detail">{{ step.content }}</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- 详细日志（可折叠） -->
+                        <div v-if="message.detailLogs && message.detailLogs.length" class="thinking-detail">
+                          <div class="detail-header" @click="toggleDetailLogs(message)">
+                            <span class="detail-title">研究进展（详细日志）</span>
+                            <i
+                              :class="message.showDetailLogs !== false ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"
+                              class="detail-toggle"
+                            />
+                          </div>
+                          <div
+                            v-show="message.showDetailLogs !== false"
+                            class="detail-list"
+                            :ref="`detailList-${index}`"
+                          >
+                            <div
+                              v-for="(log, i) in message.detailLogs"
+                              :key="i"
+                              class="detail-item"
+                              :class="`detail-${log.level || 'info'}`"
+                            >
+                              <span class="detail-time">{{ log.time }}</span>
+                              <span class="detail-content">{{ log.content }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 加载状态 - 仅在没有思考步骤且没有内容时显示 -->
+                    <span
+                      v-if="message.loading && (!message.thinkingSteps || message.thinkingSteps.length === 0) && !message.content"
+                      class="loading-dots"
+                    >
+                      <span /><span /><span />
                     </span>
-                    <div v-else class="markdown-content" v-html="renderMarkdown(message.content)"></div>
+                    <!-- 内容展示 - 显示在思考过程下方 -->
+                    <div v-if="message.content" class="markdown-content" v-html="renderMarkdown(message.content)" />
                   </div>
                 </div>
               </div>
 
               <!-- 用户消息 -->
-              <div v-if="message.type === 'user'" class="message-item user-message">
+              <div v-else-if="message.type === 'user'" class="message-item user-message">
                 <div class="message-content">
                   <div class="message-bubble user-bubble">
                     {{ message.content }}
@@ -109,7 +180,7 @@
             class="feature-item"
             @click="handleFeature(feature)"
           >
-            <i :class="feature.icon" class="feature-icon"></i>
+            <i :class="feature.icon" class="feature-icon" />
             <span class="feature-text">{{ feature.text }}</span>
           </div>
         </div>
@@ -119,21 +190,21 @@
           <div class="input-wrapper">
             <!-- <i class="el-icon-camera input-left-icon" @click="handleTakePhoto" title="拍照"></i> -->
             <input
-            v-model="inputMessage"
+              v-model="inputMessage"
               type="text"
-            class="message-input"
+              class="message-input"
               placeholder="发消息..."
               :disabled="sending"
               @keydown.enter="handleSendMessage"
-            />
+            >
             <el-button
+              class="send-button"
               type="primary"
               size="small"
               icon="el-icon-s-promotion"
               :loading="sending"
               :disabled="!inputMessage.trim()"
               @click="handleSendMessage"
-              class="send-button"
             >
               发送
             </el-button>
@@ -169,206 +240,30 @@ export default {
       conversationHistory: [], // 对话历史记录
       sessionId: null, // 当前会话ID
       streamController: null, // 流式传输控制器
-      systemPrompt: '你是致真智能体，一个友好、专业的AI助手。你可以回答各种问题，提供工作学习上的帮助，还能随时陪伴聊天。请用简洁、友好的语气回复。',
-      // 全局系统提示词（每次调用都会附带）
-      globalSystemPrompts: [
-        `好的。我已经帮您过滤掉了所有内容抓取失败和标题存在严重误导性的条目，并为您梳理出了最重要、金额最高的采购信息。
-
-**核心内容是两份总预算均过亿的"采购意向"和一批千万级的高校及科研院所的"大型招标"。**
-
----
-
-### 1. 最重磅：亿元级"采购意向"（未来商机）
-
-这是近期释放的最大信号，代表着未来1-2个月内即将开始招标的重大项目：
-
-* **1.24亿元：北京大学**
-
-    * **摘要：** 发布了总额1.24亿元的大批仪器采购意向，预计在2025年10-11月（即近期）采购。
-
-    * **关键设备：** 电子束曝光系统 (1300万)、太赫兹泵浦探测超快成像光谱系统 (980万)、小动物PET/CT (500万)、超导腔 (411万)、电感耦合等离子体质谱质谱联用仪 (290万)、液相色谱离子色谱三重四极杆串联质谱仪 (200万)等。
-
-* **1.10亿元：中国科学院国家天文台**
-
-    * **摘要：** 发布了总额1.10亿元的采购意向，同样预计在近期采购。
-
-    * **关键设备：** 三台40米口径全可动天线 (3300万)、光学望远镜镀膜设备 (2300万)、天文光学望远镜 (1800万)、射电天文接收机 (1000万)、射电天文终端 (1000万)。
-
----
-
-### 2. 千万级"大型招标项目"（正在进行）
-
-这是目前正在进行或刚截止的千万级采购项目，集中在高校的设备更新：
-
-* **4970万元：贵州医科大学（系列项目）**
-
-    * **摘要：** 贵州医科大学连续发布了（七）、（八）、（九）三个批次的教学科研仪器设备更新改造项目，总预算高达4970万元。
-
-    * **关键设备：**
-
-        * （八）1834万：激光共聚焦显微成像系统 (1116万)等。
-
-        * （九）1615万：超高效液相色谱成像质谱双系统 (520万)、多模式微孔板检测仪 (786万)等。
-
-        * （七）1521万：高效液相色谱仪、多模式成像分析系统等。
-
-* **2919万元：成都中医药大学**
-
-    * **摘要：** 这是"超长期国债高水平公共研究平台设备更新项目"，用于中医药神经功能调控研究平台（针灸第二批）。项目分为8个包，要求60日内安装调试完成。
-
-* **1000万 - 1300万级别项目（4项）**
-
-    * **1290万 (哈工大/湖北师大):** 哈尔滨工业大学采购全数字化核磁共振谱仪 (660万)；湖北师范大学采购高效液相制备色谱仪、光谱仪等 (合计630万)。
-
-    * **1106万 (长江委水文三峡局):** 采购理化类和生物类仪器，包括ICP-MS、ICP-OES、GC、连续流动分析仪等。（*特别注意：理化类包(575.5万)要求整体面向中小企业*）。
-
-    * **1070万 (公安部鉴定中心):** 采购质谱联用仪，包括超高效液相色谱多重碎裂质谱、UHPLC-三重四极杆质谱、GC-三重四极杆质谱等。
-
-    * **1020万 (南开大学):** 采购600MHz全数字化超导核磁共振谱仪 (520万，*要求：不接受进口*) 和同位素比质谱仪 (500万，*要求：接受进口*)。
-
-简短结论：过去一个月，原子力显微镜（AFM）领域在政策、头部企业动向和技术突破方面呈现较为积极的态势，聚焦国产化推进、科研机构与企业的产能扩张，以及若干技术改进与应用拓展。
-
-政策态势
-
-- 中国对高端科学仪器国产化的政策支持持续强化，针对AFM及相关探针、材料领域的资金与扶持力度在加大，推动国产化替代与自主创新能力提升。这一趋势与国家对半导体、纳米材料等高端领域的总体政策导向一致，旨在降低对进口依赖并提升国产底层技术自主性。来源显示对国产AFM探针及相关研发的政策环境分析较多，反映出政府层面的持续重视与投入意愿。[6][8]
-
-- 行业研究与咨询机构普遍强调政策红利成为国产AFM市场的重要驱动力，叠加关税变化等因素，促使科研单位和企业加速本土化采购与自主研发路径。[8][10]
-
-头部公司动态
-
-- 国内头部企业在扩产、研发投入、以及应用场景拓展方面行动活跃，包括加强材料分析、失效分析、以及对航空航天、生物医药等前沿领域的服务能力建设，以提升综合竞争力和市场份额。[1][6]
-
-- 由于国产AFM在政策与市场双重推动下逐步获得成本与性能的平衡，头部企业也在通过平台化技术、产能扩张和跨行业应用来提升整体盈利能力与市场覆盖度。[1][6]
-
-技术突破与趋势
-
-- AFM及相关扫描探针显微镜技术持续在探针材料、成像分辨率、探针寿命、以及多模态成像方面取得进展；行业报告与学术/行业分析指出探针制备、表面分析、以及与纳米材料的集成应用是当前重点技术方向之一。[2][6]
-
-- 市场研究普遍给出乐观的成长预期，预计2025年全球市场规模持续扩大，中国市场份额提升，未来数年仍将保持较高的增速，推动产业链各环节的创新与投资。[10]
-
-可关注的具体点
-
-- 政策与资金支持的具体政策文件、资金申报口径与扶持范围（如对AFM探针、材料、纳米设备的专项资金、税收优惠等）。
-
-- 头部企业的最新产能公告、新品发布、与重点应用领域的合作（如纳米材料表征、半导体材料分析、生物医药材料分析等）。
-
-- 学术-产业结合的突破性研究（新型探针材料、表面改性、成像速度/分辨率提升、跨物理场耦合成像等）。
-
-数据与来源要点
-
-- 行业分析与市场规模预测通常来自行业研究机构、企业披露与市场信息聚合平台。若需要具体数值、增长率和年度对比，请告知是否需要我整理成表格并逐项标注来源。
-
-如果你希望，我可以进一步：
-
-- 追踪并整理最近一个月内的官方政策文件和行业公告的要点摘要。
-
-- 汇总头部企业的最新新闻稿、财报披露与产能扩张信息，给出时间线和影响评估。
-
-- 汇编若干技术突破的技术要点（如新探针材料、成像算法改进等）及其潜在应用场景。
-
-近期有哪些新出台的高端科学仪器国产化相关政策？
-
-近期，国家层面和重点地区在高新科学仪器国产化方面均有重要政策部署，体现了极高的战略重视度。核心政策导向正从"顶层规划"向"财政支持"和"地方落实"全面推进。
-
-以下是近期几项关键政策的梳理：
-
-### 1. 顶层战略规划："十五五"规划建议
-
-这是近期最重要、最顶层的战略指引。
-
-* **政策名称：** 《中共中央关于制定国民经济和社会发展第十五个五年规划的建议》（2025年10月发布）
-
-* **核心内容：** 《建议》中明确将"**高端仪器**"列为需要攻关的关键核心技术领域之一。
-
-* **政策信号：** 文件要求"**采取超常规措施**"，全链条推动包括高端仪器在内的重点领域关键核心技术攻关，力求取得决定性突破。这标志着高端仪器国产化已上升至国家未来五年的最高战略优先级之一。
-
-### 2. 重大财政金融支持：大规模设备更新与再贷款
-
-这是目前正在执行的、最"接地气"的财政激励政策，旨在通过"应用牵引"拉动国产仪器的市场需求。
-
-* **政策名称：** 科技创新和技术改造再贷款（2024年4月设立，持续推进）及相关财政贴息政策。
-
-* **核心内容：**
-
-    * **5000亿再贷款：** 中国人民银行设立了总额度5000亿元的科技创新和技术改造再贷款，利率仅1.75%，支持科技型中小企业以及重点领域的数字化、高端化、绿色化技术改造和设备更新。
-
-    * **中央财政贴息：** 为配合此项工作，中央财政对符合条件的设备更新贷款提供利息补贴。国家发改委、财政部在2025年1月发文，明确在中央财政贴息1.5个百分点的基础上，再安排超长期特别国债资金进行额外贴息。
-
-* **政策信号：** 这套"再贷款+财政贴息"的组合拳，极大地降低了企业（包括科研机构、高校）采购新设备、进行技术改造的融资成本。虽然政策未"强制"要求购买国货，但其创造的巨大市场需求是推动高端仪器国产替代和"最后一公里"应用验证的关键动力。
-
-### 3. 地方专项行动计划：以北京为例
-
-在国家顶层规划的指引下，重点地区已开始出台具体的落地行动计划。
-
-* **政策名称：** 《北京高端科学仪器创新发展行动计划（2025-2027年）》（2025年5月发布）
-
-* **核心内容：** 这是针对高端仪器领域的专项区域性规划，目标非常明确：
-
-    * **技术突破：** 攻关重点仪器的核心技术和底层共性技术。
-
-    * **成果转化：** 强化成果转化推广，推动国产仪器的应用。
-
-    * **产业生态：** 健全产业创新生态，包括建设精密加工、验证评价等服务平台。
-
-* **政策信号：** 北京作为科研重镇，其专项行动计划具有风向标意义，预示着其他科研和产业重地也可能跟进类似的专项支持计划。
-
----
-
-### 总结
-
-总的来看，近期的政策呈现出清晰的"组合拳"特征：
-
-1.  **战略上**，"十五五"规划建议（2025年10月）将高端仪器定为"必须攻下"的战略高地。
-
-2.  **财政上**，大规模设备更新和再贷款贴息（2024-2025年）为国产仪器提供了巨大的市场应用和迭代机会。
-
-3.  **执行上**，以北京为代表的地方政府（2025年5月）正在制定具体的行动方案，推动技术和产业的落地。
-
-以下是对致真精密仪器公司的基础情况的整理与简要介绍。信息基于公开资料的整理，如需更详尽的最新动态可再提供链接进行核对。
-
-基本信息
-
-- 公司定位与主营
-
-  - 致真精密仪器是一家聚焦高端科研仪器与集成电路产线测试设备研发与生产的高新技术企业，致力于为半导体制造与相关科研领域提供磁性测量、精密测试等设备与解决方案。该公司强调自主创新、产学研合作以及成果转化，以及在国内集成电路制造环节对高端仪器设备自主研发能力的提升【关于我们/致真精密仪器（青岛）有限公司等相关页信息，描述其重点业务与定位】。
-
-- 成立与发展背景
-
-  - 公司成立时间大致在2019年，作为国内磁性精密测量仪器领域的代表性企业之一，依托高校院所孵化和区域科技园区的发展，持续扩充研发与产业化能力，并在北京、杭州等地设有子公司或研发中心以推动技术落地与市场拓展【多处公开资料提及成立时间及孵化背景】。
-
-- 业务范围与产品方向
-
-  - 主要产品方向包括：集成电路产线测试设备、磁性测量仪器、以及其他高端科学仪器的研发与生产。产品与解决方案覆盖微电子领域的检测与测试需求，旨在解决芯片研发与制造环节中的关键测试难题，帮助实现国产化自主可控的目标【相关公司介绍、行业媒体报道与校招信息等综合描述】。
-
-- 竞争定位
-
-  - 在国内磁性与高端精密测量仪器领域，致真精密被多家报道与投资机构视为领军企业之一，强调自主研发、核心技术积累以及与产业链上下游的协同推进【投资新闻与行业报道的相关描述】。
-
-- 机构与资本
-
-  - 公司在公开报道中有资本注入的新闻点，2023年及前后期有投资机构关注并参与，体现市场对国内高端测试设备自主可控能力的关注度及对致真精密在行业地位的认可【投资报道与企业新闻摘要】。
-
-- 产业与区域布局
-
-  - 公司在青岛设有核心研发与产业化基地，常见表述为"青岛研究院/工作站"及"青岛总部/分支"的协同布局，也有在杭州、北京等地的研发中心或子公司，显示出区域协同创新与产学研协同的战略布局【关于我们及行业报道中的地区描述】。
-
-- 行业地位与前景
-
-  - 随着国内半导体制造能力提升及对自主可控科研仪器的政策支持，致真精密的产品定位与技术路线与国家产业发展方向趋同，具备较强的成长性与市场需求推动力。市场关注点包括核心技术自主化、产线测试设备国产化水平提升以及与高校、科研机构的深度合作【行业趋势与公司定位的综合解读】。`
-      ],
       // 临时系统提示词（仅对下一次调用生效，用后即清空）
+      // 基础提示词和全局提示词已移至后端配置文件
       temporarySystemPrompts: [],
+      // 研究进度信息
+      researchProgress: {
+        visible: false,
+        messages: [] // 进度消息列表
+      },
       suggestions: [
         { id: 1, text: '近期有哪些新出台的高端科学仪器国产化相关政策？', icon: 'el-icon-document-checked', gradient: 'gradient-1' },
         { id: 2, text: '过去一个月，原子力显微镜的整体态势：政策支持、头部公司动态、技术突破？', icon: 'el-icon-data-analysis', gradient: 'gradient-2' },
         { id: 3, text: '近一周有哪些新的招标需求可重点关注？', icon: 'el-icon-tickets', gradient: 'gradient-3' }
       ],
       messages: [],
+      // 思考过程相关状态
+      thinkingSteps: [], // 当前消息的思考步骤列表
+      currentThinkingStep: null, // 当前正在执行的步骤
+      showThinkingProcess: false, // 是否显示思考过程
+      thinkingStepIdCounter: 0, // 步骤ID计数器
       features: [
-        { id: 1, text: '数据分析', icon: 'el-icon-data-line' },
-        { id: 2, text: '生成报告', icon: 'el-icon-document' },
-        { id: 3, text: '预测趋势', icon: 'el-icon-arrow-up' },
-        { id: 4, text: '智能建议', icon: 'el-icon-magic-stick' }
+        { id: 1, text: '数据分析', icon: 'el-icon-data-line', task_type: 'data', prompt: '请进行数据分析，识别数据趋势和异常，生成数据洞察报告。' },
+        { id: 2, text: '生成报告', icon: 'el-icon-document', task_type: 'research', prompt: '请结合最新的局势对当前的信息生成一份详细的研究报告，包含背景、分析、结论。' },
+        { id: 3, text: '预测趋势', icon: 'el-icon-arrow-up', task_type: 'research', prompt: '请基于历史数据和当前情况，预测未来趋势，并提供置信区间和风险提示。' },
+        { id: 4, text: '智能建议', icon: 'el-icon-magic-stick', task_type: 'chat', prompt: '请基于当前情况，提供智能建议和优化方案。' }
       ]
     }
   },
@@ -408,35 +303,13 @@ export default {
     clearTemporarySystemPrompts() {
       this.temporarySystemPrompts = []
     },
-    /** 设置/追加全局系统提示词（持久生效，每次请求都附带） */
-    setGlobalSystemPrompt(prompts) {
-      if (!prompts) return
-      const list = Array.isArray(prompts) ? prompts : [prompts]
-      const valid = list
-        .map(p => (p || '').trim())
-        .filter(p => p.length > 0)
-      this.globalSystemPrompts.push(...valid)
-    },
-    /** 覆盖设置全局系统提示词数组 */
-    replaceGlobalSystemPrompts(prompts) {
-      const list = Array.isArray(prompts) ? prompts : [prompts]
-      this.globalSystemPrompts = list
-        .map(p => (p || '').trim())
-        .filter(p => p.length > 0)
-    },
-    /** 清空全局系统提示词 */
-    clearGlobalSystemPrompts() {
-      this.globalSystemPrompts = []
-    },
-    /** 组合系统提示词：基础 + 临时 */
-    buildCombinedSystemPrompt() {
-      const globals = (this.globalSystemPrompts || [])
-        .map(p => (p || '').trim())
-        .filter(p => p.length > 0)
+    /** 组合临时提示词（基础提示词和全局提示词已移至后端配置文件） */
+    buildTemporaryPrompts() {
+      // 只返回临时提示词数组，由后端与配置文件中的提示词组合
       const extras = (this.temporarySystemPrompts || [])
         .map(p => (p || '').trim())
         .filter(p => p.length > 0)
-      return [this.systemPrompt, ...globals, ...extras].join('\n\n')
+      return extras
     },
     /**
      * 将Markdown文本渲染为HTML
@@ -464,6 +337,239 @@ export default {
         console.error('Markdown渲染错误:', error)
         return markdown // 如果渲染失败，返回原始文本
       }
+    },
+    /**
+     * 获取当前应展示的思考步骤（只展示已到达的步骤）
+     * @param {Object} message - 消息对象
+     * @returns {Array} 可见步骤列表
+     */
+    getVisibleSteps(message) {
+      const steps = message && Array.isArray(message.thinkingSteps)
+        ? message.thinkingSteps
+        : []
+      if (!steps.length) return []
+
+      // 优先找到正在运行的步骤
+      let currentIndex = steps.findIndex(step => step.status === 'running')
+
+      // 如果没有 running，说明流程可能已经结束，取最后一个 completed
+      if (currentIndex === -1) {
+        const lastCompletedReversedIndex = [...steps]
+          .reverse()
+          .findIndex(step => step.status === 'completed')
+        if (lastCompletedReversedIndex === -1) {
+          // 没有任何 completed，保留第一个步骤
+          currentIndex = 0
+        } else {
+          currentIndex = steps.length - 1 - lastCompletedReversedIndex
+        }
+      }
+
+      if (currentIndex < 0) currentIndex = 0
+
+      // 只展示从第一个到当前步骤之间的所有步骤
+      return steps.slice(0, currentIndex + 1)
+    },
+    /**
+     * 解析进度消息并更新思考步骤
+     * @param {number} messageIndex - 消息索引
+     * @param {string} progressMessage - 进度消息文本
+     * @param {Object} progressData - 完整的进度数据
+     */
+    updateThinkingSteps(messageIndex, progressMessage, progressData) {
+      if (!this.messages[messageIndex]) return
+      const message = this.messages[messageIndex]
+
+      // 固定顺序的时间线步骤
+      const orderedSteps = [
+        { type: 'start', title: '开始研究' },
+        { type: 'plan', title: '规划研究策略' },
+        { type: 'research', title: '执行研究查询' },
+        { type: 'scrape', title: '抓取网页内容' },
+        { type: 'extract', title: '提取相关内容' },
+        { type: 'write', title: '撰写报告' },
+        { type: 'complete', title: '研究完成' }
+      ]
+
+      // 第一次收到进度时初始化整条时间线
+      if (!Array.isArray(message.thinkingSteps) || message.thinkingSteps.length === 0) {
+        message.thinkingSteps = orderedSteps.map((step, index) => ({
+          id: `step-${step.type}-${index}`,
+          type: step.type,
+          title: step.title,
+          content: '',
+          status: 'pending',
+          order: index,
+          timestamp: null
+        }))
+      }
+
+      // 解析当前进度对应的步骤类型
+      const stepInfo = this.parseThinkingStep(progressMessage)
+      if (!stepInfo) return
+
+      // 只处理在固定时间线中的步骤，其它类型（如 info）只作为详细日志展示
+      const targetIndex = message.thinkingSteps.findIndex(s => s.type === stepInfo.type)
+      if (targetIndex === -1) {
+        // 不在主时间线中的类型（如 info），不改变步骤顺序
+        return
+      }
+
+      // 进入思考过程时默认展开
+      if (message.showThinking === undefined) {
+        message.showThinking = true
+      }
+
+      // 根据目标索引更新所有步骤的状态，保证最多只有一个 running
+      message.thinkingSteps = message.thinkingSteps.map((step, index) => {
+        const updated = { ...step }
+        if (index < targetIndex) {
+          updated.status = 'completed'
+        } else if (index === targetIndex) {
+          updated.status = 'running'
+          updated.content = stepInfo.content || step.content
+          updated.timestamp = Date.now()
+        } else {
+          // 还未到达的步骤保持 pending
+          if (updated.status !== 'completed') {
+            updated.status = 'pending'
+          }
+        }
+        return updated
+      })
+
+      // 触发响应式更新并滚到底部
+      this.$set(this.messages, messageIndex, message)
+      this.$nextTick(() => {
+        // 整个聊天区域滚到底
+        this.scrollToBottom()
+
+        // 思考步骤列表内部滚到底（如果存在滚动条）
+        const refName = `thinkingSteps-${messageIndex}`
+        let stepsEl = this.$refs[refName]
+        if (Array.isArray(stepsEl)) {
+          stepsEl = stepsEl[0]
+        }
+        if (stepsEl && stepsEl.scrollHeight !== undefined) {
+          stepsEl.scrollTop = stepsEl.scrollHeight
+        }
+      })
+    },
+    /**
+     * 解析进度消息，识别步骤类型和内容
+     * @param {string} message - 进度消息文本
+     * @returns {Object|null} 步骤信息对象
+     */
+    parseThinkingStep(message) {
+      if (!message || typeof message !== 'string') return null
+      
+      const msg = message.toLowerCase()
+      
+      // 步骤类型映射
+      const stepPatterns = [
+        {
+          pattern: /starting|开始|启动/i,
+          type: 'start',
+          title: '开始研究',
+          extractContent: (m) => m.replace(/.*starting.*?for\s*['"]?([^'"]+)['"]?/i, '研究任务：$1').trim()
+        },
+        {
+          pattern: /planning|规划|策略/i,
+          type: 'plan',
+          title: '规划研究策略',
+          extractContent: (m) => {
+            const match = m.match(/planning.*?queries?[:\s]+\[(.*?)\]/i)
+            return match ? `子查询：${match[1]}` : '制定研究计划'
+          }
+        },
+        {
+          pattern: /running research|执行研究|运行研究/i,
+          type: 'research',
+          title: '执行研究查询',
+          extractContent: (m) => {
+            const match = m.match(/running research for\s*['"]?([^'"]+)['"]?/i)
+            return match ? `查询：${match[1]}` : '正在搜索相关信息'
+          }
+        },
+        {
+          pattern: /added source|添加来源|添加.*url/i,
+          type: 'source',
+          title: '添加信息来源',
+          extractContent: (m) => {
+            const urlMatch = m.match(/https?:\/\/[^\s]+/i)
+            return urlMatch ? `来源：${urlMatch[0]}` : '发现新的信息来源'
+          }
+        },
+        {
+          pattern: /scraping|抓取|爬取/i,
+          type: 'scrape',
+          title: '抓取网页内容',
+          extractContent: (m) => {
+            const urlMatch = m.match(/https?:\/\/[^\s]+/i)
+            return urlMatch ? `正在抓取：${urlMatch[0]}` : '正在抓取网页内容'
+          }
+        },
+        {
+          pattern: /getting relevant|提取相关|获取相关/i,
+          type: 'extract',
+          title: '提取相关内容',
+          extractContent: (m) => {
+            const match = m.match(/getting relevant content.*?query[:\s]+['"]?([^'"]+)['"]?/i)
+            return match ? `提取：${match[1]}` : '正在提取相关内容'
+          }
+        },
+        {
+          pattern: /writing report|撰写报告|生成报告/i,
+          type: 'write',
+          title: '撰写报告',
+          extractContent: () => '正在生成最终报告'
+        },
+        {
+          pattern: /finalized|完成|结束/i,
+          type: 'complete',
+          title: '研究完成',
+          extractContent: () => '研究任务已完成'
+        }
+      ]
+      
+      // 匹配步骤模式
+      for (const pattern of stepPatterns) {
+        if (pattern.pattern.test(msg)) {
+          return {
+            type: pattern.type,
+            title: pattern.title,
+            content: pattern.extractContent ? pattern.extractContent(message) : message
+          }
+        }
+      }
+      
+      // 如果没有匹配到特定模式，返回通用步骤
+      return {
+        type: 'info',
+        title: '处理中',
+        content: message
+      }
+    },
+    /**
+     * 切换思考过程的显示/隐藏
+     * @param {Object} message - 消息对象
+     */
+    toggleThinkingProcess(message) {
+      if (message) {
+        message.showThinking = !message.showThinking
+        this.$forceUpdate()
+      }
+    },
+    /**
+     * 切换详细日志显示/隐藏
+     * @param {Object} message - 消息对象
+     */
+    toggleDetailLogs(message) {
+      if (!message) return
+      // 默认展开，当第一次点击时收起
+      const current = message.showDetailLogs
+      message.showDetailLogs = current === false ? true : false
+      this.$forceUpdate()
     },
     handleBack() {
       // TODO: 实现返回功能
@@ -514,7 +620,11 @@ export default {
       })
     },
     async handleSendMessage() {
-      if (!this.inputMessage.trim() || this.sending) {
+      // 默认使用自动路由
+      await this.sendMessageWithTaskType(this.inputMessage.trim(), 'auto')
+    },
+    async sendMessageWithTaskType(userContent, taskType = 'auto') {
+      if (!userContent || this.sending) {
         return
       }
 
@@ -528,8 +638,6 @@ export default {
       if (this.showWelcome) {
         this.showWelcome = false
       }
-
-      const userContent = this.inputMessage.trim()
 
       // 添加用户消息
       const userMessage = {
@@ -561,39 +669,90 @@ export default {
         content: '',
         time: '',
         showTime: false,
-        loading: true
+        loading: true,
+        thinkingSteps: [], // 思考步骤列表
+        showThinking: true // 默认展开思考过程
       }
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
 
       try {
         // 调用后端流式API
-        const combinedSystemPrompt = this.buildCombinedSystemPrompt()
+        // 系统提示词由后端从配置文件读取，前端只传递临时提示词
+        const temporaryPrompts = this.buildTemporaryPrompts()
         let aiContent = ''
-        
+
         this.streamController = chatWithAgentStream(
           {
             message: userContent,
             session_id: this.sessionId,
-            system_prompt: combinedSystemPrompt,
+            temporary_prompts: temporaryPrompts, // 只传递临时提示词
             conversation_history: this.conversationHistory.slice(0, -1), // 排除刚添加的用户消息
+            task_type: taskType, // 传递任务类型：'research' 强制使用 GPT-Researcher, 'chat' 使用 Qwen, 'auto' 自动路由
             options: {
               temperature: 0.8,
               top_p: 0.8
             }
           },
           {
+            onProgress: (progressData) => {
+              // 处理研究进度信息
+              if (progressData && progressData.type === 'progress') {
+                const progressMessage = progressData.output || progressData.content || '研究进行中...'
+                
+                // 解析进度消息并更新思考步骤
+                this.updateThinkingSteps(loadingIndex, progressMessage, progressData)
+
+                // 将详细日志写入当前 AI 消息
+                const msg = this.messages[loadingIndex]
+                if (!msg.detailLogs) msg.detailLogs = []
+                msg.detailLogs.push({
+                  time: new Date().toLocaleTimeString(),
+                  content: progressMessage,
+                  level: progressData.content || 'info'
+                })
+                // 默认展开详细日志
+                if (msg.showDetailLogs === undefined) {
+                  msg.showDetailLogs = true
+                }
+                this.$set(this.messages, loadingIndex, msg)
+
+                // 滚动详细日志区域和整体消息列表到底部
+                this.$nextTick(() => {
+                  const refName = `detailList-${loadingIndex}`
+                  let detailEl = this.$refs[refName]
+                  if (Array.isArray(detailEl)) {
+                    detailEl = detailEl[0]
+                  }
+                  if (detailEl && detailEl.scrollHeight !== undefined) {
+                    detailEl.scrollTop = detailEl.scrollHeight
+                  }
+                  this.scrollToBottom()
+                })
+                console.log('📊 [进度]', progressMessage)
+              }
+            },
             onChunk: (chunk) => {
               // 接收数据块，实时更新
               if (chunk) {
+                // 当开始接收内容时，隐藏进度显示
+                if (this.researchProgress.visible && aiContent.length === 0) {
+                  this.researchProgress.visible = false
+                }
                 aiContent += chunk
                 // 使用Vue.set确保响应式更新
+                const currentMessage = this.messages[loadingIndex] || {}
+                // 保持思考过程可见，即使开始收到内容（默认展开）
+                const shouldShowThinking = currentMessage.showThinking !== false
                 this.$set(this.messages, loadingIndex, {
+                  ...currentMessage, // 保留 detailLogs / thinkingSteps / showDetailLogs 等
                   type: 'ai',
                   content: aiContent,
                   time: '',
                   showTime: false,
-                  loading: false
+                  loading: false, // 内容开始显示，不再显示加载动画
+                  thinkingSteps: currentMessage.thinkingSteps || [],
+                  showThinking: shouldShowThinking
                 })
                 // 实时滚动到底部
                 this.$nextTick(() => {
@@ -609,12 +768,24 @@ export default {
               // 流式传输完成
               this.sending = false
               this.streamController = null
-              
+
+              // 将所有运行中的思考步骤标记为完成
+              const currentMessage = this.messages[loadingIndex]
+              if (currentMessage && currentMessage.thinkingSteps) {
+                currentMessage.thinkingSteps.forEach(step => {
+                  if (step.status === 'running') {
+                    step.status = 'completed'
+                  }
+                })
+                // 触发响应式更新
+                this.$set(this.messages, loadingIndex, currentMessage)
+              }
+
               // 更新会话ID（如果是新会话）
               if (data && data.session_id) {
                 this.sessionId = data.session_id
               }
-              
+
               // 添加到对话历史
               if (aiContent) {
                 this.conversationHistory.push({
@@ -622,15 +793,15 @@ export default {
                   content: aiContent
                 })
               }
-              
+
               // 限制历史记录长度，避免超出token限制
               if (this.conversationHistory.length > 20) {
                 this.conversationHistory = this.conversationHistory.slice(-20)
               }
-              
+
               // 临时系统提示词为一次性，调用完成后清空
               this.clearTemporarySystemPrompts()
-              
+
               // 滚动到底部
               this.$nextTick(() => {
                 this.scrollToBottom()
@@ -641,12 +812,12 @@ export default {
               console.error('流式传输错误:', error)
               this.sending = false
               this.streamController = null
-              
+
               let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
               if (error.message) {
                 errorMsg = `网络错误: ${error.message}`
               }
-              
+
               this.messages[loadingIndex] = {
                 type: 'ai',
                 content: errorMsg,
@@ -655,15 +826,14 @@ export default {
                 loading: false,
                 error: true
               }
-              
+
               this.$message.error('发送消息失败')
-              
+
               // 临时系统提示词为一次性，调用完成后清空
               this.clearTemporarySystemPrompts()
             }
           }
         )
-
       } catch (error) {
         console.error('API调用失败:', error)
         this.sending = false
@@ -693,7 +863,7 @@ export default {
         }
 
         this.$message.error('发送消息失败')
-        
+
         // 临时系统提示词为一次性，调用完成后清空
         this.clearTemporarySystemPrompts()
       }
@@ -730,7 +900,9 @@ export default {
         content: '正在思考中...',
         time: '',
         showTime: false,
-        loading: true
+        loading: true,
+        thinkingSteps: [], // 思考步骤列表
+        showThinking: true // 默认展开思考过程
       }
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
@@ -738,14 +910,15 @@ export default {
 
       try {
         // 调用后端流式API
-        const combinedSystemPrompt = this.buildCombinedSystemPrompt()
+        // 系统提示词由后端从配置文件读取，前端只传递临时提示词
+        const temporaryPrompts = this.buildTemporaryPrompts()
         let aiContent = ''
-        
+
         this.streamController = chatWithAgentStream(
           {
             message: suggestion.text,
             session_id: this.sessionId,
-            system_prompt: combinedSystemPrompt,
+            temporary_prompts: temporaryPrompts, // 只传递临时提示词
             conversation_history: this.conversationHistory.slice(0, -1),
             options: {
               temperature: 0.8,
@@ -753,16 +926,58 @@ export default {
             }
           },
           {
+            onProgress: (progressData) => {
+              // 处理研究进度信息
+              if (progressData && progressData.type === 'progress') {
+                const progressMessage = progressData.output || progressData.content || '研究进行中...'
+                // 解析进度消息并更新思考步骤
+                this.updateThinkingSteps(loadingIndex, progressMessage, progressData)
+
+                // 将详细日志写入当前 AI 消息
+                const msg = this.messages[loadingIndex]
+                if (!msg.detailLogs) msg.detailLogs = []
+                msg.detailLogs.push({
+                  time: new Date().toLocaleTimeString(),
+                  content: progressMessage,
+                  level: progressData.content || 'info'
+                })
+                if (msg.showDetailLogs === undefined) {
+                  msg.showDetailLogs = true
+                }
+                this.$set(this.messages, loadingIndex, msg)
+
+                // 滚动详细日志区域和整体消息列表到底部
+                this.$nextTick(() => {
+                  const refName = `detailList-${loadingIndex}`
+                  let detailEl = this.$refs[refName]
+                  if (Array.isArray(detailEl)) {
+                    detailEl = detailEl[0]
+                  }
+                  if (detailEl && detailEl.scrollHeight !== undefined) {
+                    detailEl.scrollTop = detailEl.scrollHeight
+                  }
+                  this.scrollToBottom()
+                })
+
+                console.log('📊 [进度]', progressMessage)
+              }
+            },
             onChunk: (chunk) => {
               if (chunk) {
                 aiContent += chunk
                 // 使用Vue.set确保响应式更新
+                const currentMessage = this.messages[loadingIndex] || {}
+                // 保持思考过程可见，即使开始收到内容
+                const shouldShowThinking = currentMessage.showThinking !== false
                 this.$set(this.messages, loadingIndex, {
+                  ...currentMessage, // 保留 detailLogs / thinkingSteps / showDetailLogs 等
                   type: 'ai',
                   content: aiContent,
                   time: '',
                   showTime: false,
-                  loading: false
+                  loading: false, // 内容开始显示，不再显示加载动画
+                  thinkingSteps: currentMessage.thinkingSteps || [],
+                  showThinking: shouldShowThinking
                 })
                 // 实时滚动到底部
                 this.$nextTick(() => {
@@ -777,22 +992,34 @@ export default {
             onDone: (data) => {
               this.sending = false
               this.streamController = null
-              
+
+              // 将所有运行中的思考步骤标记为完成
+              const currentMessage = this.messages[loadingIndex]
+              if (currentMessage && currentMessage.thinkingSteps) {
+                currentMessage.thinkingSteps.forEach(step => {
+                  if (step.status === 'running') {
+                    step.status = 'completed'
+                  }
+                })
+                // 触发响应式更新
+                this.$set(this.messages, loadingIndex, currentMessage)
+              }
+
               if (data && data.session_id) {
                 this.sessionId = data.session_id
               }
-              
+
               if (aiContent) {
                 this.conversationHistory.push({
                   role: 'assistant',
                   content: aiContent
                 })
               }
-              
+
               if (this.conversationHistory.length > 20) {
                 this.conversationHistory = this.conversationHistory.slice(-20)
               }
-              
+
               this.clearTemporarySystemPrompts()
               this.$nextTick(() => {
                 this.scrollToBottom()
@@ -802,27 +1029,28 @@ export default {
               console.error('流式传输错误:', error)
               this.sending = false
               this.streamController = null
-              
+
               let errorMsg = '抱歉，服务暂时不可用，请稍后再试。'
               if (error.message) {
                 errorMsg = `网络错误: ${error.message}`
               }
-              
-              this.messages[loadingIndex] = {
+
+              const currentMessage = this.messages[loadingIndex] || {}
+              this.$set(this.messages, loadingIndex, {
+                ...currentMessage,
                 type: 'ai',
                 content: errorMsg,
                 time: '',
                 showTime: false,
                 loading: false,
                 error: true
-              }
-              
+              })
+
               this.$message.error('发送消息失败')
               this.clearTemporarySystemPrompts()
             }
           }
         )
-
       } catch (error) {
         console.error('API调用失败:', error)
         this.sending = false
@@ -841,76 +1069,39 @@ export default {
           errorMsg = `网络错误: ${error.message}`
         }
 
-        this.messages[loadingIndex] = {
+        const currentMessage = this.messages[loadingIndex] || {}
+        this.$set(this.messages, loadingIndex, {
+          ...currentMessage,
           type: 'ai',
           content: errorMsg,
           time: '',
           showTime: false,
           loading: false,
           error: true
-        }
+        })
 
         this.$message.error('发送消息失败')
         this.clearTemporarySystemPrompts()
       }
     },
     handleFeature(feature) {
-      // TODO: 实现快捷功能
-      const featureMap = {
-        '数据分析': {
-          message: '数据分析功能待开发：可以分析当前数据看板的数据，生成数据洞察',
-          tips: [
-            '1. 获取当前数据看板的数据',
-            '2. 调用 AI 进行数据分析和挖掘',
-            '3. 识别数据趋势和异常',
-            '4. 生成数据洞察报告'
-          ]
-        },
-        '生成报告': {
-          message: '生成报告功能待开发：可以自动生成数据报告和分析报告',
-          tips: [
-            '1. 汇总当前数据看板的关键指标',
-            '2. 调用 AI 生成结构化报告',
-            '3. 支持导出为 Word、PDF 等格式',
-            '4. 可以自定义报告模板和样式'
-          ]
-        },
-        '预测趋势': {
-          message: '预测趋势功能待开发：基于历史数据预测未来趋势',
-          tips: [
-            '1. 获取历史数据',
-            '2. 调用 AI 进行趋势分析和预测',
-            '3. 生成预测图表和说明',
-            '4. 提供置信区间和风险提示'
-          ]
-        },
-        '智能建议': {
-          message: '智能建议功能待开发：基于数据提供智能建议和优化方案',
-          tips: [
-            '1. 分析当前数据状态',
-            '2. 识别问题和机会点',
-            '3. 生成针对性的建议和方案',
-            '4. 提供可执行的行动计划'
-          ]
-        }
+      // 隐藏欢迎区域
+      if (this.showWelcome) {
+        this.showWelcome = false
       }
 
-      const featureInfo = featureMap[feature.text] || {
-        message: `功能 "${feature.text}" 待开发`,
-        tips: []
-      }
+      // 构建消息内容：使用按钮配置的提示词
+      const message = feature.prompt || feature.text
 
-      this.$message({
-        message: featureInfo.message,
-        type: 'info',
-        duration: 4000
-      })
+      // 设置输入框内容（可选，也可以直接发送）
+      // this.inputMessage = message
 
-      // 在控制台输出开发提示
-      console.log(`%c功能开发提示: ${feature.text}`, 'color: #409EFF; font-weight: bold; font-size: 14px;')
-      featureInfo.tips.forEach((tip, index) => {
-        console.log(`%c  ${index + 1}. ${tip}`, 'color: #606266; font-size: 12px;')
-      })
+      // 自动发送消息，并传递任务类型
+      this.sendMessageWithTaskType(message, feature.task_type || 'auto')
+
+      // 在控制台输出功能提示
+      console.log(`%c功能: ${feature.text}`, 'color: #409EFF; font-weight: bold; font-size: 14px;')
+      console.log(`%c任务类型: ${feature.task_type || 'auto'}`, 'color: #606266; font-size: 12px;')
     },
     handleTakePhoto() {
       // TODO: 实现拍照功能
@@ -967,12 +1158,13 @@ export default {
       console.log('  6. 可以添加 @ 提及功能')
     },
     scrollToBottom() {
-      if (this.$refs.messageScrollbar) {
-        const wrap = this.$refs.messageScrollbar.$el.querySelector('.el-scrollbar__wrap')
-        if (wrap) {
-          wrap.scrollTop = wrap.scrollHeight
+      // 将消息列表滚动到最底部，跟随思考过程和回复内容实时滚动
+      this.$nextTick(() => {
+        const list = this.$refs.messageList
+        if (list && list.scrollHeight !== undefined) {
+          list.scrollTop = list.scrollHeight
         }
-      }
+      })
     },
     getCurrentTime() {
       const now = new Date()
@@ -989,14 +1181,14 @@ export default {
       if (!this.sessionId) {
         return
       }
-      
+
       try {
         const response = await getChatHistory(this.sessionId)
         if (response.code === 200 && response.data && response.data.messages) {
           // 转换历史记录格式
           this.messages = []
           this.conversationHistory = []
-          
+
           response.data.messages.forEach((msg, index) => {
             const message = {
               type: msg.role === 'user' ? 'user' : 'ai',
@@ -1006,19 +1198,19 @@ export default {
               loading: false
             }
             this.messages.push(message)
-            
+
             // 添加到对话历史
             this.conversationHistory.push({
               role: msg.role,
               content: msg.content
             })
           })
-          
+
           // 如果有历史记录，隐藏欢迎区域
           if (this.messages.length > 0) {
             this.showWelcome = false
           }
-          
+
           // 滚动到底部
           this.$nextTick(() => {
             this.scrollToBottom()
@@ -1641,6 +1833,120 @@ export default {
                   color: #F56C6C;
                   border: 1px solid #FBC4C4;
                 }
+
+                // 思考过程样式
+                .thinking-process {
+                  margin-bottom: 12px;
+                  border: 1px solid #E4E7ED;
+                  border-radius: 8px;
+                  background: #F5F7FA;
+                  overflow: hidden;
+
+                  .thinking-header {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 12px;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: background-color 0.2s;
+
+                    &:hover {
+                      background: #EBEEF5;
+                    }
+
+                    .thinking-icon {
+                      color: #409EFF;
+                      font-size: 16px;
+                      margin-right: 8px;
+                    }
+
+                    .thinking-title {
+                      flex: 1;
+                      font-size: 13px;
+                      font-weight: 500;
+                      color: #303133;
+                    }
+
+                    .thinking-toggle {
+                      color: #909399;
+                      font-size: 12px;
+                      transition: transform 0.2s;
+                    }
+                  }
+
+                  .thinking-steps {
+                    padding: 8px 12px 12px;
+                    max-height: 300px;
+                    overflow-y: auto;
+
+                    .thinking-step {
+                      display: flex;
+                      align-items: flex-start;
+                      padding: 8px 0;
+                      border-bottom: 1px solid #EBEEF5;
+
+                      &:last-child {
+                        border-bottom: none;
+                      }
+
+                      .step-indicator {
+                        flex-shrink: 0;
+                        width: 20px;
+                        height: 20px;
+                        margin-right: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .step-icon {
+                          font-size: 14px;
+
+                          &.completed {
+                            color: #67C23A;
+                          }
+
+                          &.running {
+                            color: #409EFF;
+                            animation: rotate 1s linear infinite;
+                          }
+
+                          &.pending {
+                            color: #C0C4CC;
+                          }
+                        }
+                      }
+
+                      .step-content {
+                        flex: 1;
+                        min-width: 0;
+
+                        .step-title {
+                          font-size: 13px;
+                          font-weight: 500;
+                          color: #303133;
+                          margin-bottom: 4px;
+                        }
+
+                        .step-detail {
+                          font-size: 12px;
+                          color: #606266;
+                          line-height: 1.5;
+                          word-break: break-word;
+                        }
+                      }
+
+                      &.step-completed {
+                        opacity: 0.8;
+                      }
+
+                      &.step-running {
+                        .step-content .step-title {
+                          color: #409EFF;
+                        }
+                      }
+                    }
+                  }
+                }
               }
 
               &.user-bubble {
@@ -1780,6 +2086,96 @@ export default {
   40% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+// 研究进度详细日志样式（嵌入思考过程卡片中）
+.thinking-process {
+  .thinking-detail {
+    margin-top: 8px;
+    border-top: 1px dashed #E4E7ED;
+    padding-top: 8px;
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 0;
+
+      .detail-title {
+        font-size: 13px;
+        color: #606266;
+        font-weight: 500;
+      }
+
+      .detail-toggle {
+        font-size: 12px;
+        color: #909399;
+        transition: transform 0.2s;
+      }
+    }
+
+    .detail-list {
+      max-height: 200px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-top: 4px;
+
+      .detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12px;
+        padding: 2px 0;
+
+        .detail-time {
+          color: #909399;
+          flex-shrink: 0;
+          min-width: 60px;
+        }
+
+        .detail-content {
+          color: #606266;
+          flex: 1;
+        }
+
+        &.detail-warning {
+          .detail-content {
+            color: #E6A23C;
+          }
+        }
+
+        &.detail-error {
+          .detail-content {
+            color: #F56C6C;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

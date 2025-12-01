@@ -3,7 +3,7 @@ import axios from 'axios'
 
 // 获取baseURL（与request.js保持一致）
 const getBaseURL = () => {
-  return request.defaults?.baseURL || 'http://127.0.0.1:8000/'
+  return request.defaults?.baseURL || 'http://127.0.0.1:5001/'  // 后端 Flask 应用端口
 }
 
 /**
@@ -11,7 +11,7 @@ const getBaseURL = () => {
  * @param {Object} params - 聊天参数
  * @param {string} params.message - 用户消息
  * @param {string} params.session_id - 会话ID（可选，不传则创建新会话）
- * @param {string} params.system_prompt - 系统提示词（可选）
+ * @param {Array} params.temporary_prompts - 临时提示词（可选，系统提示词由后端从配置文件读取）
  * @param {Array} params.conversation_history - 对话历史（可选）
  * @param {Object} params.options - 其他选项（可选）
  * @returns {Promise}
@@ -29,7 +29,7 @@ export function chatWithAgent(params) {
  * @param {Object} params - 聊天参数
  * @param {string} params.message - 用户消息
  * @param {string} params.session_id - 会话ID（可选）
- * @param {string} params.system_prompt - 系统提示词（可选）
+ * @param {Array} params.temporary_prompts - 临时提示词（可选，系统提示词由后端从配置文件读取）
  * @param {Array} params.conversation_history - 对话历史（可选）
  * @param {Object} params.options - 其他选项（可选）
  * @param {Function} onChunk - 接收数据块的回调函数
@@ -37,15 +37,16 @@ export function chatWithAgent(params) {
  * @param {Function} onError - 错误回调函数
  * @returns {Promise} 返回一个可取消的Promise
  */
-export function chatWithAgentStream(params, { onChunk, onDone, onError }) {
+export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgress }) {
   const controller = new AbortController()
   
   // 构建请求体
   const requestBody = {
     message: params.message,
     session_id: params.session_id,
-    system_prompt: params.system_prompt,
+    temporary_prompts: params.temporary_prompts || [], // 临时提示词（系统提示词由后端从配置文件读取）
     conversation_history: params.conversation_history || [],
+    task_type: params.task_type || 'auto', // 任务类型：'research' 强制使用 GPT-Researcher, 'chat' 使用 Qwen, 'auto' 自动路由
     options: params.options || {}
   }
 
@@ -124,6 +125,11 @@ export function chatWithAgentStream(params, { onChunk, onDone, onError }) {
               if (data.type === 'start') {
                 // 流开始，可以在这里初始化
                 console.log('流式传输开始')
+              } else if (data.type === 'progress') {
+                // 进度信息，传递给进度回调
+                if (onProgress) {
+                  onProgress(data)
+                }
               } else if (data.type === 'chunk') {
                 // 数据块，立即处理
                 if (onChunk && data.content) {

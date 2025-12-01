@@ -644,7 +644,7 @@ export default {
               
               .data-row {
                 display: flex;
-                align-items: end;
+                align-items: flex-end; // 修复：使用 flex-end 替代 end
                 gap: 12px;
                 height: 60px;
                 
@@ -658,7 +658,7 @@ export default {
                 .data-bars {
                   flex: 1;
                   display: flex;
-                  align-items: end;
+                  align-items: flex-end; // 修复：使用 flex-end 替代 end
                   gap: 4px;
                   height: 100%;
                   

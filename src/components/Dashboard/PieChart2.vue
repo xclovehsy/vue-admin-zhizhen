@@ -27,6 +27,24 @@ export default {
       chart: null
     }
   },
+  watch: {
+    chartData: {
+      handler(newVal) {
+        if (this.chart && newVal && newVal.seriesData) {
+          this.chart.setOption({
+            legend: {
+              data: newVal.seriesData.map(item => item.name)
+            },
+            series: [{
+              data: newVal.seriesData
+            }]
+          })
+        }
+      },
+      deep: true,
+      immediate: false
+    }
+  },
   mounted() {
     this.initChart()
   },
