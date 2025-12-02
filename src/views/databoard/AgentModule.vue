@@ -260,10 +260,10 @@ export default {
       showThinkingProcess: false, // 是否显示思考过程
       thinkingStepIdCounter: 0, // 步骤ID计数器
       features: [
-        { id: 1, text: '数据分析', icon: 'el-icon-data-line', task_type: 'data', prompt: '请进行数据分析，识别数据趋势和异常，生成数据洞察报告。' },
-        { id: 2, text: '生成报告', icon: 'el-icon-document', task_type: 'research', prompt: '请结合最新的局势对当前的信息生成一份详细的研究报告，包含背景、分析、结论。' },
-        { id: 3, text: '预测趋势', icon: 'el-icon-arrow-up', task_type: 'research', prompt: '请基于历史数据和当前情况，预测未来趋势，并提供置信区间和风险提示。' },
-        { id: 4, text: '智能建议', icon: 'el-icon-magic-stick', task_type: 'chat', prompt: '请基于当前情况，提供智能建议和优化方案。' }
+        { id: 1, text: '数据分析', icon: 'el-icon-data-line', task_type: 'data', prompt: '请针对致真精密仪器公司现有业务数据进行分析，识别数据趋势和异常，生成与公司产品、市场、研发相关的数据洞察报告。' },
+        { id: 2, text: '生成报告', icon: 'el-icon-document', task_type: 'research', prompt: '请结合网络上最新的行业局势，针对致真精密仪器公司的业务情况生成一份详细的研究报告，包含公司背景、市场分析、竞争态势、技术发展趋势和结论。' },
+        { id: 3, text: '预测趋势', icon: 'el-icon-arrow-up', task_type: 'research', prompt: '请基于致真精密仪器公司的历史数据和当前市场情况，预测公司在精密仪器、半导体测试设备等领域的未来趋势。' },
+        { id: 4, text: '智能建议', icon: 'el-icon-magic-stick', task_type: 'chat', prompt: '请基于致真精密仪器公司的当前业务情况，提供针对公司产品研发、市场拓展、技术创新的智能建议和优化方案。' }
       ]
     }
   },

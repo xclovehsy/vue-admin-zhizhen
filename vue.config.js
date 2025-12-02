@@ -39,7 +39,8 @@ module.exports = {
     // before: require('./mock/mock-server.js')
     proxy: {
       '/api': {
-        target: 'http://localhost:8000', // 后端服务器地址
+        // target: 'http://localhost:8000', // 本地后端服务器地址
+        target: 'http://116.62.34.152:7003', // 远程后端服务器地址
         changeOrigin: true,
         pathRewrite: {
           '^/api': '/api' // 保持API路径不变

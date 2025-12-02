@@ -121,7 +121,7 @@ export default {
       this.loading = true
       try {
         // 中国地图数据已在 china.js 中注册，直接使用
-        // 优先尝试从API获取统计数据
+        // 从API获取统计数据
         let apiResponse = null
         try {
           apiResponse = await getMapData({
@@ -131,26 +131,19 @@ export default {
             timeRange: this.timeRange
           })
         } catch (apiError) {
-          console.warn('API调用失败，使用模拟数据:', apiError)
+          console.warn('API调用失败:', apiError)
         }
 
         // 处理统计数据
         if (apiResponse && apiResponse.data) {
           this.statistics = apiResponse.data.statistics || []
           this.summary = apiResponse.data.summary || null
-          // 始终使用前端设置的新默认值，不合并 API 返回的 typeLabels，确保显示一致
-          // 如果后续需要支持 API 返回的 typeLabels，可以在这里添加逻辑
-          console.log('使用前端设置的typeLabels:', this.typeLabels)
+          console.log('使用API返回的数据:', this.statistics.length, '条')
         } else {
-          // 使用示例数据
-          this.statistics = this.getDefaultChinaStatistics()
-          this.summary = {
-            total: 3500,
-            max: 200,
-            min: 0,
-            avg: 105.5,
-            count: 34
-          }
+          // API失败或返回空，使用空数据
+          this.statistics = []
+          this.summary = null
+          console.log('API未返回数据，使用空数据')
         }
 
         // 初始化地图
@@ -161,15 +154,9 @@ export default {
       } catch (error) {
         console.error('加载中国地图数据失败:', error)
         this.$message.error('加载中国地图数据失败')
-        // 使用示例数据
-        this.statistics = this.getDefaultChinaStatistics()
-        this.summary = {
-          total: 3500,
-          max: 200,
-          min: 0,
-          avg: 105.5,
-          count: 34
-        }
+        // 使用空数据，不再使用缺省值
+        this.statistics = []
+        this.summary = null
         await this.$nextTick()
         setTimeout(() => {
           this.initMap()
@@ -184,7 +171,7 @@ export default {
       this.loading = true
       try {
         // 世界地图数据已在 world.js 中注册，直接使用
-        // 优先尝试从API获取统计数据
+        // 从API获取统计数据
         let apiResponse = null
         try {
           apiResponse = await getMapData({
@@ -194,26 +181,19 @@ export default {
             timeRange: this.timeRange
           })
         } catch (apiError) {
-          console.warn('API调用失败，使用模拟数据:', apiError)
+          console.warn('API调用失败:', apiError)
         }
 
         // 处理统计数据
         if (apiResponse && apiResponse.data) {
           this.statistics = apiResponse.data.statistics || []
           this.summary = apiResponse.data.summary || null
-          // 始终使用前端设置的新默认值，不合并 API 返回的 typeLabels，确保显示一致
-          // 如果后续需要支持 API 返回的 typeLabels，可以在这里添加逻辑
-          console.log('使用前端设置的typeLabels:', this.typeLabels)
+          console.log('使用API返回的数据:', this.statistics.length, '条')
         } else {
-          // 使用模拟数据
-          this.statistics = this.getDefaultWorldStatistics()
-          this.summary = {
-            total: 5000,
-            max: 300,
-            min: 0,
-            avg: 125.5,
-            count: 150
-          }
+          // API失败或返回空，使用空数据
+          this.statistics = []
+          this.summary = null
+          console.log('API未返回数据，使用空数据')
         }
 
         // 初始化地图
@@ -222,15 +202,9 @@ export default {
       } catch (error) {
         console.error('加载世界地图数据失败:', error)
         this.$message.error('加载世界地图数据失败')
-        // 使用模拟数据
-        this.statistics = this.getDefaultWorldStatistics()
-        this.summary = {
-          total: 5000,
-          max: 300,
-          min: 0,
-          avg: 125.5,
-          count: 150
-        }
+        // 使用空数据，不再使用缺省值
+        this.statistics = []
+        this.summary = null
         await this.$nextTick()
         this.initMap()
       } finally {
@@ -526,19 +500,12 @@ export default {
           policies: item.policies,
           news: item.news,
           code: item.code,
-          // 始终使用组件级别的 typeLabels（新值），确保显示一致
           typeLabels: this.typeLabels
         }))
       }
 
-      // 否则使用示例数据作为备用
-      if (this.mapType === 'world') {
-        // 世界地图默认数据
-        return this.getDefaultWorldStatistics()
-      } else {
-        // 中国地图默认数据
-        return this.getDefaultChinaStatistics()
-      }
+      // 没有数据时返回空数组，不再使用缺省值
+      return []
     },
 
     // 获取数据类型文本
