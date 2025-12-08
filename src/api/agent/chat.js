@@ -35,9 +35,10 @@ export function chatWithAgent(params) {
  * @param {Function} onChunk - 接收数据块的回调函数
  * @param {Function} onDone - 完成回调函数
  * @param {Function} onError - 错误回调函数
+ * @param {Function} onEvidence - 证据回调函数
  * @returns {Promise} 返回一个可取消的Promise
  */
-export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgress }) {
+export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgress, onEvidence }) {
   const controller = new AbortController()
   
   // 构建请求体
@@ -125,6 +126,11 @@ export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgre
               if (data.type === 'start') {
                 // 流开始，可以在这里初始化
                 console.log('流式传输开始')
+              } else if (data.type === 'evidence') {
+                // NEW: 证据列表事件
+                if (onEvidence) {
+                  onEvidence(data.items || [])
+                }
               } else if (data.type === 'progress') {
                 // 进度信息，传递给进度回调
                 if (onProgress) {
@@ -215,4 +221,3 @@ export function deleteChatSession(session_id) {
     method: 'delete'
   })
 }
-

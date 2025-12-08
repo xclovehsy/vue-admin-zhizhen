@@ -25,7 +25,7 @@
         </div> -->
       </div>
 
-      <!-- 消息列表区域 -->
+      <!-- 消息区域 -->
       <div class="chat-container">
         <div class="message-list" ref="messageList">
           <div class="messages">
@@ -188,7 +188,6 @@
         <!-- 输入区域 -->
         <div class="input-area">
           <div class="input-wrapper">
-            <!-- <i class="el-icon-camera input-left-icon" @click="handleTakePhoto" title="拍照"></i> -->
             <input
               v-model="inputMessage"
               type="text"
@@ -208,10 +207,6 @@
             >
               发送
             </el-button>
-            <!-- <div class="input-right-icons">
-              <i class="el-icon-microphone input-icon" @click="handleVoiceInput" title="语音输入"></i>
-              <i class="el-icon-plus input-icon" @click="handleMoreActions" title="更多操作"></i>
-            </div> -->
           </div>
         </div>
       </div>
@@ -248,6 +243,7 @@ export default {
         visible: false,
         messages: [] // 进度消息列表
       },
+      currentEvidence: [], // 当前回答的证据列表（已通过思考过程展示）
       suggestions: [
         { id: 1, text: '近期有哪些新出台的高端科学仪器国产化相关政策？', icon: 'el-icon-document-checked', gradient: 'gradient-1' },
         { id: 2, text: '过去一个月，原子力显微镜的整体态势：政策支持、头部公司动态、技术突破？', icon: 'el-icon-data-analysis', gradient: 'gradient-2' },
@@ -671,10 +667,12 @@ export default {
         showTime: false,
         loading: true,
         thinkingSteps: [], // 思考步骤列表
-        showThinking: true // 默认展开思考过程
+        showThinking: true, // 默认展开思考过程
+        evidence: [] // NEW: 证据占位
       }
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
+      this.currentEvidence = [] // 清空证据占位
 
       try {
         // 调用后端流式API
@@ -731,6 +729,49 @@ export default {
                 })
                 console.log('📊 [进度]', progressMessage)
               }
+            },
+            onEvidence: (items) => {
+              // NEW: 将 evidence 映射为思考过程 & 日志（复用现有 UI）
+              const currentMessage = this.messages[loadingIndex] || {}
+              const evidenceList = Array.isArray(items) ? items : []
+              if (!currentMessage.detailLogs) currentMessage.detailLogs = []
+              evidenceList.forEach(ev => {
+                const title = ev && ev.title ? ev.title : '未命名事件'
+                const sim = ev && ev.similarity != null ? Number(ev.similarity).toFixed(2) : '—'
+                currentMessage.detailLogs.push({
+                  time: new Date().toLocaleTimeString(),
+                  content: `找到证据：${title}（相似度 ${sim}）`,
+                  level: 'info'
+                })
+              })
+              if (!Array.isArray(currentMessage.thinkingSteps) || currentMessage.thinkingSteps.length === 0) {
+                currentMessage.thinkingSteps = [{
+                  id: 'step-rag-0',
+                  type: 'rag',
+                  title: '向量检索',
+                  content: '',
+                  status: 'completed',
+                  order: 0,
+                  timestamp: Date.now()
+                }]
+              } else {
+                const idx = currentMessage.thinkingSteps.findIndex(s => s.type === 'rag')
+                if (idx === -1) {
+                  currentMessage.thinkingSteps.push({
+                    id: `step-rag-${currentMessage.thinkingSteps.length}`,
+                    type: 'rag',
+                    title: '向量检索',
+                    content: '',
+                    status: 'completed',
+                    order: currentMessage.thinkingSteps.length,
+                    timestamp: Date.now()
+                  })
+                } else {
+                  currentMessage.thinkingSteps[idx].status = 'completed'
+                  currentMessage.thinkingSteps[idx].timestamp = Date.now()
+                }
+              }
+              this.$set(this.messages, loadingIndex, currentMessage)
             },
             onChunk: (chunk) => {
               // 接收数据块，实时更新
@@ -793,6 +834,10 @@ export default {
                   content: aiContent
                 })
               }
+
+              // 同步右侧证据面板
+              const finalMsg = this.messages[loadingIndex] || {}
+              this.currentEvidence = finalMsg.evidence || []
 
               // 限制历史记录长度，避免超出token限制
               if (this.conversationHistory.length > 20) {
@@ -902,11 +947,13 @@ export default {
         showTime: false,
         loading: true,
         thinkingSteps: [], // 思考步骤列表
-        showThinking: true // 默认展开思考过程
+        showThinking: true, // 默认展开思考过程
+        evidence: [] // NEW: 证据占位
       }
       this.messages.push(loadingMessage)
       const loadingIndex = this.messages.length - 1
       this.sending = true
+      this.currentEvidence = [] // 清空证据占位
 
       try {
         // 调用后端流式API
@@ -961,6 +1008,49 @@ export default {
 
                 console.log('📊 [进度]', progressMessage)
               }
+            },
+            onEvidence: (items) => {
+              // NEW: 证据事件，写入思考过程与日志
+              const currentMessage = this.messages[loadingIndex] || {}
+              const evidenceList = Array.isArray(items) ? items : []
+              if (!currentMessage.detailLogs) currentMessage.detailLogs = []
+              evidenceList.forEach(ev => {
+                const title = ev && ev.title ? ev.title : '未命名事件'
+                const sim = ev && ev.similarity != null ? Number(ev.similarity).toFixed(2) : '—'
+                currentMessage.detailLogs.push({
+                  time: new Date().toLocaleTimeString(),
+                  content: `找到证据：${title}（相似度 ${sim}）`,
+                  level: 'info'
+                })
+              })
+              if (!Array.isArray(currentMessage.thinkingSteps) || currentMessage.thinkingSteps.length === 0) {
+                currentMessage.thinkingSteps = [{
+                  id: 'step-rag-0',
+                  type: 'rag',
+                  title: '向量检索',
+                  content: '',
+                  status: 'completed',
+                  order: 0,
+                  timestamp: Date.now()
+                }]
+              } else {
+                const idx = currentMessage.thinkingSteps.findIndex(s => s.type === 'rag')
+                if (idx === -1) {
+                  currentMessage.thinkingSteps.push({
+                    id: `step-rag-${currentMessage.thinkingSteps.length}`,
+                    type: 'rag',
+                    title: '向量检索',
+                    content: '',
+                    status: 'completed',
+                    order: currentMessage.thinkingSteps.length,
+                    timestamp: Date.now()
+                  })
+                } else {
+                  currentMessage.thinkingSteps[idx].status = 'completed'
+                  currentMessage.thinkingSteps[idx].timestamp = Date.now()
+                }
+              }
+              this.$set(this.messages, loadingIndex, currentMessage)
             },
             onChunk: (chunk) => {
               if (chunk) {
@@ -2076,6 +2166,7 @@ export default {
       }
     }
   }
+
 }
 
 @keyframes loading-dot {
@@ -2179,4 +2270,3 @@ export default {
   }
 }
 </style>
-
