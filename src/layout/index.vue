@@ -8,11 +8,26 @@
       </div>
       <app-main />
     </div>
+    <agent-float-button :show-fab="!($route.meta && $route.meta.hideAgentFab)" />
+    <el-drawer
+      :visible.sync="agentPanelOpen"
+      direction="rtl"
+      size="525px"
+      append-to-body
+      :close-on-press-escape="true"
+      :modal-append-to-body="true"
+      :with-header="false"
+      :show-close="false"
+    >
+      <agent-module />
+    </el-drawer>
   </div>
 </template>
 
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
+import AgentFloatButton from '@/components/AgentFloatButton.vue'
+import AgentModule from '@/views/databoard/AgentModule.vue'
 import ResizeMixin from './mixin/ResizeHandler'
 
 export default {
@@ -20,7 +35,9 @@ export default {
   components: {
     Navbar,
     Sidebar,
-    AppMain
+    AppMain,
+    AgentFloatButton,
+    AgentModule
   },
   mixins: [ResizeMixin],
   computed: {
@@ -32,6 +49,14 @@ export default {
     },
     fixedHeader() {
       return this.$store.state.settings.fixedHeader
+    },
+    agentPanelOpen: {
+      get() {
+        return this.$store.state.app.agentPanelOpen
+      },
+      set(val) {
+        this.$store.dispatch('app/setAgentPanelOpen', val)
+      }
     },
     classObj() {
       return {
@@ -89,5 +114,11 @@ export default {
 
   .mobile .fixed-header {
     width: 100%;
+  }
+
+  ::v-deep .el-drawer__body {
+    padding: 0;
+    height: 100%;
+    display: flex;
   }
 </style>

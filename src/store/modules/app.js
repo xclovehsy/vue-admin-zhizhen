@@ -5,7 +5,8 @@ const state = {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
   },
-  device: 'desktop'
+  device: 'desktop',
+  agentPanelOpen: false
 }
 
 const mutations = {
@@ -25,6 +26,12 @@ const mutations = {
   },
   TOGGLE_DEVICE: (state, device) => {
     state.device = device
+  },
+  SET_AGENT_PANEL_OPEN: (state, bool) => {
+    state.agentPanelOpen = !!bool
+  },
+  TOGGLE_AGENT_PANEL: (state) => {
+    state.agentPanelOpen = !state.agentPanelOpen
   }
 }
 
@@ -37,6 +44,12 @@ const actions = {
   },
   toggleDevice({ commit }, device) {
     commit('TOGGLE_DEVICE', device)
+  },
+  setAgentPanelOpen({ commit }, bool) {
+    commit('SET_AGENT_PANEL_OPEN', bool)
+  },
+  toggleAgentPanel({ commit }) {
+    commit('TOGGLE_AGENT_PANEL')
   }
 }
 
