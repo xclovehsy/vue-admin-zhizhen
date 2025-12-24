@@ -8,6 +8,9 @@ const dailyReportMockData = {
         id: 1,
         category: '政策动向',
         content: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型。建议立即组织跨部门会议评估该政策对公司业务的影响，制定响应策略。',
+        sources: [
+          { title: '政策原文', url: 'https://www.gov.cn' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T09:00:00Z'
@@ -16,6 +19,9 @@ const dailyReportMockData = {
         id: 2,
         category: '竞品动态',
         content: '竞品A公司宣布完成新一轮融资，计划加大AI研发投入，重点布局智能决策支持系统。建议密切关注其产品迭代计划，调整我们的竞品策略。',
+        sources: [
+          { title: '企业新闻稿', url: 'https://example.com/competitor-news' }
+        ],
         priority: 'medium',
         priorityText: '中',
         createdAt: '2023-11-15T08:30:00Z'
@@ -24,6 +30,9 @@ const dailyReportMockData = {
         id: 3,
         category: '销售机会',
         content: '某省交通厅发布智能交通系统升级项目招标公告，预算约1200万元，需求与我司产品高度匹配。建议立即组建专项投标小组，准备相关材料。',
+        sources: [
+          { title: '招标公告', url: 'https://example.com/bid' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T10:15:00Z'
@@ -36,6 +45,9 @@ const dailyReportMockData = {
         id: 4,
         category: '市场趋势',
         content: 'AI市场预计2024年增长35%，企业数字化转型需求激增。建议加大市场推广力度，重点关注制造业和金融业客户。',
+        sources: [
+          { title: '市场研究报告', url: 'https://example.com/market-report' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T09:30:00Z'
@@ -44,6 +56,9 @@ const dailyReportMockData = {
         id: 5,
         category: '客户反馈',
         content: '客户满意度调研显示，产品易用性得分提升15%。建议继续优化用户体验，加强客户培训。',
+        sources: [
+          { title: '客户调研', url: 'https://example.com/customer-survey' }
+        ],
         priority: 'medium',
         priorityText: '中',
         createdAt: '2023-11-15T08:45:00Z'
@@ -56,6 +71,9 @@ const dailyReportMockData = {
         id: 6,
         category: '销售机会',
         content: '本月新增潜在客户23家，其中5家已进入商务谈判阶段。建议重点关注高价值客户，加快成交节奏。',
+        sources: [
+          { title: 'CRM 线索统计', url: 'https://example.com/crm-leads' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T09:15:00Z'
@@ -64,6 +82,9 @@ const dailyReportMockData = {
         id: 7,
         category: '客户跟进',
         content: '某大型制造企业项目进入最后阶段，预计下周签署合同。建议准备签约材料和后续实施计划。',
+        sources: [
+          { title: '项目进展记录', url: 'https://example.com/project-update' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T10:00:00Z'
@@ -76,6 +97,9 @@ const dailyReportMockData = {
         id: 8,
         category: '技术前沿',
         content: '大语言模型技术取得新突破，推理速度提升40%。建议评估技术升级方案，保持产品竞争力。',
+        sources: [
+          { title: '技术论文', url: 'https://example.com/llm-paper' }
+        ],
         priority: 'medium',
         priorityText: '中',
         createdAt: '2023-11-15T09:45:00Z'
@@ -84,6 +108,9 @@ const dailyReportMockData = {
         id: 9,
         category: '产品迭代',
         content: '新版本产品测试完成，用户反馈良好。建议按计划发布，并准备用户培训材料。',
+        sources: [
+          { title: '版本发布说明', url: 'https://example.com/release-notes' }
+        ],
         priority: 'high',
         priorityText: '高',
         createdAt: '2023-11-15T08:15:00Z'

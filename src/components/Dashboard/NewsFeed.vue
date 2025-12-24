@@ -205,10 +205,10 @@ export default {
       loading: false,
       categories: [
         { label: '全部', value: 'all' },
-        { label: '新闻消息', value: '新闻消息' },
-        { label: '行业动态', value: '行业动态' },
-        { label: '竞品消息', value: '竞品消息' },
-        { label: '技术前沿', value: '技术前沿' }
+        { label: '政策新闻', value: '政策新闻' },
+        { label: '行业新闻', value: '行业新闻' },
+        { label: '竞品新闻', value: '竞品新闻' },
+        { label: '商机', value: '商机' }
       ],
       newsList: [],
       pagination: {
@@ -267,9 +267,9 @@ export default {
         this.newsList = [
           {
             id: 1,
-            category: '机会',
+            category: '政策新闻',
             title: '国家发布新一代人工智能创新发展指导意见，明确支持企业建设行业大模型',
-            source: '新闻消息',
+            source: '国务院网站',
             time: '09:32',
             publishTime: '2023-11-15',
             readTime: '5分钟',
@@ -355,9 +355,10 @@ export default {
     },
     getCategoryType(category) {
       const types = {
-        '机会': 'success',
-        '预警': 'warning',
-        '风险': 'danger'
+        '政策新闻': 'info',
+        '行业新闻': 'success',
+        '竞品新闻': 'warning',
+        '商机': 'danger'
       }
       return types[category] || 'info'
     },

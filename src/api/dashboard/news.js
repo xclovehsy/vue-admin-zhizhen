@@ -5,7 +5,7 @@ import request from '@/utils/request'
  * @param {Object} params - 请求参数
  * @param {number} params.page - 页码，默认为1
  * @param {number} params.pageSize - 每页数量，默认为20
- * @param {string} params.category - 分类：all/policy/industry/competitor/tech
+ * @param {string} params.category - 分类：all/政策新闻/行业新闻/竞品新闻/商机
  * @param {string} params.keyword - 搜索关键词
  * @param {string} params.date - 查询日期，默认为今天
  * @returns {Promise}
