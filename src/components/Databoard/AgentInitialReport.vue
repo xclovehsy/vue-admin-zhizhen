@@ -366,19 +366,23 @@ export default {
       ::v-deep {
         h1, h2, h3, h4, h5, h6 {
           color: #303133;
-          margin-top: 0px;
-          margin-bottom: 12px;
+          margin: 0 0 8px;
           font-weight: 600;
+          line-height: 1.5;
+        }
+
+        h1 {
+          font-size: 14px;
         }
 
         h2 {
-          font-size: 16px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid #ebeef5;
+          font-size: 14px;
+          padding-bottom: 0;
+          border-bottom: none;
         }
 
         h3 {
-          font-size: 14px;
+          font-size: 13px;
         }
 
         p {
@@ -397,15 +401,15 @@ export default {
         }
 
         strong {
-          color: #409EFF;
+          color: #303133;
           font-weight: 600;
         }
 
         blockquote {
           margin: 12px 0;
           padding: 10px 16px;
-          background: #f0f9ff;
-          border-left: 4px solid #409EFF;
+          background: #f5f7fa;
+          border-left: 4px solid #dcdfe6;
           color: #606266;
           font-size: 13px;
 
@@ -420,7 +424,7 @@ export default {
           border-radius: 3px;
           font-family: 'Courier New', monospace;
           font-size: 12px;
-          color: #e83e8c;
+          color: #606266;
         }
 
         pre {
@@ -446,11 +450,11 @@ export default {
         }
 
         a {
-          color: #409EFF;
-          text-decoration: none;
+          color: inherit;
+          text-decoration: underline;
 
           &:hover {
-            text-decoration: underline;
+            color: #409EFF;
           }
         }
 
