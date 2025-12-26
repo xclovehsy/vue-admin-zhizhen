@@ -20,7 +20,8 @@ export function chatWithAgent(params) {
   return request({
     url: '/agent/chat',
     method: 'post',
-    data: params
+    data: params,
+    timeout: 60000
   })
 }
 
@@ -48,6 +49,8 @@ export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgre
     temporary_prompts: params.temporary_prompts || [], // 临时提示词（系统提示词由后端从配置文件读取）
     conversation_history: params.conversation_history || [],
     task_type: params.task_type || 'auto', // 任务类型：'research' 强制使用 GPT-Researcher, 'chat' 使用 Qwen, 'auto' 自动路由
+    use_rag: params.use_rag,
+    use_web_search: params.use_web_search,
     options: params.options || {}
   }
 

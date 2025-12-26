@@ -32,6 +32,63 @@
         </div> -->
 
         <div class="markdown-content" v-html="renderMarkdown(section.content)" />
+        <div
+          v-if="section.sources && section.sources.length"
+          class="section-sources"
+        >
+          <div class="item-sources">
+            <span class="sources-label">来源：</span>
+            <a
+              v-if="section.sources[0].url"
+              :href="section.sources[0].url"
+              :title="section.sources[0].title"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="source-link"
+            >
+              {{ section.sources[0].title }}
+            </a>
+            <span v-else class="source-link">
+              {{ section.sources[0].title || '未知来源' }}
+            </span>
+            <el-popover
+              v-if="section.sources.length > 1"
+              placement="bottom-start"
+              width="360"
+              trigger="click"
+              popper-class="sources-popover"
+            >
+              <div class="popover-sources">
+                <div
+                  v-for="(source, sourceIndex) in section.sources"
+                  :key="sourceIndex"
+                  class="popover-source"
+                >
+                  <a
+                    v-if="source.url"
+                    :href="source.url"
+                    :title="source.title"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="popover-link"
+                  >
+                    {{ source.title }}
+                  </a>
+                  <span v-else class="popover-link">
+                    {{ source.title || '未知来源' }}
+                  </span>
+                  <span
+                    v-if="formatSourceMeta(source)"
+                    class="popover-meta"
+                  >
+                    {{ formatSourceMeta(source) }}
+                  </span>
+                </div>
+              </div>
+              <span slot="reference" class="sources-more">等{{ section.sources.length }}个</span>
+            </el-popover>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -71,7 +128,10 @@ export default {
         const response = await getAgentInitialReport()
 
         if (response.code === 200 && response.data && response.data.sections) {
-          this.reportSections = response.data.sections
+          this.reportSections = response.data.sections.map((section) => ({
+            ...section,
+            sources: this.normalizeSources(section.sources)
+          }))
           console.log('✅ 成功获取智能体初始报告数据')
         } else {
           throw new Error('Invalid response format')
@@ -93,6 +153,57 @@ export default {
     renderMarkdown(content) {
       if (!content) return ''
       return marked(content)
+    },
+
+    normalizeSources(sources) {
+      if (!Array.isArray(sources)) {
+        return []
+      }
+      return sources
+        .map((source) => {
+          if (typeof source === 'string') {
+            const url = source.trim()
+            return url ? { url, title: url, source: '', publishedAt: '' } : null
+          }
+          if (source && typeof source === 'object') {
+            const url = (source.url || source.link || '').toString().trim()
+            const title = (
+              source.title ||
+              source.name ||
+              source.source ||
+              url ||
+              '未知来源'
+            )
+              .toString()
+              .trim()
+            return {
+              url,
+              title,
+              source: (source.source || '').toString().trim(),
+              publishedAt: source.publishedAt || source.published_at || source.date || ''
+            }
+          }
+          return null
+        })
+        .filter(Boolean)
+    },
+
+    /**
+     * 格式化来源信息（日期 + 站点）
+     */
+    formatSourceMeta(source) {
+      if (!source) return ''
+      const parts = []
+      const dateText = this.formatSourceDate(source.publishedAt)
+      if (dateText) parts.push(dateText)
+      if (source.source) parts.push(source.source)
+      return parts.join(' · ')
+    },
+
+    formatSourceDate(value) {
+      if (!value) return ''
+      const text = value.toString().trim()
+      return text.length >= 10 ? text.slice(0, 10) : text
     },
 
     /**
@@ -430,7 +541,71 @@ export default {
         }
       }
     }
+
+    .section-sources {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px dashed #e4e7ed;
+      font-size: 12px;
+      color: #909399;
+
+      .item-sources {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .sources-label {
+        font-weight: 600;
+        color: #606266;
+      }
+
+      .source-link {
+        color: #409EFF;
+        text-decoration: none;
+        max-width: 420px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .source-link:hover {
+        text-decoration: underline;
+      }
+
+      .sources-more {
+        color: #409EFF;
+        cursor: pointer;
+      }
+
+      .popover-sources {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .popover-source {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .popover-link {
+        color: #409EFF;
+        text-decoration: none;
+        word-break: break-word;
+      }
+
+      .popover-link:hover {
+        text-decoration: underline;
+      }
+
+      .popover-meta {
+        color: #909399;
+        font-size: 12px;
+      }
+    }
   }
 }
 </style>
-

@@ -30,12 +30,12 @@
         <div class="message-list" ref="messageList">
           <div class="messages">
             <!-- AI 欢迎区域 -->
-            <div v-if="showWelcome" class="welcome-section">
+            <div v-if="showInitialReport" class="welcome-section">
               <!-- 初始报告组件 -->
               <agent-initial-report />
 
               <!-- 建议提示 -->
-              <div class="suggestions-section">
+              <div v-if="showSuggestions" class="suggestions-section">
                 <div class="suggestions-header">
                   <i class="el-icon-chat-dot-round" />
                   <span>试试这些问题</span>
@@ -153,6 +153,130 @@
                     </span>
                     <!-- 内容展示 - 显示在思考过程下方 -->
                     <div v-if="message.content" class="markdown-content" v-html="renderMarkdown(message.content)" />
+                    <div v-if="message.content && hasSources(message.sources)" class="message-sources">
+                      <div v-if="message.sources.database && message.sources.database.length" class="sources-group">
+                        <div class="sources-group-title">数据库</div>
+                        <div class="item-sources">
+                          <span class="sources-label">来源：</span>
+                          <a
+                            v-if="message.sources.database[0].url"
+                            :href="message.sources.database[0].url"
+                            :title="message.sources.database[0].title"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="source-link"
+                          >
+                            {{ message.sources.database[0].title }}
+                          </a>
+                          <span v-else class="source-link">
+                            {{ message.sources.database[0].title }}
+                          </span>
+                          <span
+                            v-if="formatSourceMeta(message.sources.database[0])"
+                            class="source-meta"
+                          >
+                            {{ formatSourceMeta(message.sources.database[0]) }}
+                          </span>
+                          <el-popover
+                            v-if="message.sources.database.length > 1"
+                            placement="bottom-start"
+                            width="360"
+                            trigger="click"
+                            popper-class="sources-popover"
+                          >
+                            <div class="popover-sources">
+                              <div
+                                v-for="(source, sourceIndex) in message.sources.database"
+                                :key="`db-${sourceIndex}`"
+                                class="popover-source"
+                              >
+                                <a
+                                  v-if="source.url"
+                                  :href="source.url"
+                                  :title="source.title"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="popover-link"
+                                >
+                                  {{ source.title }}
+                                </a>
+                                <span v-else class="popover-link">
+                                  {{ source.title }}
+                                </span>
+                                <span
+                                  v-if="formatSourceMeta(source)"
+                                  class="popover-meta"
+                                >
+                                  {{ formatSourceMeta(source) }}
+                                </span>
+                              </div>
+                            </div>
+                            <span slot="reference" class="sources-more">等{{ message.sources.database.length }}个</span>
+                          </el-popover>
+                        </div>
+                      </div>
+                      <div v-if="message.sources.internet && message.sources.internet.length" class="sources-group">
+                        <div class="sources-group-title">互联网</div>
+                        <div class="item-sources">
+                          <span class="sources-label">来源：</span>
+                          <a
+                            v-if="message.sources.internet[0].url"
+                            :href="message.sources.internet[0].url"
+                            :title="message.sources.internet[0].title"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="source-link"
+                          >
+                            {{ message.sources.internet[0].title }}
+                          </a>
+                          <span v-else class="source-link">
+                            {{ message.sources.internet[0].title }}
+                          </span>
+                          <span
+                            v-if="formatSourceMeta(message.sources.internet[0])"
+                            class="source-meta"
+                          >
+                            {{ formatSourceMeta(message.sources.internet[0]) }}
+                          </span>
+                          <el-popover
+                            v-if="message.sources.internet.length > 1"
+                            placement="bottom-start"
+                            width="360"
+                            trigger="click"
+                            popper-class="sources-popover"
+                          >
+                            <div class="popover-sources">
+                              <div
+                                v-for="(source, sourceIndex) in message.sources.internet"
+                                :key="`web-${sourceIndex}`"
+                                class="popover-source"
+                              >
+                                <a
+                                  v-if="source.url"
+                                  :href="source.url"
+                                  :title="source.title"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="popover-link"
+                                >
+                                  {{ source.title }}
+                                </a>
+                                <span v-else class="popover-link">
+                                  {{ source.title }}
+                                </span>
+                                <span
+                                  v-if="formatSourceMeta(source)"
+                                  class="popover-meta"
+                                >
+                                  {{ formatSourceMeta(source) }}
+                                </span>
+                              </div>
+                            </div>
+                            <span slot="reference" class="sources-more">等{{ message.sources.internet.length }}个</span>
+                          </el-popover>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -231,7 +355,8 @@ export default {
       sending: false,
       aiAvatar: agentAvatar,
       isSpeakerActive: true,
-      showWelcome: true,
+      showInitialReport: true,
+      showSuggestions: true,
       conversationHistory: [], // 对话历史记录
       sessionId: null, // 当前会话ID
       streamController: null, // 流式传输控制器
@@ -333,6 +458,59 @@ export default {
         console.error('Markdown渲染错误:', error)
         return markdown // 如果渲染失败，返回原始文本
       }
+    },
+    hasSources(sources) {
+      if (!sources) return false
+      const db = Array.isArray(sources.database) ? sources.database : []
+      const web = Array.isArray(sources.internet) ? sources.internet : []
+      return db.length > 0 || web.length > 0
+    },
+    normalizeEvidenceSources(evidence) {
+      const grouped = { database: [], internet: [] }
+      const seen = { database: new Set(), internet: new Set() }
+      const list = Array.isArray(evidence) ? evidence : []
+
+      list.forEach((item) => {
+        if (!item || typeof item !== 'object') return
+        const origin = (item.origin || '').toString().toLowerCase()
+        const groupKey = origin === 'rag' ? 'database' : origin === 'web' ? 'internet' : null
+        if (!groupKey) return
+
+        const url = (item.url || '').toString().trim()
+        const title = (
+          item.title ||
+          item.source ||
+          url ||
+          '未知来源'
+        )
+          .toString()
+          .trim()
+        const key = url || title
+        if (!key || seen[groupKey].has(key)) return
+        seen[groupKey].add(key)
+
+        grouped[groupKey].push({
+          title,
+          url,
+          source: (item.source || '').toString().trim(),
+          publishedAt: item.published_at || item.publishedAt || item.published || item.date || ''
+        })
+      })
+
+      return grouped
+    },
+    formatSourceMeta(source) {
+      if (!source) return ''
+      const parts = []
+      const dateText = this.formatSourceDate(source.publishedAt)
+      if (dateText) parts.push(dateText)
+      if (source.source) parts.push(source.source)
+      return parts.join(' · ')
+    },
+    formatSourceDate(value) {
+      if (!value) return ''
+      const text = value.toString().trim()
+      return text.length >= 10 ? text.slice(0, 10) : text
     },
     /**
      * 获取当前应展示的思考步骤（只展示已到达的步骤）
@@ -630,9 +808,9 @@ export default {
         this.streamController = null
       }
 
-      // 隐藏欢迎区域
-      if (this.showWelcome) {
-        this.showWelcome = false
+      // 发送后隐藏建议提示，但保留初始报告
+      if (this.showSuggestions) {
+        this.showSuggestions = false
       }
 
       // 添加用户消息
@@ -734,6 +912,8 @@ export default {
               // NEW: 将 evidence 映射为思考过程 & 日志（复用现有 UI）
               const currentMessage = this.messages[loadingIndex] || {}
               const evidenceList = Array.isArray(items) ? items : []
+              currentMessage.evidence = evidenceList
+              currentMessage.sources = this.normalizeEvidenceSources(evidenceList)
               if (!currentMessage.detailLogs) currentMessage.detailLogs = []
               evidenceList.forEach(ev => {
                 const title = ev && ev.title ? ev.title : '未命名事件'
@@ -914,9 +1094,9 @@ export default {
       }
     },
     async handleSuggestion(suggestion) {
-      // 隐藏欢迎区域
-      if (this.showWelcome) {
-        this.showWelcome = false
+      // 隐藏建议提示，但保留初始报告
+      if (this.showSuggestions) {
+        this.showSuggestions = false
       }
 
       // 添加用户消息
@@ -1013,6 +1193,8 @@ export default {
               // NEW: 证据事件，写入思考过程与日志
               const currentMessage = this.messages[loadingIndex] || {}
               const evidenceList = Array.isArray(items) ? items : []
+              currentMessage.evidence = evidenceList
+              currentMessage.sources = this.normalizeEvidenceSources(evidenceList)
               if (!currentMessage.detailLogs) currentMessage.detailLogs = []
               evidenceList.forEach(ev => {
                 const title = ev && ev.title ? ev.title : '未命名事件'
@@ -1175,9 +1357,9 @@ export default {
       }
     },
     handleFeature(feature) {
-      // 隐藏欢迎区域
-      if (this.showWelcome) {
-        this.showWelcome = false
+      // 隐藏建议提示，但保留初始报告
+      if (this.showSuggestions) {
+        this.showSuggestions = false
       }
 
       // 构建消息内容：使用按钮配置的提示词
@@ -1296,9 +1478,9 @@ export default {
             })
           })
 
-          // 如果有历史记录，隐藏欢迎区域
+          // 如果有历史记录，隐藏建议提示但保留初始报告
           if (this.messages.length > 0) {
-            this.showWelcome = false
+            this.showSuggestions = false
           }
 
           // 滚动到底部
@@ -1887,6 +2069,89 @@ export default {
                       text-decoration: line-through;
                       color: #909399;
                     }
+                  }
+                }
+
+                .message-sources {
+                  margin-top: 10px;
+                  padding-top: 8px;
+                  border-top: 1px dashed #E4E7ED;
+                  font-size: 12px;
+                  color: #909399;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 10px;
+
+                  .sources-group {
+                    display: flex;
+                    flex-direction: column;
+                  }
+
+                  .sources-group-title {
+                    font-weight: 600;
+                    color: #606266;
+                    margin-bottom: 4px;
+                  }
+
+                  .item-sources {
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                  }
+
+                  .sources-label {
+                    font-weight: 600;
+                    color: #606266;
+                  }
+
+                  .source-link {
+                    color: #409EFF;
+                    text-decoration: none;
+                    max-width: 420px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                  }
+
+                  .source-link:hover {
+                    text-decoration: underline;
+                  }
+
+                  .source-meta {
+                    color: #909399;
+                  }
+
+                  .sources-more {
+                    color: #409EFF;
+                    cursor: pointer;
+                  }
+
+                  .popover-sources {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                  }
+
+                  .popover-source {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                  }
+
+                  .popover-link {
+                    color: #409EFF;
+                    text-decoration: none;
+                    word-break: break-word;
+                  }
+
+                  .popover-link:hover {
+                    text-decoration: underline;
+                  }
+
+                  .popover-meta {
+                    color: #909399;
+                    font-size: 12px;
                   }
                 }
 
