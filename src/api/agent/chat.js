@@ -3,7 +3,8 @@ import axios from 'axios'
 
 // 获取baseURL（与request.js保持一致）
 const getBaseURL = () => {
-  return request.defaults?.baseURL || 'http://127.0.0.1:5001/'  // 后端 Flask 应用端口
+  const baseURL = request.defaults?.baseURL || 'http://127.0.0.1:5001/' // 后端 Flask 应用端口
+  return baseURL.endsWith('/') ? baseURL : `${baseURL}/`
 }
 
 /**
