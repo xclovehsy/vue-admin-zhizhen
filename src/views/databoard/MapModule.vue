@@ -524,6 +524,15 @@ export default {
     async handleMapClick(params) {
       console.log('点击了:', params.name)
 
+      // 触发区域点击事件，传递省份名称和相关信息给父组件
+      this.$emit('region-click', {
+        name: params.name,
+        code: params.data?.code || this.getRegionCodeByName(params.name),
+        dataType: this.dataType,
+        timeRange: this.timeRange,
+        mapType: this.mapType
+      })
+
       // 获取区域代码
       const regionCode = params.data?.code || this.getRegionCodeByName(params.name)
 

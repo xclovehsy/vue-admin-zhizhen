@@ -40,6 +40,7 @@
               v-for="(item, index) in dailyHighlights"
               :key="index"
               class="highlight-item"
+              @click="handleHighlightClick(item)"
             >
               <div class="item-indicator">
                 <div
@@ -465,8 +466,18 @@ export default {
           return null
         })
         .filter(Boolean)
+    },
+    // 处理每日简报项点击事件
+    handleHighlightClick(item) {
+      this.$emit('highlight-click', {
+        title: item.displayTitle || item.title || item.content,
+        category: item.category,
+        summary: item.displaySummaryText,
+        recommendations: item.displayRecommendationText,
+        sources: item.sources
+      })
     }
-  },
+  }
 }
 </script>
 
@@ -542,6 +553,18 @@ export default {
           .highlight-item {
             display: flex;
             margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px;
+            border-radius: 8px;
+            margin-left: -12px;
+            margin-right: -12px;
+
+            &:hover {
+              background-color: #f5f7fa;
+              transform: translateX(4px);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            }
 
             &:not(:last-child) {
               padding-bottom: 12px;

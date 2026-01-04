@@ -636,9 +636,9 @@ export default {
      */
     parseThinkingStep(message) {
       if (!message || typeof message !== 'string') return null
-      
+
       const msg = message.toLowerCase()
-      
+
       // 步骤类型映射
       const stepPatterns = [
         {
@@ -705,7 +705,7 @@ export default {
           extractContent: () => '研究任务已完成'
         }
       ]
-      
+
       // 匹配步骤模式
       for (const pattern of stepPatterns) {
         if (pattern.pattern.test(msg)) {
@@ -716,7 +716,7 @@ export default {
           }
         }
       }
-      
+
       // 如果没有匹配到特定模式，返回通用步骤
       return {
         type: 'info',
@@ -875,7 +875,7 @@ export default {
               // 处理研究进度信息
               if (progressData && progressData.type === 'progress') {
                 const progressMessage = progressData.output || progressData.content || '研究进行中...'
-                
+
                 // 解析进度消息并更新思考步骤
                 this.updateThinkingSteps(loadingIndex, progressMessage, progressData)
 
@@ -1445,6 +1445,22 @@ export default {
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       return `${weekday} ${hours}:${minutes}`
+    },
+    /**
+     * 设置输入框内容（供父组件调用）
+     * @param {string} message - 要填入输入框的内容
+     */
+    setInputMessage(message) {
+      if (message) {
+        this.inputMessage = message
+        // 聚焦到输入框
+        this.$nextTick(() => {
+          const inputEl = this.$el.querySelector('.message-input')
+          if (inputEl) {
+            inputEl.focus()
+          }
+        })
+      }
     },
     /**
      * 加载聊天历史记录

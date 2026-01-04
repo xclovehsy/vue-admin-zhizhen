@@ -16,7 +16,7 @@
     </div>
 
     <!-- 每日AI简报 -->
-    <DailyReport />
+    <DailyReport @highlight-click="handleHighlightClick" />
 
     <!-- 核心数据指标卡 -->
     <DataCards />
@@ -31,7 +31,7 @@
     <div class="agent-section">
       <el-row :gutter="20">
         <el-col :span="24">
-          <agent-module />
+          <agent-module ref="agentModule" />
         </el-col>
       </el-row>
     </div>
@@ -59,6 +59,79 @@ export default {
     ...mapGetters([
       'name'
     ])
+  },
+  methods: {
+    // 处理每日简报项点击事件
+    handleHighlightClick(highlightData) {
+      if (this.$refs.agentModule && highlightData) {
+        const prompt = this.generateHighlightPrompt(highlightData)
+        this.$refs.agentModule.setInputMessage(prompt)
+      }
+    },
+    // 根据每日简报信息生成合适的prompt
+    generateHighlightPrompt(highlightData) {
+      const title = highlightData.title || ''
+      const category = highlightData.category || ''
+      const summary = highlightData.summary || ''
+      const recommendations = highlightData.recommendations || ''
+
+      const prompts = []
+
+      // 根据类别生成不同的prompt
+      if (category === '政策动态' || category === '政策新闻') {
+        prompts.push(
+          `请详细分析这条政策动态：${title}。包括政策背景、主要内容、影响范围和行业意义。`,
+          `关于政策动态"${title}"，请解读其政策内容和市场影响，并提供相关建议。`,
+          `请分析政策动态"${title}"的政策背景、关键要点和行业影响。`
+        )
+      } else if (category === '行业动态' || category === '行业新闻') {
+        prompts.push(
+          `请详细分析这条行业动态：${title}。包括行业趋势、市场变化和技术发展。`,
+          `关于行业动态"${title}"，请解读其行业意义和发展趋势，并提供相关建议。`,
+          `请分析行业动态"${title}"的市场影响、技术趋势和行业前景。`
+        )
+      } else if (category === '竞品动态' || category === '竞品信息') {
+        prompts.push(
+          `请详细分析这条竞品动态：${title}。包括竞品公司活动、产品更新和市场策略。`,
+          `关于竞品动态"${title}"，请解读其业务发展和技术进展，并提供相关建议。`,
+          `请分析竞品动态"${title}"的市场影响、技术突破和竞争态势。`
+        )
+      } else if (category === '学术论文' || category === '相关论文') {
+        prompts.push(
+          `请详细分析这篇学术论文：${title}。包括研究内容、技术突破和应用前景。`,
+          `关于学术论文"${title}"，请解读其研究内容和行业意义，并提供相关建议。`,
+          `请分析学术论文"${title}"的研究进展、关键技术和发展趋势。`
+        )
+      } else if (category === '招标机会') {
+        prompts.push(
+          `请详细分析这个招标机会：${title}。包括招标需求、市场机会和参与建议。`,
+          `关于招标机会"${title}"，请解读其招标内容和市场价值，并提供相关建议。`,
+          `请分析招标机会"${title}"的招标需求、市场前景和参与策略。`
+        )
+      } else if (category === '新闻消息') {
+        prompts.push(
+          `请详细分析这条新闻消息：${title}。包括新闻背景、关键信息和行业影响。`,
+          `关于新闻消息"${title}"，请解读其新闻内容和市场影响，并提供相关建议。`,
+          `请分析新闻消息"${title}"的新闻背景、关键要点和行业意义。`
+        )
+      } else {
+        // 通用prompt
+        prompts.push(
+          `请详细分析这条信息：${title}。包括背景、关键内容和行业影响。`,
+          `关于"${title}"，请解读其内容和意义，并提供相关建议。`,
+          `请分析"${title}"的关键要点、市场影响和发展趋势。`
+        )
+      }
+
+      // 如果有摘要，可以添加到prompt中
+      if (summary) {
+        const selectedPrompt = prompts[Math.floor(Math.random() * prompts.length)] || prompts[0]
+        return `${selectedPrompt}\n\n相关信息：${summary}`
+      }
+
+      // 随机选择一个prompt
+      return prompts[Math.floor(Math.random() * prompts.length)] || prompts[0]
+    }
   }
 }
 </script>

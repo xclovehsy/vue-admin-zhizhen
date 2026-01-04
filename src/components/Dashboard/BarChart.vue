@@ -100,6 +100,17 @@ export default {
         }))
       }
       this.chart.setOption(option)
+
+      // 添加点击事件监听
+      this.chart.off('click')
+      this.chart.on('click', (params) => {
+        this.$emit('chart-click', {
+          ...params,
+          title: this.title,
+          chartType: 'bar'
+        })
+      })
+
       window.addEventListener('resize', this.handleResize)
     },
     handleResize() {

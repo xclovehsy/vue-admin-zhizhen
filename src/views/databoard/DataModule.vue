@@ -15,51 +15,57 @@
             <div class="chart-container">
               <div class="chart-item">
                 <line-chart
-                  :chart-data="policyNewsData" 
+                  :chart-data="policyNewsData"
                   title="政策新闻"
+                  @chart-click="handleChartClick"
                 />
               </div>
               <div class="chart-item">
-                <line-chart 
-                  :chart-data="industryNewsData" 
+                <line-chart
+                  :chart-data="industryNewsData"
                   title="行业新闻"
+                  @chart-click="handleChartClick"
                 />
               </div>
             </div>
           </el-card>
-    
+
           <!-- 竞品活动卡片 -->
           <el-card class="chart-card" shadow="hover">
             <div class="chart-container">
               <div class="chart-item">
-                <bar-chart 
-                  :chart-data="bidListData" 
+                <bar-chart
+                  :chart-data="bidListData"
                   title="近六个月招标消息"
+                  @chart-click="handleChartClick"
                 />
               </div>
               <div class="chart-item">
                 <PieChart2
-                  :chart-data="competitorTypeData" 
+                  :chart-data="competitorTypeData"
                   title="竞品公司动态"
+                  @chart-click="handleChartClick"
                 />
               </div>
-              
+
             </div>
           </el-card>
-    
+
           <!-- 科技论文卡片 -->
           <el-card class="chart-card" shadow="never">
             <div class="chart-container">
               <div class="chart-item">
-                <pie-chart 
-                  :chart-data="researchTopicData" 
+                <pie-chart
+                  :chart-data="researchTopicData"
                   title="科技论文主题"
+                  @chart-click="handleChartClick"
                 />
               </div>
               <div class="chart-item">
                 <LineChart2
-                  :chart-data="researchTopicNumData" 
+                  :chart-data="researchTopicNumData"
                   title="各研究主题数量变化"
+                  @chart-click="handleChartClick"
                 />
               </div>
             </div>
@@ -230,7 +236,7 @@ export default {
         this.useMockData()
         return
       }
-      
+
       // 政策新闻数据 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       this.policyNewsData = {
         xAxisData: statistics.policyNews?.xAxisData || this.generateDefaultXAxis(),
@@ -242,7 +248,7 @@ export default {
           }
         ]
       }
-      
+
       // 行业新闻数据 - 后端返回格式: { xAxisData: [...], seriesData: [{ name, data, color }] }
       // 注意：后端字段名是 industryNews，不是 industryNewsData
       this.industryNewsData = {
@@ -302,7 +308,7 @@ export default {
         seriesData: hasValidSeries ? researchTopicNumFromApi.seriesData : buildDefaultResearchTopicSeries()
       }
     },
-    
+
     // 使用模拟数据
     useMockData() {
       // 政策新闻数据
@@ -361,7 +367,7 @@ export default {
         seriesData: buildDefaultResearchTopicSeries()
       }
     },
-    
+
     // 生成默认时间轴（12个月）
     generateDefaultXAxis() {
       return ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -381,6 +387,28 @@ export default {
     handleTimeRangeChange() {
       this.loadChartData()
     },
+    // 处理图表点击事件
+    handleChartClick(params) {
+      // 触发图表点击事件，传递图表信息给父组件
+      this.$emit('chart-click', {
+        ...params,
+        chartTitle: params.title || '',
+        chartType: params.chartType || '',
+        chartData: this.getChartDataByTitle(params.title)
+      })
+    },
+    // 根据图表标题获取对应的数据
+    getChartDataByTitle(title) {
+      const dataMap = {
+        '政策新闻': this.policyNewsData,
+        '行业新闻': this.industryNewsData,
+        '近六个月招标消息': this.bidListData,
+        '竞品公司动态': this.competitorTypeData,
+        '科技论文主题': this.researchTopicData,
+        '各研究主题数量变化': this.researchTopicNumData
+      }
+      return dataMap[title] || null
+    }
   }
 }
 </script>
@@ -396,7 +424,7 @@ export default {
     flex-direction: column;
     padding: 0 !important;
   }
-  
+
   .module-title {
     font-size: 16px;
     font-weight: bold;
@@ -418,7 +446,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px; 
+  padding: 8px;
   height: auto;
   overflow-y: auto;
 }
@@ -429,7 +457,7 @@ export default {
   flex-direction: column;
   min-height: 0;
   margin-bottom: 0;
-  
+
   ::v-deep .el-card__body {
     flex: 1;
     display: flex;
@@ -444,7 +472,7 @@ export default {
     align-items: center;
 
   }
-  
+
   .card-title {
     font-size: 16px;
     font-weight: bold;
@@ -464,8 +492,8 @@ export default {
 
 .chart-item {
   background: #f8f9fa;
-  border-radius: 8px; 
-  padding: 10px; 
+  border-radius: 8px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -506,13 +534,13 @@ export default {
     padding: 5px;
     gap: 12px;
   }
-  
+
   .chart-card {
     ::v-deep .el-card__body {
       padding: 5px !important;
     }
   }
-  
+
   .chart-container {
     gap: 5px;
   }

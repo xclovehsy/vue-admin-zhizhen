@@ -343,6 +343,21 @@ export default {
       }
 
       this.chartInstance.setOption(option, true) // 第二个参数 true 表示不合并，完全替换
+
+      // 添加点击事件监听
+      this.chartInstance.off('click') // 先移除之前的监听，避免重复绑定
+      this.chartInstance.on('click', (params) => {
+        // 触发区域点击事件，传递区域信息给父组件
+        if (params && params.name) {
+          this.$emit('region-click', {
+            name: params.name,
+            dataType: this.dataType,
+            timeRange: this.timeRange,
+            mapType: this.mapType,
+            chartType: 'regional-heat'
+          })
+        }
+      })
     },
 
     // 处理窗口大小变化
