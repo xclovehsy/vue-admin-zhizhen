@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function getAgentInitialReport() {
   return request({
-    url: '/agent/initial-report',
+    url: '/api/agent/initial-report',
     method: 'get',
     timeout: 60000
   })

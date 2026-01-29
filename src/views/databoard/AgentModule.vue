@@ -27,7 +27,7 @@
 
       <!-- 消息区域 -->
       <div class="chat-container">
-        <div class="message-list" ref="messageList">
+        <div class="message-list" ref="messageList" @scroll="handleMessageScroll">
           <div class="messages">
             <!-- AI 欢迎区域 -->
             <div v-if="showInitialReport" class="welcome-section">
@@ -63,7 +63,12 @@
             </div>
 
             <!-- 消息列表 -->
-            <div v-for="(message, index) in messages" :key="index" class="message-wrapper">
+            <div
+              v-for="(message, index) in messages"
+              :key="index"
+              class="message-wrapper"
+              :data-message-index="index"
+            >
               <!-- 时间戳 -->
               <div v-if="message.showTime" class="message-timestamp">
                 {{ message.time }}
@@ -77,7 +82,10 @@
                   </el-avatar>
                 </div>
                 <div class="message-content">
-                  <div class="message-bubble ai-bubble" :class="{ loading: message.loading, error: message.error }">
+                  <div
+                    class="message-bubble ai-bubble"
+                    :class="{ loading: message.loading, error: message.error }"
+                  >
                     <!-- 思考过程 + 详细日志统一卡片 -->
                     <div
                       v-if="(message.thinkingSteps && message.thinkingSteps.length > 0) || (message.detailLogs && message.detailLogs.length > 0)"
@@ -152,7 +160,7 @@
                       <span /><span /><span />
                     </span>
                     <!-- 内容展示 - 显示在思考过程下方 -->
-                    <div v-if="message.content" class="markdown-content" v-html="renderMarkdown(message.content)" />
+                    <div v-if="message.content" class="markdown-content" v-html="renderMarkdown(message.content, message.evidence)" />
                     <div v-if="message.content && hasSources(message.sources)" class="message-sources">
                       <div v-if="message.sources.database && message.sources.database.length" class="sources-group">
                         <div class="sources-group-title">数据库</div>
@@ -284,6 +292,9 @@
               <!-- 用户消息 -->
               <div v-else-if="message.type === 'user'" class="message-item user-message">
                 <div class="message-content">
+                  <div v-if="message.quoteText" class="message-quote">
+                    {{ message.quoteText }}
+                  </div>
                   <div class="message-bubble user-bubble">
                     {{ message.content }}
                   </div>
@@ -295,6 +306,18 @@
             </div>
           </div>
         </div>
+        <button
+          v-show="quotePopover.visible"
+          ref="quotePopover"
+          type="button"
+          class="quote-popover"
+          :style="quotePopoverStyle"
+          @mousedown.prevent="handleQuotePopoverMouseDown"
+          @click.stop="handleQuoteFromSelection"
+        >
+          <i class="el-icon-back" />
+          <span>引用</span>
+        </button>
 
         <!-- 快捷功能区域 -->
         <div class="feature-shortcuts">
@@ -311,6 +334,13 @@
 
         <!-- 输入区域 -->
         <div class="input-area">
+          <div v-if="quoteDraft" class="quote-preview">
+            <i class="el-icon-back quote-icon" />
+            <div class="quote-text" :title="quoteDraft.text">
+              <span class="quote-content">{{ quoteDraft.preview }}</span>
+            </div>
+            <i class="el-icon-close quote-close" @click="clearQuoteDraft" />
+          </div>
           <div class="input-wrapper">
             <input
               v-model="inputMessage"
@@ -319,6 +349,7 @@
               placeholder="发消息..."
               :disabled="sending"
               @keydown.enter="handleSendMessage"
+              ref="messageInput"
             >
             <el-button
               class="send-button"
@@ -369,6 +400,21 @@ export default {
         messages: [] // 进度消息列表
       },
       currentEvidence: [], // 当前回答的证据列表（已通过思考过程展示）
+      quoteDraft: null,
+      selectionContext: {
+        text: '',
+        title: '',
+        role: '',
+        messageIndex: null,
+        scope: ''
+      },
+      quotePopover: {
+        visible: false,
+        top: 0,
+        left: 0,
+        rect: null
+      },
+      isQuotePopoverActive: false,
       suggestions: [
         { id: 1, text: '近期有哪些新出台的高端科学仪器国产化相关政策？', icon: 'el-icon-document-checked', gradient: 'gradient-1' },
         { id: 2, text: '过去一个月，原子力显微镜的整体态势：政策支持、头部公司动态、技术突破？', icon: 'el-icon-data-analysis', gradient: 'gradient-2' },
@@ -388,9 +434,23 @@ export default {
       ]
     }
   },
+  computed: {
+    quotePopoverStyle() {
+      if (!this.quotePopover.visible) {
+        return {}
+      }
+      return {
+        top: `${this.quotePopover.top}px`,
+        left: `${this.quotePopover.left}px`
+      }
+    }
+  },
   mounted() {
     // 初始化智能体
     this.scrollToBottom()
+    if (typeof document !== 'undefined') {
+      document.addEventListener('selectionchange', this.handleSelectionChange)
+    }
 
     // 配置 marked 选项（marked 4.x 兼容）
     if (typeof marked.setOptions === 'function') {
@@ -405,6 +465,11 @@ export default {
     // 如果有sessionId，加载历史记录
     if (this.sessionId) {
       this.loadChatHistory()
+    }
+  },
+  beforeDestroy() {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('selectionchange', this.handleSelectionChange)
     }
   },
   methods: {
@@ -437,7 +502,7 @@ export default {
      * @param {string} markdown - Markdown文本
      * @returns {string} HTML字符串
      */
-    renderMarkdown(markdown) {
+    renderMarkdown(markdown, evidence = []) {
       if (!markdown) return ''
       try {
         // marked 4.x 兼容写法
@@ -447,17 +512,373 @@ export default {
           headerIds: false, // 不生成header ID
           mangle: false // 不混淆邮箱地址
         }
+        const content = this.decorateMarkdownWithCitations(markdown, evidence)
 
         // 优先使用 parse 方法，否则直接调用
         if (typeof marked.parse === 'function') {
-          return marked.parse(markdown, options)
+          return marked.parse(content, options)
         } else {
-          return marked(markdown, options)
+          return marked(content, options)
         }
       } catch (error) {
         console.error('Markdown渲染错误:', error)
         return markdown // 如果渲染失败，返回原始文本
       }
+    },
+    decorateMarkdownWithCitations(markdown, evidence) {
+      const text = (markdown || '').toString()
+      const citations = this.buildCitationList(evidence)
+      if (!citations.length) {
+        return text
+      }
+      const hasMarkers = /\[\[(\d+)\]\]/.test(text)
+      const withMarkers = hasMarkers ? text : `${text}\n\n${this.buildCitationMarkers(citations)}`
+      return withMarkers.replace(/\[\[(\d+)\]\]/g, (match, num) => {
+        const index = Number(num)
+        const citation = citations[index - 1]
+        if (!citation) {
+          return match
+        }
+        const label = `[${index}]`
+        const titleText = this.formatCitationTitle(citation) || `引用 ${index}`
+        const title = this.escapeAttribute(titleText)
+        if (citation.url) {
+          const url = this.escapeAttribute(citation.url)
+          return `<a class="citation-link" href="${url}" title="${title}" target="_blank" rel="noopener noreferrer">${label}</a>`
+        }
+        return `<span class="citation-link citation-disabled" title="${title}">${label}</span>`
+      })
+    },
+    buildCitationList(evidence) {
+      if (!Array.isArray(evidence)) {
+        return []
+      }
+      return evidence.map((item, index) => {
+        const safe = item && typeof item === 'object' ? item : {}
+        const url = (safe.url || '').toString().trim()
+        const title = (safe.title || safe.source || url || `来源${index + 1}`)
+          .toString()
+          .trim()
+        const source = (safe.source || '').toString().trim()
+        const publishedAt = safe.published_at || safe.publishedAt || safe.published || safe.date || ''
+        return {
+          index: index + 1,
+          title,
+          url,
+          source,
+          publishedAt
+        }
+      })
+    },
+    buildCitationMarkers(citations) {
+      return citations.map((citation) => `[[${citation.index}]]`).join(' ')
+    },
+    formatCitationTitle(citation) {
+      if (!citation) {
+        return ''
+      }
+      const parts = []
+      if (citation.title) parts.push(citation.title)
+      const dateText = this.formatSourceDate(citation.publishedAt)
+      if (dateText) parts.push(dateText)
+      if (citation.source) parts.push(citation.source)
+      return parts.join(' · ')
+    },
+    escapeAttribute(value) {
+      const text = (value || '').toString()
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/'/g, '&#39;')
+    },
+    handleSelectionChange() {
+      if (typeof window === 'undefined' || typeof window.getSelection !== 'function') {
+        return
+      }
+      const selection = window.getSelection()
+      if (!selection || selection.isCollapsed) {
+        if (this.isQuotePopoverActive) {
+          return
+        }
+        this.resetSelectionContext()
+        this.hideQuotePopover()
+        return
+      }
+      const text = selection.toString().trim()
+      if (!text) {
+        this.resetSelectionContext()
+        this.hideQuotePopover()
+        return
+      }
+      const context = this.resolveSelectionContext(selection)
+      if (!context) {
+        this.resetSelectionContext()
+        this.hideQuotePopover()
+        return
+      }
+      this.selectionContext = {
+        ...context,
+        text
+      }
+      const rect = this.getSelectionRect(selection)
+      if (!rect) {
+        this.hideQuotePopover()
+        return
+      }
+      this.showQuotePopover(rect)
+    },
+    handleMessageScroll() {
+      this.resetSelectionContext()
+      this.hideQuotePopover()
+    },
+    resolveSelectionContext(selection) {
+      const messageWrapper = this.findMessageWrapperFromSelection(selection)
+      if (messageWrapper) {
+        const indexAttr = messageWrapper.getAttribute('data-message-index')
+        const index = Number(indexAttr)
+        if (!Number.isNaN(index)) {
+          const message = this.messages[index]
+          if (message) {
+            return {
+              messageIndex: index,
+              title: this.getQuoteTitle(message),
+              role: message.type,
+              scope: 'message'
+            }
+          }
+        }
+      }
+      const reportWrapper = this.findReportWrapperFromSelection(selection)
+      if (reportWrapper) {
+        const title = reportWrapper.getAttribute('data-report-title') || '初始报告'
+        return {
+          messageIndex: null,
+          title,
+          role: 'report',
+          scope: 'report'
+        }
+      }
+      return null
+    },
+    findMessageWrapperFromSelection(selection) {
+      const anchorNode = selection.anchorNode
+      const focusNode = selection.focusNode
+      const anchorWrapper = this.findClosestMessageWrapper(anchorNode)
+      const focusWrapper = this.findClosestMessageWrapper(focusNode)
+      if (!anchorWrapper || anchorWrapper !== focusWrapper) {
+        return null
+      }
+      return anchorWrapper
+    },
+    findClosestMessageWrapper(node) {
+      if (!node) return null
+      const element = node.nodeType === 1 ? node : node.parentElement
+      if (!element || typeof element.closest !== 'function') {
+        return null
+      }
+      return element.closest('.message-wrapper')
+    },
+    findReportWrapperFromSelection(selection) {
+      const anchorNode = selection.anchorNode
+      const focusNode = selection.focusNode
+      const anchorWrapper = this.findClosestReportWrapper(anchorNode)
+      const focusWrapper = this.findClosestReportWrapper(focusNode)
+      if (!anchorWrapper || anchorWrapper !== focusWrapper) {
+        return null
+      }
+      return anchorWrapper
+    },
+    findClosestReportWrapper(node) {
+      if (!node) return null
+      const element = node.nodeType === 1 ? node : node.parentElement
+      if (!element || typeof element.closest !== 'function') {
+        return null
+      }
+      return element.closest('.highlights-container[data-quote-scope="report"]')
+    },
+    getSelectionRect(selection) {
+      if (!selection || selection.rangeCount === 0) {
+        return null
+      }
+      const range = selection.getRangeAt(0)
+      const rects = range.getClientRects()
+      if (rects && rects.length) {
+        return rects[rects.length - 1]
+      }
+      const rect = range.getBoundingClientRect()
+      if (!rect || (rect.width === 0 && rect.height === 0)) {
+        return null
+      }
+      return rect
+    },
+    showQuotePopover(rect) {
+      this.quotePopover.visible = true
+      this.quotePopover.rect = rect
+      this.$nextTick(() => {
+        this.positionQuotePopover()
+      })
+    },
+    positionQuotePopover() {
+      const rect = this.quotePopover.rect
+      const popover = this.$refs.quotePopover
+      if (!rect || !popover) {
+        return
+      }
+      const width = popover.offsetWidth || 72
+      const height = popover.offsetHeight || 28
+      const padding = 8
+      let top = rect.top - height - padding
+      if (top < padding) {
+        top = rect.bottom + padding
+      }
+      let left = rect.right - width
+      if (left < padding) {
+        left = padding
+      }
+      const maxLeft = window.innerWidth - width - padding
+      if (left > maxLeft) {
+        left = maxLeft
+      }
+      this.quotePopover.top = Math.round(top)
+      this.quotePopover.left = Math.round(left)
+    },
+    hideQuotePopover() {
+      this.quotePopover.visible = false
+      this.quotePopover.rect = null
+      this.isQuotePopoverActive = false
+    },
+    resetSelectionContext() {
+      this.selectionContext = {
+        text: '',
+        title: '',
+        role: '',
+        messageIndex: null,
+        scope: ''
+      }
+    },
+    handleQuoteFromSelection() {
+      if (!this.selectionContext || !this.selectionContext.text) {
+        return
+      }
+      this.applyQuoteDraft(
+        this.selectionContext.text,
+        this.selectionContext.title,
+        this.selectionContext.role
+      )
+      this.isQuotePopoverActive = false
+      this.hideQuotePopover()
+    },
+    handleQuotePopoverMouseDown() {
+      this.isQuotePopoverActive = true
+    },
+    applyQuoteDraft(text, title, role) {
+      const trimmedText = this.trimQuoteText(text)
+      if (!trimmedText) return
+      this.quoteDraft = {
+        text: trimmedText,
+        preview: this.truncateText(trimmedText, 120),
+        title: title || '引用内容',
+        role
+      }
+      this.resetSelectionContext()
+      this.hideQuotePopover()
+      if (typeof window !== 'undefined' && typeof window.getSelection === 'function') {
+        const selection = window.getSelection()
+        if (selection && selection.removeAllRanges) {
+          selection.removeAllRanges()
+        }
+      }
+      this.$nextTick(() => {
+        const input = this.$refs.messageInput
+        if (input && input.focus) {
+          input.focus()
+        }
+      })
+    },
+    clearQuoteDraft() {
+      this.quoteDraft = null
+      this.resetSelectionContext()
+      this.hideQuotePopover()
+    },
+    buildQuotedUserMessage(userContent, quoteOption) {
+      if (!quoteOption || !quoteOption.text) {
+        return userContent
+      }
+      const quoteText = this.trimQuoteText(quoteOption.text)
+      if (!quoteText) {
+        return userContent
+      }
+      return `${quoteText}\n\n${userContent}`
+    },
+    buildQuoteOption() {
+      if (!this.quoteDraft) {
+        return null
+      }
+      return {
+        text: this.quoteDraft.text,
+        title: this.quoteDraft.title,
+        role: this.quoteDraft.role,
+        source: this.quoteDraft.source || ''
+      }
+    },
+    getQuoteTitle(message) {
+      if (!message) {
+        return '引用内容'
+      }
+      return message.type === 'ai' ? '致真智能体' : '你'
+    },
+    extractMessageText(message) {
+      if (!message) return ''
+      const raw = (message.content || '').toString().trim()
+      if (!raw) return ''
+      if (message.type === 'ai') {
+        return this.stripMarkdown(raw)
+      }
+      return raw
+    },
+    stripMarkdown(markdown) {
+      if (!markdown) return ''
+      const options = {
+        breaks: true,
+        gfm: true,
+        headerIds: false,
+        mangle: false
+      }
+      let html = ''
+      try {
+        html = typeof marked.parse === 'function'
+          ? marked.parse(markdown, options)
+          : marked(markdown, options)
+      } catch (error) {
+        return markdown.toString()
+      }
+      if (typeof document === 'undefined') {
+        return markdown.toString()
+      }
+      const container = document.createElement('div')
+      container.innerHTML = html
+      return (container.textContent || container.innerText || '').trim()
+    },
+    trimQuoteText(text) {
+      const clean = (text || '').toString()
+        .replace(/\r\n/g, '\n')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
+      const limit = 800
+      if (clean.length > limit) {
+        return `${clean.slice(0, limit)}...`
+      }
+      return clean
+    },
+    truncateText(text, limit = 120) {
+      const clean = (text || '').toString().replace(/\s+/g, ' ').trim()
+      if (clean.length > limit) {
+        return `${clean.slice(0, limit)}...`
+      }
+      return clean
     },
     hasSources(sources) {
       if (!sources) return false
@@ -511,6 +932,38 @@ export default {
       if (!value) return ''
       const text = value.toString().trim()
       return text.length >= 10 ? text.slice(0, 10) : text
+    },
+    buildEvidenceContext(evidence) {
+      const list = Array.isArray(evidence) ? evidence : []
+      if (!list.length) return ''
+      const maxItems = 6
+      const limited = list.slice(0, maxItems)
+      const lines = limited.map((item, index) => {
+        const safe = item && typeof item === 'object' ? item : {}
+        const title = (safe.title || safe.source || safe.url || `来源${index + 1}`).toString().trim()
+        const url = (safe.url || '').toString().trim()
+        const source = (safe.source || '').toString().trim()
+        const dateText = this.formatSourceDate(safe.published_at || safe.publishedAt || safe.published || safe.date || '')
+        const metaParts = []
+        if (source) metaParts.push(source)
+        if (dateText) metaParts.push(dateText)
+        const meta = metaParts.join(' · ')
+        const suffixParts = []
+        if (meta) suffixParts.push(meta)
+        if (url) suffixParts.push(url)
+        const suffix = suffixParts.join(' | ')
+        return `[[${index + 1}]] ${title}${suffix ? ` (${suffix})` : ''}`
+      })
+      if (list.length > limited.length) {
+        lines.push(`... 共${list.length}条`)
+      }
+      return lines.join('\n')
+    },
+    buildAssistantHistoryContent(content, evidence) {
+      const text = (content || '').toString()
+      const evidenceText = this.buildEvidenceContext(evidence)
+      if (!evidenceText) return text
+      return `${text}\n\n【引用来源】\n${evidenceText}`
     },
     /**
      * 获取当前应展示的思考步骤（只展示已到达的步骤）
@@ -801,6 +1254,8 @@ export default {
       if (!userContent || this.sending) {
         return
       }
+      const quoteOption = this.buildQuoteOption()
+      const quotedUserMessage = this.buildQuotedUserMessage(userContent, quoteOption)
 
       // 如果已有流式传输在进行，先取消
       if (this.streamController) {
@@ -814,9 +1269,11 @@ export default {
       }
 
       // 添加用户消息
+      const quoteText = quoteOption ? this.trimQuoteText(quoteOption.text) : ''
       const userMessage = {
         type: 'user',
         content: userContent,
+        quoteText: quoteText || '',
         time: this.getCurrentTime(),
         showTime: true
       }
@@ -825,11 +1282,12 @@ export default {
       // 添加到对话历史
       this.conversationHistory.push({
         role: 'user',
-        content: userContent
+        content: quotedUserMessage
       })
 
       // 清空输入框
       this.inputMessage = ''
+      this.clearQuoteDraft()
       this.sending = true
 
       // 滚动到底部
@@ -867,7 +1325,8 @@ export default {
             task_type: taskType, // 传递任务类型：'research' 强制使用 GPT-Researcher, 'chat' 使用 Qwen, 'auto' 自动路由
             options: {
               temperature: 0.8,
-              top_p: 0.8
+              top_p: 0.8,
+              ...(quoteOption ? { quote: quoteOption } : {})
             }
           },
           {
@@ -1007,17 +1466,18 @@ export default {
                 this.sessionId = data.session_id
               }
 
+              // 同步右侧证据面板
+              const finalMsg = this.messages[loadingIndex] || {}
+              this.currentEvidence = finalMsg.evidence || []
+              const historyContent = this.buildAssistantHistoryContent(aiContent, finalMsg.evidence || [])
+
               // 添加到对话历史
               if (aiContent) {
                 this.conversationHistory.push({
                   role: 'assistant',
-                  content: aiContent
+                  content: historyContent
                 })
               }
-
-              // 同步右侧证据面板
-              const finalMsg = this.messages[loadingIndex] || {}
-              this.currentEvidence = finalMsg.evidence || []
 
               // 限制历史记录长度，避免超出token限制
               if (this.conversationHistory.length > 20) {
@@ -1098,11 +1558,15 @@ export default {
       if (this.showSuggestions) {
         this.showSuggestions = false
       }
+      const quoteOption = this.buildQuoteOption()
+      const quotedUserMessage = this.buildQuotedUserMessage(suggestion.text, quoteOption)
 
       // 添加用户消息
+      const quoteText = quoteOption ? this.trimQuoteText(quoteOption.text) : ''
       const userMessage = {
         type: 'user',
         content: suggestion.text,
+        quoteText: quoteText || '',
         time: this.getCurrentTime(),
         showTime: true
       }
@@ -1111,8 +1575,9 @@ export default {
       // 添加到对话历史
       this.conversationHistory.push({
         role: 'user',
-        content: suggestion.text
+        content: quotedUserMessage
       })
+      this.clearQuoteDraft()
 
       // 滚动到底部
       this.$nextTick(() => {
@@ -1149,7 +1614,8 @@ export default {
             conversation_history: this.conversationHistory.slice(0, -1),
             options: {
               temperature: 0.8,
-              top_p: 0.8
+              top_p: 0.8,
+              ...(quoteOption ? { quote: quoteOption } : {})
             }
           },
           {
@@ -1281,10 +1747,12 @@ export default {
                 this.sessionId = data.session_id
               }
 
+              const finalMsg = this.messages[loadingIndex] || {}
+              const historyContent = this.buildAssistantHistoryContent(aiContent, finalMsg.evidence || [])
               if (aiContent) {
                 this.conversationHistory.push({
                   role: 'assistant',
-                  content: aiContent
+                  content: historyContent
                 })
               }
 
@@ -1914,6 +2382,22 @@ export default {
             display: flex;
             flex-direction: column;
 
+            .message-quote {
+              background: #F5F7FA;
+              border: 1px solid #E4E7ED;
+              border-radius: 10px;
+              padding: 8px 10px;
+              font-size: 12px;
+              color: #606266;
+              margin-bottom: 6px;
+              max-width: 100%;
+              word-break: break-word;
+              display: -webkit-box;
+              -webkit-line-clamp: 3;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+            }
+
             .message-bubble {
               padding: 12px 16px;
                 border-radius: 12px;
@@ -2042,6 +2526,34 @@ export default {
                         color: #66B1FF;
                         text-decoration: underline;
                       }
+                    }
+
+                    .citation-link {
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      height: 18px;
+                      padding: 0 6px;
+                      margin: 0 2px;
+                      border-radius: 10px;
+                      font-size: 11px;
+                      line-height: 18px;
+                      color: #3A7AFE;
+                      background: #EAF2FF;
+                      border: 1px solid #D6E4FF;
+                      text-decoration: none;
+                      vertical-align: text-top;
+                    }
+
+                    .citation-link:hover {
+                      background: #DCEBFF;
+                      color: #1F5FFF;
+                      text-decoration: none;
+                    }
+
+                    .citation-disabled {
+                      cursor: default;
+                      opacity: 0.7;
                     }
 
                     // 表格样式
@@ -2331,6 +2843,33 @@ export default {
       }
     }
 
+    .quote-popover {
+      position: fixed;
+      z-index: 1200;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      border: 1px solid #E4E7ED;
+      background: #FFFFFF;
+      color: #606266;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      user-select: none;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 12px;
+      }
+
+      &:hover {
+        color: #409EFF;
+        border-color: #409EFF;
+      }
+    }
+
     .feature-shortcuts {
       flex-shrink: 0;
       padding: 12px 16px;
@@ -2381,6 +2920,50 @@ export default {
       border-top: 1px solid #EBEEF5;
       width: 100%;
       box-sizing: border-box;
+
+      .quote-preview {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        margin-bottom: 8px;
+        background: #F5F7FA;
+        border: 1px solid #E4E7ED;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #606266;
+
+        .quote-icon {
+          font-size: 14px;
+          color: #909399;
+        }
+
+        .quote-text {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
+        .quote-content {
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .quote-close {
+          font-size: 14px;
+          color: #909399;
+          cursor: pointer;
+
+          &:hover {
+            color: #606266;
+          }
+        }
+      }
 
       .input-wrapper {
         display: flex;

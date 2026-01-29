@@ -126,7 +126,6 @@ export default {
         try {
           apiResponse = await getMapData({
             level: 'province',
-            date: this.currentDate,
             type: this.dataType,
             timeRange: this.timeRange
           })
@@ -176,7 +175,6 @@ export default {
         try {
           apiResponse = await getMapData({
             level: 'world',
-            date: this.currentDate,
             type: this.dataType,
             timeRange: this.timeRange
           })
@@ -488,13 +486,62 @@ export default {
       }
     },
 
+    // 将后端返回的省份全称映射为 ECharts 中国地图使用的简称
+    normalizeProvinceName(name) {
+      if (!name) return ''
+      const trimmedName = name.trim()
+      const aliasMap = {
+        '北京市': '北京',
+        '天津市': '天津',
+        '上海市': '上海',
+        '重庆市': '重庆',
+        '河北省': '河北',
+        '山西省': '山西',
+        '辽宁省': '辽宁',
+        '吉林省': '吉林',
+        '黑龙江省': '黑龙江',
+        '江苏省': '江苏',
+        '浙江省': '浙江',
+        '安徽省': '安徽',
+        '福建省': '福建',
+        '江西省': '江西',
+        '山东省': '山东',
+        '河南省': '河南',
+        '湖北省': '湖北',
+        '湖南省': '湖南',
+        '广东省': '广东',
+        '广西壮族自治区': '广西',
+        '海南省': '海南',
+        '四川省': '四川',
+        '贵州省': '贵州',
+        '云南省': '云南',
+        '西藏自治区': '西藏',
+        '陕西省': '陕西',
+        '甘肃省': '甘肃',
+        '青海省': '青海',
+        '宁夏回族自治区': '宁夏',
+        '新疆维吾尔自治区': '新疆',
+        '内蒙古自治区': '内蒙古',
+        '台湾省': '台湾',
+        '香港特别行政区': '香港',
+        '澳门特别行政区': '澳门'
+      }
+
+      if (aliasMap[trimmedName]) {
+        return aliasMap[trimmedName]
+      }
+
+      // 兜底处理常见的后缀，避免名字与地图 GeoJSON 不匹配
+      return trimmedName.replace(/(省|市)$/, '')
+    },
+
     // 准备地图数据
     prepareMapData() {
       // 如果API返回了统计数据，使用API数据
       if (this.statistics && this.statistics.length > 0) {
         return this.statistics.map(item => ({
-          name: item.name,
-          value: item.value || 0,
+          name: this.mapType === 'china' ? this.normalizeProvinceName(item.name) : (item.name || ''),
+          value: Number(item.value) || 0,
           leads: item.leads,
           tenders: item.tenders,
           policies: item.policies,
@@ -541,7 +588,6 @@ export default {
           // 调用API获取区域详情
           const response = await getRegionDetail({
             region: regionCode,
-            date: this.currentDate,
             type: this.dataType,
             timeRange: this.timeRange
           })
@@ -549,14 +595,16 @@ export default {
           const data = response.data || response
 
           // 显示区域详情信息
-          const stats = data.statistics || {}
+          // statistics 是一个数组，取第一个元素
+          const statsArray = data.statistics || []
+          const stats = statsArray[0] || {}
           const labels = this.typeLabels
 
           let message = `${params.name}<br/>`
 
           if (this.dataType === 'all') {
             // 显示全部：显示所有类别的详细数据
-            message += `总计: ${stats.total || 0}<br/>`
+            message += `总计: ${stats.value || 0}<br/>`
             message += `${labels.leads}: ${stats.leads || 0}<br/>`
             message += `${labels.tenders}: ${stats.tenders || 0}<br/>`
             message += `${labels.policies}: ${stats.policies || 0}<br/>`
@@ -790,4 +838,3 @@ export default {
   }
 }
 </style>
-

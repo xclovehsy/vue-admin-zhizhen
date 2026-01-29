@@ -3,12 +3,17 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
+const resolveApiBase = () => {
+  if (process.env.VUE_APP_API_BASE) return process.env.VUE_APP_API_BASE
+  if (typeof window !== 'undefined' && window.location.origin) return window.location.origin
+  return 'http://127.0.0.1:5001' // fallback for SSR/CLI tools
+}
+
+export const apiBase = resolveApiBase()
+
 // create an axios instance
 const service = axios.create({
-  // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
-  baseURL: 'http://127.0.0.1:5001/',  // 后端 Flask 应用端口（GPT-Researcher 在 8000）
-  //baseURL: 'http://116.62.34.152:7003/',  // 部署到服务器时用
-  // baseURL: 'http://10.193.50.148:8000/',
+  baseURL: apiBase, // url = base url + request url, 默认跟随当前页面协议/域名
 
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout

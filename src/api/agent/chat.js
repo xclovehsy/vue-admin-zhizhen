@@ -1,9 +1,9 @@
-import request from '@/utils/request'
+import request, { apiBase } from '@/utils/request'
 import axios from 'axios'
 
 // 获取baseURL（与request.js保持一致）
 const getBaseURL = () => {
-  const baseURL = request.defaults?.baseURL || 'http://127.0.0.1:5001/' // 后端 Flask 应用端口
+  const baseURL = request.defaults?.baseURL || apiBase || 'http://127.0.0.1:5001'
   return baseURL.endsWith('/') ? baseURL : `${baseURL}/`
 }
 
@@ -33,6 +33,7 @@ export function chatWithAgent(params) {
  * @param {string} params.session_id - 会话ID（可选）
  * @param {Array} params.temporary_prompts - 临时提示词（可选，系统提示词由后端从配置文件读取）
  * @param {Array} params.conversation_history - 对话历史（可选）
+ * @param {boolean} params.use_rag - 是否启用 RAG（默认 true）
  * @param {Object} params.options - 其他选项（可选）
  * @param {Function} onChunk - 接收数据块的回调函数
  * @param {Function} onDone - 完成回调函数
@@ -42,6 +43,7 @@ export function chatWithAgent(params) {
  */
 export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgress, onEvidence }) {
   const controller = new AbortController()
+  const normalizedUseRag = typeof params.use_rag === 'boolean' ? params.use_rag : true
   
   // 构建请求体
   const requestBody = {
@@ -50,7 +52,7 @@ export function chatWithAgentStream(params, { onChunk, onDone, onError, onProgre
     temporary_prompts: params.temporary_prompts || [], // 临时提示词（系统提示词由后端从配置文件读取）
     conversation_history: params.conversation_history || [],
     task_type: params.task_type || 'auto', // 任务类型：'research' 强制使用 GPT-Researcher, 'chat' 使用 Qwen, 'auto' 自动路由
-    use_rag: params.use_rag,
+    use_rag: normalizedUseRag,
     use_web_search: params.use_web_search,
     options: params.options || {}
   }

@@ -25,6 +25,8 @@
         v-for="(section, index) in reportSections"
         :key="section.id || index"
         class="highlights-container"
+        data-quote-scope="report"
+        :data-report-title="section.title || '初始报告'"
       >
         <!-- <div class="highlights-header">
           <i :class="section.icon" />
