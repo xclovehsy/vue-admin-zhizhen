@@ -77,7 +77,7 @@
                       <span class="section-label">行动建议：</span>
                       <span class="section-text">{{ item.displayRecommendationText }}</span>
                     </div>
-                    <div v-if="item.sources && item.sources.length" class="item-sources">
+                    <div v-if="item.sources && item.sources.length" class="item-sources" @click.stop>
                       <span class="sources-label">来源：</span>
                       <a
                         :href="item.sources[0].url"
@@ -85,6 +85,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="source-link"
+                        @click.stop
                       >
                         {{ item.sources[0].title }}
                       </a>
@@ -112,7 +113,7 @@
                             </a>
                           </div>
                         </div>
-                        <span slot="reference" class="sources-more">等{{ item.sources.length }}个</span>
+                        <span slot="reference" class="sources-more" @click.stop>等{{ item.sources.length }}个</span>
                       </el-popover>
                     </div>
                   </div>
@@ -151,7 +152,7 @@
                       <span class="section-label">行动建议：</span>
                       <span class="section-text">{{ item.displayRecommendationText }}</span>
                     </div>
-                    <div v-if="item.sources && item.sources.length" class="item-sources">
+                    <div v-if="item.sources && item.sources.length" class="item-sources" @click.stop>
                       <span class="sources-label">来源：</span>
                       <a
                         :href="item.sources[0].url"
@@ -159,6 +160,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         class="source-link"
+                        @click.stop
                       >
                         {{ item.sources[0].title }}
                       </a>
@@ -186,7 +188,7 @@
                             </a>
                           </div>
                         </div>
-                        <span slot="reference" class="sources-more">等{{ item.sources.length }}个</span>
+                        <span slot="reference" class="sources-more" @click.stop>等{{ item.sources.length }}个</span>
                       </el-popover>
                     </div>
                   </div>

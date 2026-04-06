@@ -23,18 +23,6 @@
 
     <!-- 今日全球要闻 -->
     <NewsFeed />
-
-    <!-- 客户与线索跟踪 -->
-    <!-- <LeadsTracking /> -->
-
-    <!-- 智能助手（聊天模块） -->
-    <div class="agent-section">
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <agent-module ref="agentModule" />
-        </el-col>
-      </el-row>
-    </div>
   </div>
 </template>
 
@@ -43,17 +31,13 @@ import { mapGetters } from 'vuex'
 import DailyReport from '@/components/Dashboard/DailyReport.vue'
 import DataCards from '@/components/Dashboard/DataCards.vue'
 import NewsFeed from '@/components/Dashboard/NewsFeed.vue'
-// import LeadsTracking from '@/components/Dashboard/LeadsTracking.vue' // 已注释，未使用
-import AgentModule from '@/views/databoard/AgentModule.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     DailyReport,
     DataCards,
-    NewsFeed,
-    // LeadsTracking, // 已注释，未使用
-    AgentModule
+    NewsFeed
   },
   computed: {
     ...mapGetters([
@@ -63,9 +47,10 @@ export default {
   methods: {
     // 处理每日简报项点击事件
     handleHighlightClick(highlightData) {
-      if (this.$refs.agentModule && highlightData) {
+      if (highlightData) {
         const prompt = this.generateHighlightPrompt(highlightData)
-        this.$refs.agentModule.setInputMessage(prompt)
+        this.$store.dispatch('app/setAgentPanelOpen', true)
+        this.$store.dispatch('app/setAgentDraftMessage', prompt)
       }
     },
     // 根据每日简报信息生成合适的prompt
@@ -176,21 +161,6 @@ export default {
       }
     }
   }
-
-  // 智能助手区域样式
-  .agent-section {
-    margin-top: 20px;
-    width: 100%;
-    height: 600px; // 设置容器高度，确保子组件能正确显示
-
-    ::v-deep .el-card {
-      height: 100%; // 使用 100% 继承父容器高度
-    }
-
-    ::v-deep .agent-module {
-      height: 100%; // 确保组件占满父容器
-    }
-  }
 }
 
 // 响应式设计
@@ -214,20 +184,6 @@ export default {
           align-self: flex-end;
         }
       }
-    }
-  }
-
-  .agent-section {
-    margin-top: 20px;
-    width: 100%;
-    height: 500px; // 响应式模式下稍微降低高度
-
-    ::v-deep .el-card {
-      height: 100%; // 使用 100% 继承父容器高度
-    }
-
-    ::v-deep .agent-module {
-      height: 100%; // 确保组件占满父容器
     }
   }
 }

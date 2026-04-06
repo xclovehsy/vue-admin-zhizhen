@@ -19,7 +19,7 @@
       :with-header="false"
       :show-close="false"
     >
-      <agent-module />
+      <agent-module ref="agentModule" />
     </el-drawer>
   </div>
 </template>
@@ -58,6 +58,9 @@ export default {
         this.$store.dispatch('app/setAgentPanelOpen', val)
       }
     },
+    agentDraftMessage() {
+      return this.$store.state.app.agentDraftMessage
+    },
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
@@ -65,6 +68,19 @@ export default {
         withoutAnimation: this.sidebar.withoutAnimation,
         mobile: this.device === 'mobile'
       }
+    }
+  },
+  watch: {
+    agentDraftMessage(message) {
+      if (!message) {
+        return
+      }
+      this.$nextTick(() => {
+        if (this.$refs.agentModule && typeof this.$refs.agentModule.setInputMessage === 'function') {
+          this.$refs.agentModule.setInputMessage(message)
+        }
+        this.$store.dispatch('app/setAgentDraftMessage', '')
+      })
     }
   },
   methods: {

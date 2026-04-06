@@ -6,7 +6,8 @@ const state = {
     withoutAnimation: false
   },
   device: 'desktop',
-  agentPanelOpen: false
+  agentPanelOpen: false,
+  agentDraftMessage: ''
 }
 
 const mutations = {
@@ -32,6 +33,9 @@ const mutations = {
   },
   TOGGLE_AGENT_PANEL: (state) => {
     state.agentPanelOpen = !state.agentPanelOpen
+  },
+  SET_AGENT_DRAFT_MESSAGE: (state, message) => {
+    state.agentDraftMessage = message || ''
   }
 }
 
@@ -50,6 +54,9 @@ const actions = {
   },
   toggleAgentPanel({ commit }) {
     commit('TOGGLE_AGENT_PANEL')
+  },
+  setAgentDraftMessage({ commit }, message) {
+    commit('SET_AGENT_DRAFT_MESSAGE', message)
   }
 }
 
